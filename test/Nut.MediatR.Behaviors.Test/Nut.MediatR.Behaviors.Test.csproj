@@ -28,6 +28,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\src\Nut.MediatR.PerRequestBehavior\Nut.MediatR.Behaviors.csproj" />
+    <ProjectReference Include="..\..\src\Nut.MediatR.Behaviors\Nut.MediatR.Behaviors.csproj" />
   </ItemGroup>
 </Project>
