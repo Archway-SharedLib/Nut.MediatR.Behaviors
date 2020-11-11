@@ -21,9 +21,9 @@ jobs:
       run: dotnet restore
     - name: Build
       run: dotnet build --configuration Release --no-restore
-    - name: Test Nut.Results
+    - name: Test Nut.MediatR.Behaviors
       run: dotnet test --no-restore --verbosity normal ./test/Nut.MediatR.Behaviors.Test/Nut.MediatR.Behaviors.Test.csproj /p:CollectCoverage=true /p:CoverletOutputFormat=cobertura /p:CoverletOutput=../../Nut.MediatR.Behaviors.coverage.xml
-    - name: Test Nut.Results.FluentAssertions
+    - name: Test Nut.MediatR.Behaviors.FluentValidation
       run: dotnet test --no-restore --verbosity normal ./test/Nut.MediatR.Behaviors.FluentValidation.Test/Nut.MediatR.Behaviors.FluentValidation.Test.csproj /p:CollectCoverage=true /p:CoverletOutputFormat=cobertura /p:CoverletOutput=../../Nut.MediatR.Behaviors.FluentValidation.coverage.xml
     # - name: Codecov
     #   uses: codecov/codecov-action@v1.0.14
