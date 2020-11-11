@@ -1,9 +1,11 @@
 ﻿using BehaviorSample.Sample;
+using FluentValidation;
 using MediatR;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Logging;
 using Nut.MediatR;
+using Nut.MediatR.Behaviors;
 using System;
 using System.Threading.Tasks;
 
@@ -17,13 +19,16 @@ namespace BehaviorSample
                 .AddLogging(config =>
                 {
                     config.AddConsole();
-                }).AddMediatR(typeof(Program))
+                })
+                .AddValidatorsFromAssemblies(new[] { typeof(Program).Assembly })
+                .AddMediatR(typeof(Program))
                 // MediatRから呼べるようにPreRequestBehaviorを登録する
                 .AddTransient(typeof(IPipelineBehavior<,>), typeof(PerRequestBehavior<,>))
                 // PreRequestBehaviorから利用するBehaviorは直接型でインスタンスを取得するので、IPipelineBehavior経由にしない。
                 .AddTransient(typeof(LoggingBehavior<,>))
                 .AddTransient(typeof(AuthorizationBehavior<,>))
                 .AddTransient(typeof(DataAnnotationValidationBehavior<,>))
+                .AddTransient(typeof(FluentValidationBehavior<,>))
                 // IAuthorizerやILoggingInOutValueCollectorはアセンブリをスキャンして登録すると便利
                 .Scan(scan => scan
                     .FromAssemblyOf<Program>()

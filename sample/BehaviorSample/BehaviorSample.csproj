@@ -6,6 +6,8 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="FluentValidation" Version="9.3.0" />
+    <PackageReference Include="FluentValidation.DependencyInjectionExtensions" Version="9.3.0" />
     <PackageReference Include="MediatR" Version="9.0.0" />
     <PackageReference Include="MediatR.Extensions.Microsoft.DependencyInjection" Version="9.0.0" />
     <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="5.0.0" />
@@ -16,6 +18,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\..\src\Nut.MediatR.Behaviors.FluentValidation\Nut.MediatR.Behaviors.FluentValidation.csproj" />
     <ProjectReference Include="..\..\src\Nut.MediatR.Behaviors\Nut.MediatR.Behaviors.csproj" />
   </ItemGroup>
 

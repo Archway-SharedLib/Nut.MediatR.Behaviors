@@ -1,4 +1,4 @@
-using System;
+ï»¿using System;
 using Xunit;
 using FluentAssertions;
 using MediatR;
@@ -10,28 +10,28 @@ namespace Nut.MediatR.Test.PerRequest
     public class WithBehaviorsAttributeTest
     {
         [Fact]
-        public void ctor_ƒpƒ‰ƒ[ƒ^[‚ªnull‚Ìê‡‚Í—áŠO‚ª”­¶‚·‚é()
+        public void ctor_ãƒ‘ãƒ©ãƒ¡ãƒ¼ã‚¿ãƒ¼ãŒnullã®å ´åˆã¯ä¾‹å¤–ãŒç™ºç”Ÿã™ã‚‹()
         {
             Action act = () => new WithBehaviorsAttribute(null);
             act.Should().Throw<ArgumentNullException>();
         }
 
         [Fact]
-        public void ctor_ƒpƒ‰ƒ[ƒ^[‚Ì’†‚Énull‚ªŠÜ‚Ü‚ê‚Ä‚¢‚éê‡‚Í—áŠO‚ª”­¶‚·‚é()
+        public void ctor_ãƒ‘ãƒ©ãƒ¡ãƒ¼ã‚¿ãƒ¼ã®ä¸­ã«nullãŒå«ã¾ã‚Œã¦ã„ã‚‹å ´åˆã¯ä¾‹å¤–ãŒç™ºç”Ÿã™ã‚‹()
         {
             Action act = () => new WithBehaviorsAttribute(typeof(TestBehavior1<,>), null, typeof(TestBehavior2<,>));
             act.Should().Throw<ArgumentException>();
         }
 
         [Fact]
-        public void ctor_ƒpƒ‰ƒ[ƒ^[‚Ì’†‚ÉIPipelineBehaviorˆÈŠO‚ÌŒ^‚ªŠÜ‚Ü‚ê‚Ä‚¢‚éê‡‚Í—áŠO‚ª”­¶‚·‚é()
+        public void ctor_ãƒ‘ãƒ©ãƒ¡ãƒ¼ã‚¿ãƒ¼ã®ä¸­ã«IPipelineBehaviorä»¥å¤–ã®å‹ãŒå«ã¾ã‚Œã¦ã„ã‚‹å ´åˆã¯ä¾‹å¤–ãŒç™ºç”Ÿã™ã‚‹()
         {
             Action act = () => new WithBehaviorsAttribute(typeof(TestBehavior1<,>), typeof(string), typeof(TestBehavior2<,>));
             act.Should().Throw<ArgumentException>();
         }
 
         [Fact]
-        public void BehaviorTypes_ƒRƒ“ƒXƒgƒ‰ƒNƒ^‚Åİ’è‚³‚ê‚½‡‚ÉType‚ªæ“¾‚Å‚«‚é()
+        public void BehaviorTypes_ã‚³ãƒ³ã‚¹ãƒˆãƒ©ã‚¯ã‚¿ã§è¨­å®šã•ã‚ŒãŸé †ã«TypeãŒå–å¾—ã§ãã‚‹()
         {
             var attr = new WithBehaviorsAttribute(typeof(TestBehavior2<,>), typeof(TestBehavior1<,>));
             attr.BehaviorTypes.Should().HaveCount(2).And.ContainInOrder(typeof(TestBehavior2<,>), typeof(TestBehavior1<,>));

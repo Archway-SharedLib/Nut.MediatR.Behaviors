@@ -21,4 +21,11 @@ public class ProductQuery: IRequest<ProductQueryResult> {
 
 詳細は各リンク先を参照してください。
 
+# Nut.MediatR.Behaviors.FluentValidation
+
+Nut.MediatR.Behaviors.FluentValidationは[FluentValidation]を利用したバリデーションを実行する、[MediatR]の[Behavior](https://github.com/jbogard/MediatR/wiki/Behaviors)を提供します。
+
+詳細は[ドキュメント](./docs/FluentValidationBehavior.md)を参照してください。
+
 [MediatR]:https://github.com/jbogard/MediatR
+[FluentValidation]:https://fluentvalidation.net/

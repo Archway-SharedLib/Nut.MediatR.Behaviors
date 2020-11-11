@@ -1,5 +1,6 @@
 ﻿using MediatR;
 using Nut.MediatR;
+using Nut.MediatR.Behaviors;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
@@ -10,7 +11,8 @@ namespace BehaviorSample.Sample
     [WithBehaviors(
         typeof(LoggingBehavior<,>),
         typeof(AuthorizationBehavior<,>),
-        typeof(DataAnnotationValidationBehavior<,>))]
+        typeof(DataAnnotationValidationBehavior<,>),
+        typeof(FluentValidationBehavior<,>))]
     public class SampleRequest: IRequest<SampleResponse>
     {
         [Required]
