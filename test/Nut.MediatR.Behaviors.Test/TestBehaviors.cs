@@ -1,6 +1,7 @@
 ﻿using MediatR;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -72,7 +73,10 @@ namespace Nut.MediatR.Test
         }
     }
 
-    public class TestBehaviorRequest : IRequest<TestBehaviorResponse> {
+    public class TestBehaviorRequest : IRequest<TestBehaviorResponse> 
+    {
+        [Required]
+        [MaxLength(20)]
         public string Value { get; set; }
     }
 

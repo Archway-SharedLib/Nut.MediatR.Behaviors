@@ -2,18 +2,18 @@
 
 # Nut.MediatR.Behaviors
 
-Nut.MediatR.Behaviorsは[MediatR]の、様々なアプリケーションで利用できる汎用のカスタム[Behavior](https://github.com/jbogard/MediatR/wiki/Behaviors)を提供します。
-
-Nut.MediatR.Behaviorsには次のBehaviorが含まれます。
+Nut.MediatR.Behaviorsは[MediatR]の、様々なアプリケーションで利用できる汎用のカスタム[Behavior](https://github.com/jbogard/MediatR/wiki/Behaviors)を提供します。次のBehaviorが含まれます。
 
 - [PerRequestBehavior](./docs/PerRequestBehavior.md)
 - [AuthorizationBehavior](./docs/AuthorizationBehavior.md)
 - [LoggingBehavior](./docs/LoggingBehavior.md)
+- [DataAnnotationValidationBehavior](./docs/DataAnnotationValidationBehavior.md)
 
 ```cs
 [WithBehaviors(
     typeof(LoggingBehavior),
-    typeof(AuthorizationBehavior)
+    typeof(AuthorizationBehavior),
+    typeof(DataAnnotationValidationBehavior)
 )]
 public class ProductQuery: IRequest<ProductQueryResult> {
 }

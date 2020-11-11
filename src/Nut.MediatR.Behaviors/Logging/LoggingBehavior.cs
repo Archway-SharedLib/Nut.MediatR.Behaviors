@@ -7,7 +7,7 @@ using Microsoft.Extensions.Logging;
 
 namespace Nut.MediatR
 {
-    public class LoggingBehavior<TRequest, TResponse> : IPipelineBehavior<TRequest, TResponse> where TRequest : notnull
+    public class LoggingBehavior<TRequest, TResponse> : IPipelineBehavior<TRequest, TResponse> where TRequest : notnull, IRequest<TResponse>
     {
         private readonly ServiceFactory serviceFactory;
         private readonly ILogger<LoggingBehavior<TRequest, TResponse>> logger;
@@ -38,7 +38,7 @@ namespace Nut.MediatR
             watch.Start();
             try
             {
-                var result = await next();
+                var result = await next().ConfigureAwait(false);
                 watch.Stop();
 
                 var outValue = collector != null ?

@@ -23,7 +23,7 @@ namespace Nut.MediatR
             {
                 foreach(var authorizer in authorizers)
                 {
-                    var result = await authorizer.AuthorizeAsync(request, cancellationToken);
+                    var result = await authorizer.AuthorizeAsync(request, cancellationToken).ConfigureAwait(false);
                     if (!result.Succeeded) throw new UnauthorizedException(
                         string.IsNullOrEmpty(result.FailurMessage) ? SR.Authorization_NotAuthorized : result.FailurMessage);
                 }

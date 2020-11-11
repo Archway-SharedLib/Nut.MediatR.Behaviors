@@ -20,20 +20,21 @@ namespace Nut.MediatR
         public async Task<TResponse> Handle(TRequest request, CancellationToken cancellationToken, RequestHandlerDelegate<TResponse> next)
         {
             var types = Cache<TRequest, TResponse>.Types.ToList();
-            return await ExecuteBehaviors(types, request, cancellationToken, next);
+            return await ExecuteBehaviors(types, request, cancellationToken, next).ConfigureAwait(false);
         }
 
         private async Task<TResponse> ExecuteBehaviors(IList<Type> types, TRequest request, CancellationToken cancellationToken, RequestHandlerDelegate<TResponse> next)
         {
-            if (!types.Any()) return await next.Invoke();
+            if (!types.Any()) return await next.Invoke().ConfigureAwait(false);
             var type = types[0];
-            var service = factory(type) as IPipelineBehavior<TRequest, TResponse>;
             types.RemoveAt(0);
-            if (service == null)
+            if (!(factory(type) is IPipelineBehavior<TRequest, TResponse> service))
             {
-                return await ExecuteBehaviors(types, request, cancellationToken, next);
+                return await ExecuteBehaviors(types, request, cancellationToken, next).ConfigureAwait(false);
             }
-            return await service.Handle(request, cancellationToken, async () => await ExecuteBehaviors(types, request, cancellationToken, next));
+            return await service.Handle(request, cancellationToken, 
+                async () => await ExecuteBehaviors(types, request, cancellationToken, next).ConfigureAwait(false)
+            ).ConfigureAwait(false);
         }
 
 
