@@ -8,7 +8,7 @@
 
   <PropertyGroup>
     <Authors>Archway</Authors>
-    <Description>The MediatR Behaviors.</Description>
+    <Description>The MediatR Behaviors using FluentValidation.</Description>
     <Copyright>Copyright 2020 (c) Archway inc. All rights reserved.</Copyright>
     <PackageTags>mediatr mediator behavior fluent validation</PackageTags>
     <PackageLicenseExpression>https://github.com/Archway-SharedLib/Nut.MediatR.Behaviors/blob/main/LICENSE</PackageLicenseExpression>

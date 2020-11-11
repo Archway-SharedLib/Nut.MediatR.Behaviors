@@ -1,0 +1,39 @@
+name: CI
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v2
+    - name: Setup .NET Core
+      uses: actions/setup-dotnet@v1
+      with:
+        dotnet-version: 3.1.301
+    - name: Install dependencies
+      run: dotnet restore
+    - name: Build
+      run: dotnet build --configuration Release --no-restore
+    - name: Test Nut.Results
+      run: dotnet test --no-restore --verbosity normal ./test/Nut.MediatR.Behaviors.Test/Nut.MediatR.Behaviors.Test.csproj /p:CollectCoverage=true /p:CoverletOutputFormat=cobertura /p:CoverletOutput=../../Nut.MediatR.Behaviors.coverage.xml
+    - name: Test Nut.Results.FluentAssertions
+      run: dotnet test --no-restore --verbosity normal ./test/Nut.MediatR.Behaviors.FluentValidation.Test/Nut.MediatR.Behaviors.FluentValidation.Test.csproj /p:CollectCoverage=true /p:CoverletOutputFormat=cobertura /p:CoverletOutput=../../Nut.MediatR.Behaviors.FluentValidation.coverage.xml
+    # - name: Codecov
+    #   uses: codecov/codecov-action@v1.0.14
+    #   with:
+    #     # User defined upload name. Visible in Codecov UI
+    #     name: Nut.Results
+    #     # Repository upload token - get it from codecov.io. Required only for private repositories
+    #     token: ${{ secrets.CODECOV_TOKEN }}
+    #     # Path to coverage file to upload
+    #     files: ./nut.results.coverage.xml,./nut.results.fluentassertions.coverage.xml
+    #     flags: unittests
+    #     fail_ci_if_error: true
+    #     verbose: true
