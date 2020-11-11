@@ -1,0 +1,2 @@
+# LoggingBehaviorの使い方
+
