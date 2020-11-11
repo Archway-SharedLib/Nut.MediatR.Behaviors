@@ -1,5 +1,8 @@
 <img src="./assets/logo/logo.svg" alt="logo" height="192px" style="margin-bottom:2rem;" />
 
+[![CI](https://github.com/Archway-SharedLib/Nut.MediatR.Behaviors/workflows/CI/badge.svg)](https://github.com/Archway-SharedLib/Nut.MediatR.Behaviors/actions)
+[![codecov](https://codecov.io/gh/Archway-SharedLib/Nut.MediatR.Behaviors/branch/main/graph/badge.svg)](https://codecov.io/gh/Archway-SharedLib/Nut.MediatR.Behaviors)
+
 # Nut.MediatR.Behaviors
 
 Nut.MediatR.Behaviorsは[MediatR]の、様々なアプリケーションで利用できる汎用のカスタム[Behavior](https://github.com/jbogard/MediatR/wiki/Behaviors)を提供します。次のBehaviorが含まれます。
