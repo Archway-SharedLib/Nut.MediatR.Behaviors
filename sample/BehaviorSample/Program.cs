@@ -2,10 +2,8 @@
 using FluentValidation;
 using MediatR;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Logging;
 using Nut.MediatR;
-using Nut.MediatR.Behaviors;
 using System;
 using System.Threading.Tasks;
 

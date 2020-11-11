@@ -1,10 +1,6 @@
 ﻿using MediatR;
 using Nut.MediatR;
-using Nut.MediatR.Behaviors;
-using System;
-using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
-using System.Text;
 
 namespace BehaviorSample.Sample
 {
