@@ -5,7 +5,7 @@
 
 # Nut.MediatR.Behaviors
 
-Nut.MediatR.Behaviorsは[MediatR]の、様々なアプリケーションで利用できる汎用のカスタム[Behavior](https://github.com/jbogard/MediatR/wiki/Behaviors)を提供します。次のBehaviorが含まれます。
+Nut.MediatR.Behaviorsは[MediatR]の、様々なアプリケーションで利用できる汎用のカスタム[Behavior]を提供します。次のBehaviorが含まれます。
 
 - [PerRequestBehavior](./docs/PerRequestBehavior.md)
 - [AuthorizationBehavior](./docs/AuthorizationBehavior.md)
@@ -31,4 +31,5 @@ Nut.MediatR.Behaviors.FluentValidationは[FluentValidation]を利用したバリ
 詳細は[ドキュメント](./docs/FluentValidationBehavior.md)を参照してください。
 
 [MediatR]:https://github.com/jbogard/MediatR
+[Behavior]:https://github.com/jbogard/MediatR/wiki/Behaviors
 [FluentValidation]:https://fluentvalidation.net/
