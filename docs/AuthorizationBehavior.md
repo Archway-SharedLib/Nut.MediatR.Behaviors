@@ -4,7 +4,7 @@ AuthorizationBehaviorは認可を行うBehaviorです。リクエストごとに
 
 ## IAuthorizerによる認可
 
-認可処理は`IAuthorizer<TRequest>`インターフェイスを継承したクラスを定義して`AuthorizeAsync`メソッド実装します。
+認可処理は`IAuthorizer<TRequest>`インターフェイスを継承したクラスを定義して`AuthorizeAsync`メソッド実装します。この実装が`AuthorizationBehavior`から呼び出されます。
 戻り値には処理が成功したかどうかを指定した`AuthorizationResult`のインスタンスを返します。
 
 ```cs
@@ -33,12 +33,4 @@ public class SampleAuthorizer : IAuthorizer<SampleRequest>
 
 ## IAuthorizerの登録
 
-`AuthorizationBehavior`はコンテナ経由で`IAuthorizer<TRequest>`の実装を取得するため、事前にコンテナに登録されている必要があります。[Scrutor](https://github.com/khellang/Scrutor)を利用して登録する例を次に記載します。
-
-```cs
-services.Scan(scan => scan
-    .FromAssemblyOf<Program>()
-    .AddClasses(cls => cls.AssignableTo(typeof(IAuthorizer<>)))
-    .AsImplementedInterfaces()
-    .WithTransientLifetime());
-```
+`AuthorizationBehavior`はコンテナ経由で`IAuthorizer<TRequest>`の実装を取得するため、事前にコンテナに登録されている必要があります。
