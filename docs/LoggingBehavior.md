@@ -72,3 +72,41 @@ public class SampleLoggingInOutValueCollector : BaseLoggingInOutValueCollector<S
 ## ILoggingInOutValueCollectorの登録
 
 `LoggingBehavior`はコンテナ経由で`ILoggingInOutValueCollector<TRequest, TResponse>`の実装を取得するため、事前にコンテナに登録されている必要があります。
+
+## デフォルトのILoggingOutValueCollectorの設定
+
+`LoggingBehavior`を継承して、`GetDefaultCollector`メソッドをオーバーライドすることでデフォルトの`ILoggingInOutValueCollector<TRequest, TResponse>`を設定できます。
+`LoggingBehavior`はコンテナ経由で`ILoggingInOutValueCollector<TRequest, TResponse>`が取得できなかった場合に、この`GetDefaultCollector`メソッドの結果を利用します。
+
+```cs
+// デフォルトで利用する ILoggingInOutValueCollector<TRequest, TResponse> の実装
+public class ToStringLoggingInOutValueCollector<TRequest, TResponse> :
+    ILoggingInOutValueCollector<TRequest, TResponse> where TRequest : IRequest<TResponse>
+{
+    public Task<InOutValueResult> CollectInValueAsync(TRequest request, CancellationToken cancellationToken)
+    {
+        return Task.FromResult(InOutValueResult.WithValue(request.ToString()));
+    }
+
+    public Task<InOutValueResult> CollectOutValueAsync(TResponse response, CancellationToken cancellationToken)
+    {
+        return Task.FromResult(InOutValueResult.WithValue(response.ToString()));
+    }
+}
+
+// デフォルトで ILoggingInOutValueCollector<TRequest, TResponse> 利用する LoggingBehavior<TRequest, TResponse> の実装
+public class CustomLoggingBehavior<TRequest, TResponse> :
+    LoggingBehavior<TRequest, TResponse> where TRequest : notnull, IRequest<TResponse>
+{
+
+    public CustomLoggingBehavior(ServiceFactory serviceFactory) : base(serviceFactory)
+    {
+    }
+
+    protected override ILoggingInOutValueCollector<TRequest, TResponse> GetDefaultCollector()
+    {
+        return new ToStringLoggingInOutValueCollector<TRequest, TResponse>();
+    }
+}
+
+```

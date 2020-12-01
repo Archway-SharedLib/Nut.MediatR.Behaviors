@@ -156,6 +156,65 @@ namespace Nut.MediatR.Test.Logging
             logInfo.State.Any(s => s.Key == "Elapsed").Should().BeTrue();
         }
 
+        [Fact]
+        public async Task Handle_ServiceFacotryからCollectorが取得できないときにDefaultCollectorが利用される()
+        {
+            var logger = new TestLogger<LoggingBehavior<TestBehaviorRequest, TestBehaviorResponse>>();
+
+            var logging = new TestLoggingBehavior<TestBehaviorRequest, TestBehaviorResponse>(new ServiceFactory(type => {
+                return type.GetGenericTypeDefinition() == typeof(ILogger<>) ? logger : null;
+            }));
+
+            logging.Collector.ExecutedInValueAsync.Should().BeFalse();
+            logging.Collector.ExecutedOutValueAsync.Should().BeFalse();
+            logging.ExecutedGetDefaultCollector.Should().BeFalse();
+            await logging.Handle(new TestBehaviorRequest() { Value = "A" }, new CancellationToken(), () =>
+            {
+                logging.Collector.ExecutedInValueAsync.Should().BeTrue();
+                logging.Collector.ExecutedOutValueAsync.Should().BeFalse();
+                logging.ExecutedGetDefaultCollector.Should().BeTrue();
+                return Task.FromResult(new TestBehaviorResponse() { Value = "B" });
+            });
+            logging.Collector.ExecutedInValueAsync.Should().BeTrue();
+            logging.Collector.ExecutedOutValueAsync.Should().BeTrue();
+            logging.ExecutedGetDefaultCollector.Should().BeTrue();
+        }
+    }
+
+    public class TestLoggingBehavior<TRequest, TResponse> : LoggingBehavior<TRequest, TResponse> where TRequest : notnull, IRequest<TResponse>
+    {
+        public TestLoggingInOutValueCollector<TRequest, TResponse> Collector { get; } = new TestLoggingInOutValueCollector<TRequest, TResponse>();
+
+        public bool ExecutedGetDefaultCollector { get; private set; } = false;
+
+        public TestLoggingBehavior(ServiceFactory serviceFactory) : base(serviceFactory)
+        {
+        }
+
+        protected override ILoggingInOutValueCollector<TRequest, TResponse> GetDefaultCollector()
+        {
+            ExecutedGetDefaultCollector = true;
+            return Collector;
+        }
+    }
+
+    public class TestLoggingInOutValueCollector<TRequest, TResponse> : ILoggingInOutValueCollector<TRequest, TResponse> where TRequest : IRequest<TResponse>
+    {
+        public bool ExecutedInValueAsync { get; private set; } = false;
+
+        public bool ExecutedOutValueAsync { get; private set; } = false;
+
+        public Task<InOutValueResult> CollectInValueAsync(TRequest request, CancellationToken cancellationToken)
+        {
+            this.ExecutedInValueAsync = true;
+            return Task.FromResult(InOutValueResult.WithValue(request));
+        }
+
+        public Task<InOutValueResult> CollectOutValueAsync(TResponse response, CancellationToken cancellationToken)
+        {
+            this.ExecutedOutValueAsync = true;
+            return Task.FromResult(InOutValueResult.WithValue(response));
+        }
     }
 
     public class TestLoggingInOutValueCollector1 : ILoggingInOutValueCollector<TestBehaviorRequest, TestBehaviorResponse>

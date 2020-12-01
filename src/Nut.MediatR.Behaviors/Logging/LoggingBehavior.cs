@@ -15,7 +15,9 @@ namespace Nut.MediatR
         {
             this.ServiceFactory = serviceFactory ?? throw new ArgumentNullException(nameof(serviceFactory));
         }
-        
+
+        protected virtual ILoggingInOutValueCollector<TRequest, TResponse>? GetDefaultCollector() => null;
+
         public async Task<TResponse> Handle(TRequest request, CancellationToken cancellationToken, RequestHandlerDelegate<TResponse> next)
         {
             var logger = ServiceFactory.GetInstance<ILogger<LoggingBehavior<TRequest, TResponse>>>();
@@ -24,7 +26,9 @@ namespace Nut.MediatR
                 return await next().ConfigureAwait(false);
             }
 
-            var collector = ServiceFactory.GetInstance<ILoggingInOutValueCollector<TRequest, TResponse>>();
+            var collector = ServiceFactory.GetInstance<ILoggingInOutValueCollector<TRequest, TResponse>>() 
+                ?? this.GetDefaultCollector();
+            
             var inValue = collector != null ? 
                 await collector.CollectInValueAsync(request, cancellationToken).ConfigureAwait(false) :
                 null;
