@@ -9,18 +9,22 @@ namespace Nut.MediatR
 {
     public class LoggingBehavior<TRequest, TResponse> : IPipelineBehavior<TRequest, TResponse> where TRequest : notnull, IRequest<TResponse>
     {
-        private readonly ServiceFactory serviceFactory;
-        private readonly ILogger<LoggingBehavior<TRequest, TResponse>> logger;
+        protected ServiceFactory ServiceFactory { get; }
         
-        public LoggingBehavior(ILoggerFactory loggerFactory, ServiceFactory serviceFactory)
+        public LoggingBehavior(ServiceFactory serviceFactory)
         {
-            this.serviceFactory = serviceFactory ?? throw new ArgumentNullException(nameof(serviceFactory));
-            this.logger = (loggerFactory ?? throw new ArgumentNullException(nameof(loggerFactory))).CreateLogger<LoggingBehavior<TRequest, TResponse>>();
+            this.ServiceFactory = serviceFactory ?? throw new ArgumentNullException(nameof(serviceFactory));
         }
         
         public async Task<TResponse> Handle(TRequest request, CancellationToken cancellationToken, RequestHandlerDelegate<TResponse> next)
         {
-            var collector = serviceFactory.GetInstance<ILoggingInOutValueCollector<TRequest, TResponse>>();
+            var logger = ServiceFactory.GetInstance<ILogger<LoggingBehavior<TRequest, TResponse>>>();
+            if(logger == null)
+            {
+                return await next().ConfigureAwait(false);
+            }
+
+            var collector = ServiceFactory.GetInstance<ILoggingInOutValueCollector<TRequest, TResponse>>();
             var inValue = collector != null ? 
                 await collector.CollectInValueAsync(request, cancellationToken).ConfigureAwait(false) :
                 null;

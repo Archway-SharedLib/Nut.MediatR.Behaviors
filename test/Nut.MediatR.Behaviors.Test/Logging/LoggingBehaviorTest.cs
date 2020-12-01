@@ -16,29 +16,36 @@ namespace Nut.MediatR.Test.Logging
     public class LoggingBehaviorTest
     {
         [Fact]
-        public void ctor_ILoggerFactory引数がnullの場合は例外が発生する()
+        public void ctor_ServiceFactory引数がnullの場合は例外が発生する()
         {
-            Action act = () => new LoggingBehavior<TestBehaviorRequest, TestBehaviorResponse>(null, new ServiceFactory(_ => null));
+            var lf = Substitute.For<ILoggerFactory>();
+            Action act = () => new LoggingBehavior<TestBehaviorRequest, TestBehaviorResponse>(null);
             act.Should().Throw<ArgumentNullException>();
         }
 
         [Fact]
-        public void ctor_ServiceFactory引数がnullの場合は例外が発生する()
+        public async Task Handle_Loggerが取得できなかった場合は処理が実行されずに終了する()
         {
-            var lf = Substitute.For<ILoggerFactory>();
-            Action act = () => new LoggingBehavior<TestBehaviorRequest, TestBehaviorResponse>(lf, null);
-            act.Should().Throw<ArgumentNullException>();
+            var logger = new TestLogger<LoggingBehavior<TestBehaviorRequest, TestBehaviorResponse>>();
+            var logging = new LoggingBehavior<TestBehaviorRequest, TestBehaviorResponse>(new ServiceFactory(_ => null));
+
+            var executed = false;
+            await logging.Handle(new TestBehaviorRequest(), new CancellationToken(), () =>
+            {
+                executed = true;
+                return Task.FromResult(new TestBehaviorResponse());
+            });
+            executed.Should().BeTrue();
         }
 
         [Fact]
         public async Task Handle_開始と終了でログが出力される()
         {
             var logger = new TestLogger<LoggingBehavior<TestBehaviorRequest, TestBehaviorResponse>>();
-            var lf = Substitute.For<ILoggerFactory>();
-            lf.CreateLogger<LoggingBehavior<TestBehaviorRequest, TestBehaviorResponse>>()
-                .Returns(logger);
 
-            var logging = new LoggingBehavior<TestBehaviorRequest, TestBehaviorResponse>(lf, new ServiceFactory(_ => null));
+            var logging = new LoggingBehavior<TestBehaviorRequest, TestBehaviorResponse>(new ServiceFactory(type => {
+                return type.GetGenericTypeDefinition() == typeof(ILogger<>) ? logger : null;
+            }));
             await logging.Handle(new TestBehaviorRequest(), new CancellationToken(), () =>
             {
                 logger.Logs.Should().HaveCount(1);
@@ -60,20 +67,19 @@ namespace Nut.MediatR.Test.Logging
         public async Task Handle_InOutValueCollectorが設定されている場合は値も出力される()
         {
             var logger = new TestLogger<LoggingBehavior<TestBehaviorRequest, TestBehaviorResponse>>();
-            var lf = Substitute.For<ILoggerFactory>();
-            lf.CreateLogger<LoggingBehavior<TestBehaviorRequest, TestBehaviorResponse>>()
-                .Returns(logger);
 
-            var logging = new LoggingBehavior<TestBehaviorRequest, TestBehaviorResponse>(lf, 
-                new ServiceFactory(_ => new TestLoggingInOutValueCollector1()));
-            await logging.Handle(new TestBehaviorRequest() { Value = "A"}, new CancellationToken(), () =>
-            {
-                logger.Logs.Should().HaveCount(1);
-                var logInfo = logger.Logs[0];
-                var input = logInfo.State.First(s => s.Key == "Input").Value.Should().Be("A");
+            var logging = new LoggingBehavior<TestBehaviorRequest, TestBehaviorResponse>(
+                new ServiceFactory(type => {
+                    return type.GetGenericTypeDefinition() == typeof(ILogger<>) ? (object)logger : (object)(new TestLoggingInOutValueCollector1());
+            }));
+            await logging.Handle(new TestBehaviorRequest() { Value = "A" }, new CancellationToken(), () =>
+             {
+                 logger.Logs.Should().HaveCount(1);
+                 var logInfo = logger.Logs[0];
+                 var input = logInfo.State.First(s => s.Key == "Input").Value.Should().Be("A");
 
-                return Task.FromResult(new TestBehaviorResponse() { Value = "B"});
-            });
+                 return Task.FromResult(new TestBehaviorResponse() { Value = "B" });
+             });
             logger.Logs.Should().HaveCount(2);
             var logInfo = logger.Logs[1];
 
@@ -84,12 +90,11 @@ namespace Nut.MediatR.Test.Logging
         public async Task Handle_InOutValueCollectorが設定されていても結果がEmptyの場合は値は出力されない()
         {
             var logger = new TestLogger<LoggingBehavior<TestBehaviorRequest, TestBehaviorResponse>>();
-            var lf = Substitute.For<ILoggerFactory>();
-            lf.CreateLogger<LoggingBehavior<TestBehaviorRequest, TestBehaviorResponse>>()
-                .Returns(logger);
 
-            var logging = new LoggingBehavior<TestBehaviorRequest, TestBehaviorResponse>(lf,
-                new ServiceFactory(_ => new TestLoggingInOutValueCollector2()));
+            var logging = new LoggingBehavior<TestBehaviorRequest, TestBehaviorResponse>(
+                new ServiceFactory(type => {
+                    return type.GetGenericTypeDefinition() == typeof(ILogger<>) ? (object)logger : (object)(new TestLoggingInOutValueCollector2());
+                }));
             await logging.Handle(new TestBehaviorRequest() { Value = "A" }, new CancellationToken(), () =>
             {
                 logger.Logs.Should().HaveCount(1);
@@ -108,12 +113,11 @@ namespace Nut.MediatR.Test.Logging
         public async Task Handle_InOutValueCollectorが設定されていても結果がNullの場合は値は出力されない()
         {
             var logger = new TestLogger<LoggingBehavior<TestBehaviorRequest, TestBehaviorResponse>>();
-            var lf = Substitute.For<ILoggerFactory>();
-            lf.CreateLogger<LoggingBehavior<TestBehaviorRequest, TestBehaviorResponse>>()
-                .Returns(logger);
 
-            var logging = new LoggingBehavior<TestBehaviorRequest, TestBehaviorResponse>(lf,
-                new ServiceFactory(_ => new TestLoggingInOutValueCollector3()));
+            var logging = new LoggingBehavior<TestBehaviorRequest, TestBehaviorResponse>(
+                new ServiceFactory(type => {
+                    return type.GetGenericTypeDefinition() == typeof(ILogger<>) ? (object)logger : (object)(new TestLoggingInOutValueCollector3());
+                }));
             await logging.Handle(new TestBehaviorRequest() { Value = "A" }, new CancellationToken(), () =>
             {
                 logger.Logs.Should().HaveCount(1);
@@ -132,11 +136,10 @@ namespace Nut.MediatR.Test.Logging
         public void Handle_例外が発生した場合は例外も出力しそのままリスローする()
         {
             var logger = new TestLogger<LoggingBehavior<TestBehaviorRequest, TestBehaviorResponse>>();
-            var lf = Substitute.For<ILoggerFactory>();
-            lf.CreateLogger<LoggingBehavior<TestBehaviorRequest, TestBehaviorResponse>>()
-                .Returns(logger);
 
-            var logging = new LoggingBehavior<TestBehaviorRequest, TestBehaviorResponse>(lf, new ServiceFactory(_ => null));
+            var logging = new LoggingBehavior<TestBehaviorRequest, TestBehaviorResponse>(new ServiceFactory(type => {
+                return type.GetGenericTypeDefinition() == typeof(ILogger<>) ? logger : null;
+            }));
             Func<Task> act = () => logging.Handle(new TestBehaviorRequest() { Value = "A" }, new CancellationToken(), () =>
             {
                 logger.Logs.Should().HaveCount(1);
