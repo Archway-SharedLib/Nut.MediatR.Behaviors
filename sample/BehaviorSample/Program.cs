@@ -30,12 +30,16 @@ namespace BehaviorSample
                 // IAuthorizerやILoggingInOutValueCollectorはアセンブリをスキャンして登録すると便利
                 .Scan(scan => scan
                     .FromAssemblyOf<Program>()
-                    .AddClasses(cls => cls.AssignableTo(typeof(IAuthorizer<>)))
+                    .AddClasses(cls => 
+                        cls.AssignableTo(typeof(IAuthorizer<>))
+                        .Where(type => !type.IsGenericType))
                     .AsImplementedInterfaces()
                     .WithTransientLifetime())
                 .Scan(scan => scan
                     .FromAssemblyOf<Program>()
-                    .AddClasses(cls => cls.AssignableTo(typeof(ILoggingInOutValueCollector<,>)))
+                    .AddClasses(cls =>
+                        cls.AssignableTo(typeof(ILoggingInOutValueCollector<,>))
+                        .Where(type => !type.IsGenericType))
                     .AsImplementedInterfaces()
                     .WithTransientLifetime())
                 .BuildServiceProvider();
