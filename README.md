@@ -1,7 +1,7 @@
 <img src="./assets/logo/logo.svg" alt="logo" height="192px" style="margin-bottom:2rem;" />
 
 [![CI](https://github.com/Archway-SharedLib/Nut.MediatR.Behaviors/workflows/CI/badge.svg)](https://github.com/Archway-SharedLib/Nut.MediatR.Behaviors/actions)
-[![codecov](https://codecov.io/gh/Archway-SharedLib/Nut.MediatR.Behaviors/branch/main/graph/badge.svg)](https://codecov.io/gh/Archway-SharedLib/Nut.MediatR.Behaviors)
+[![codecov](https://codecov.io/gh/Archway-SharedLib/Nut.MediatR/branch/main/graph/badge.svg?token=N7arqXbSNk)](https://codecov.io/gh/Archway-SharedLib/Nut.MediatR)
 
 Nut.MediatRは[MediatR]を利用した、様々な機能を提供します。
 
