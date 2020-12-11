@@ -25,7 +25,10 @@ jobs:
       run: dotnet test --no-restore --verbosity normal ./test/Nut.MediatR.Behaviors.Test/Nut.MediatR.Behaviors.Test.csproj /p:CollectCoverage=true /p:CoverletOutputFormat=cobertura /p:CoverletOutput=../../Nut.MediatR.Behaviors.coverage.xml
     - name: Test Nut.MediatR.Behaviors.FluentValidation
       run: dotnet test --no-restore --verbosity normal ./test/Nut.MediatR.Behaviors.FluentValidation.Test/Nut.MediatR.Behaviors.FluentValidation.Test.csproj /p:CollectCoverage=true /p:CoverletOutputFormat=cobertura /p:CoverletOutput=../../Nut.MediatR.Behaviors.FluentValidation.coverage.xml
-    - name: Codecov
+    - name: Test Nut.MediatR.ServiceLike
+      run: dotnet test --no-restore --verbosity normal ./test/Nut.MediatR.ServiceClient.Test/Nut.MediatR.ServiceClient.Test.csproj /p:CollectCoverage=true /p:CoverletOutputFormat=cobertura /p:CoverletOutput=../../Nut.MediatR.ServiceClient.coverage.xml
+
+      - name: Codecov
       uses: codecov/codecov-action@v1.0.14
       with:
         # User defined upload name. Visible in Codecov UI
@@ -33,7 +36,7 @@ jobs:
         # Repository upload token - get it from codecov.io. Required only for private repositories
         token: ${{ secrets.CODECOV_TOKEN }}
         # Path to coverage file to upload
-        files: ./Nut.MediatR.Behaviors.coverage.xml,./Nut.MediatR.Behaviors.FluentValidation.coverage.xml
+        files: ./Nut.MediatR.*.coverage.xml
         flags: unittests
         fail_ci_if_error: true
         verbose: true
