@@ -36,3 +36,30 @@ Nut.MediatR.Behaviors.FluentValidationは[FluentValidation]を利用したバリ
 [Behavior]:https://github.com/jbogard/MediatR/wiki/Behaviors
 [FluentValidation]:https://fluentvalidation.net/
 
+## Nut.MediatR.ServiceLike
+
+> This library is not yet available.
+
+Nut.MediatR.ServiceLikeはMediatRのハンドラを、まるでサービスのように文字列のパスを指定して実行できるようにするライブラリです。
+Nut.MediatR.ServiceLikeを利用することで、`IRequest`の実装自体への依存も無くせます。
+
+```cs
+[AsService("/users/detail")]
+public record UserQuery(string UserId): IRequest<UserDetail>;
+
+public class UserService 
+{
+    private readonly IMediatorClient client;
+
+    public GetUserService(IMediatorClient client)
+    {
+        this.client = client;
+    }
+
+    public async Task<User> Get(string id)
+    {
+        var result = await client.Send<User>("/users/detail", new {UserId = id});
+        return result;
+    }
+}
+```
