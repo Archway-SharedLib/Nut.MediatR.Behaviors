@@ -27,6 +27,8 @@ jobs:
       run: dotnet test --no-restore --verbosity normal ./test/Nut.MediatR.Behaviors.FluentValidation.Test/Nut.MediatR.Behaviors.FluentValidation.Test.csproj /p:CollectCoverage=true /p:CoverletOutputFormat=cobertura /p:CoverletOutput=../../Nut.MediatR.Behaviors.FluentValidation.coverage.xml
     - name: Test Nut.MediatR.ServiceLike
       run: dotnet test --no-restore --verbosity normal ./test/Nut.MediatR.ServiceLike.Test/Nut.MediatR.ServiceLike.Test.csproj /p:CollectCoverage=true /p:CoverletOutputFormat=cobertura /p:CoverletOutput=../../Nut.MediatR.ServiceLike.coverage.xml
+    - name: Test Nut.MediatR.ServiceLike.DependencyInjection
+      run: dotnet test --no-restore --verbosity normal ./test/Nut.MediatR.ServiceLike.DependencyInjection.Test/Nut.MediatR.ServiceLike.DependencyInjection.Test.csproj /p:CollectCoverage=true /p:CoverletOutputFormat=cobertura /p:CoverletOutput=../../Nut.MediatR.ServiceLike.DependencyInjection.coverage.xml /p:Include="[Nut.MediatR.ServiceLike.DependencyInjection*]*"
 
     - name: Codecov
       uses: codecov/codecov-action@v1.0.14

@@ -6,7 +6,7 @@ using System.Text;
 
 namespace Nut.MediatR.ServiceLike
 {
-    public static class TypeExtensions
+    internal static class TypeExtensions
     {
         public static bool IsOpenGeneric(this Type type)
             => type.IsGenericTypeDefinition || type.ContainsGenericParameters;
@@ -14,10 +14,10 @@ namespace Nut.MediatR.ServiceLike
         public static bool IsConcrete(this Type type)
             => !type.IsAbstract && !type.IsInterface;
 
-        public static TAttr GetAttribute<TAttr>(this Type type, bool inherit) where TAttr: Attribute
+        public static TAttr? GetAttribute<TAttr>(this Type type, bool inherit) where TAttr: Attribute
             => type.GetCustomAttributes(typeof(TAttr), inherit).FirstOrDefault() as TAttr;
 
-        public static TAttr GetAttribute<TAttr>(this Type type) where TAttr : Attribute
+        public static TAttr? GetAttribute<TAttr>(this Type type) where TAttr : Attribute
             => type.GetCustomAttributes(typeof(TAttr)).FirstOrDefault() as TAttr;
 
         public static IEnumerable<TAttr> GetAttributes<TAttr>(this Type type, bool inherit) where TAttr : Attribute

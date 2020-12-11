@@ -1,0 +1,41 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netstandard2.1</TargetFramework>
+    <LangVersion>8</LangVersion>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+  <PropertyGroup>
+    <Authors>Archway</Authors>
+    <Description>Nut.MediatR.ServiceLike extensions for .NET Extensions DependencyInjection</Description>
+    <Copyright>Copyright 2020 (c) Archway inc. All rights reserved.</Copyright>
+    <PackageTags>mediatr Nut mediator service di</PackageTags>
+    <PackageLicenseExpression>https://github.com/Archway-SharedLib/Nut.MediatR/blob/main/LICENSE</PackageLicenseExpression>
+    <PackageProjectUrl>https://github.com/Archway-SharedLib/Nut.MediatR</PackageProjectUrl>
+    <RepositoryType>GIT</RepositoryType>
+    <PackageId>Nut.MediatR.ServiceLike.DependencyInjection</PackageId>
+    <RootNamespace>Nut.MediatR.ServiceLike.DependencyInjection</RootNamespace>
+    <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
+    <PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
+    <!--source link-->
+    <PublishRepositoryUrl>true</PublishRepositoryUrl>
+    <EmbedUntrackedSources>true</EmbedUntrackedSources>
+    <IncludeSymbols>true</IncludeSymbols>
+    <SymbolPackageFormat>snupkg</SymbolPackageFormat>
+    <!--minver-->
+    <MinVerTagPrefix>v</MinVerTagPrefix>
+    <MinVerDefaultPreReleasePhase>preview</MinVerDefaultPreReleasePhase>
+    <PackageIcon>logo_128.png</PackageIcon>
+    <RepositoryUrl>https://github.com/Archway-SharedLib/Nut.MediatR</RepositoryUrl>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="2.1.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Nut.MediatR.ServiceLike\Nut.MediatR.ServiceLike.csproj" />
+  </ItemGroup>
+  
+</Project>

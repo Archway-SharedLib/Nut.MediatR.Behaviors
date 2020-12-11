@@ -34,7 +34,7 @@ namespace Nut.MediatR.ServiceLike
             }
         }
 
-        public MediatorRequest GetRequest(string path)
+        public MediatorRequest? GetRequest(string path)
         {
             if(requestPool.TryGetValue(path, out var value))
             {
