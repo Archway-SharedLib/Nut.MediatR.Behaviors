@@ -28,7 +28,7 @@ jobs:
     - name: Test Nut.MediatR.ServiceLike
       run: dotnet test --no-restore --verbosity normal ./test/Nut.MediatR.ServiceClient.Test/Nut.MediatR.ServiceClient.Test.csproj /p:CollectCoverage=true /p:CoverletOutputFormat=cobertura /p:CoverletOutput=../../Nut.MediatR.ServiceClient.coverage.xml
 
-      - name: Codecov
+    - name: Codecov
       uses: codecov/codecov-action@v1.0.14
       with:
         # User defined upload name. Visible in Codecov UI
