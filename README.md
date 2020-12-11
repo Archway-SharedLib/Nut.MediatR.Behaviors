@@ -3,7 +3,9 @@
 [![CI](https://github.com/Archway-SharedLib/Nut.MediatR.Behaviors/workflows/CI/badge.svg)](https://github.com/Archway-SharedLib/Nut.MediatR.Behaviors/actions)
 [![codecov](https://codecov.io/gh/Archway-SharedLib/Nut.MediatR.Behaviors/branch/main/graph/badge.svg)](https://codecov.io/gh/Archway-SharedLib/Nut.MediatR.Behaviors)
 
-# Nut.MediatR.Behaviors
+Nut.MediatRは[MediatR]を利用した、様々な機能を提供します。
+
+## Nut.MediatR.Behaviors
 
 Nut.MediatR.Behaviorsは[MediatR]の、様々なアプリケーションで利用できる汎用のカスタム[Behavior]を提供します。次のBehaviorが含まれます。
 
@@ -24,7 +26,7 @@ public class ProductQuery: IRequest<ProductQueryResult> {
 
 詳細は各リンク先を参照してください。
 
-# Nut.MediatR.Behaviors.FluentValidation
+## Nut.MediatR.Behaviors.FluentValidation
 
 Nut.MediatR.Behaviors.FluentValidationは[FluentValidation]を利用したバリデーションを実行する、[MediatR]の[Behavior](https://github.com/jbogard/MediatR/wiki/Behaviors)を提供します。
 
@@ -33,3 +35,4 @@ Nut.MediatR.Behaviors.FluentValidationは[FluentValidation]を利用したバリ
 [MediatR]:https://github.com/jbogard/MediatR
 [Behavior]:https://github.com/jbogard/MediatR/wiki/Behaviors
 [FluentValidation]:https://fluentvalidation.net/
+
