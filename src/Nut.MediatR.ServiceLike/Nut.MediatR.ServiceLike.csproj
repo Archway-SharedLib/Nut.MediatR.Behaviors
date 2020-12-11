@@ -50,6 +50,11 @@
     </None>
   </ItemGroup>
 
+  <ItemGroup>
+    <AssemblyAttribute Include="System.Runtime.CompilerServices.InternalsVisibleToAttribute">
+      <_Parameter1>$(AssemblyName).Test</_Parameter1>
+    </AssemblyAttribute>
+  </ItemGroup>
   <!--<ItemGroup>
     <EmbeddedResource Update="Resources\Strings.resx">
       <Generator></Generator>

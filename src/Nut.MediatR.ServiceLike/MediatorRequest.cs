@@ -10,15 +10,20 @@ namespace Nut.MediatR.ServiceLike
     {
         private MediatorRequest(string path, Type requestType)
         {
-            Path = path ?? throw new ArgumentNullException(nameof(path));
-            RequestType = requestType ?? throw new ArgumentNullException(nameof(requestType));
+            Path = path;
+            RequestType = requestType;
         }
 
         public static IEnumerable<MediatorRequest> Create(Type requestType)
         {
+            if (requestType is null)
+            {
+                throw new ArgumentNullException(nameof(requestType));
+            }
+
             if (!CanServicalize(requestType))
             {
-                throw new ArgumentException("The requestType argument specify implement IRequest<> and the closed generic type with AsAserviceAttribute.", 
+                throw new ArgumentException("The requestType argument specify implement IRequest(<T>) and the closed generic type with AsAserviceAttribute.", 
                     nameof(requestType));
             }
             var attrs = requestType.GetAttributes<AsServiceAttribute>(true);
@@ -32,7 +37,8 @@ namespace Nut.MediatR.ServiceLike
         public static bool CanServicalize(Type requestType)
             => !requestType.IsOpenGeneric()
                 && requestType.IsConcrete()
-                && requestType.IsImplemented(typeof(IRequest<>))
+                && (requestType.IsImplemented(typeof(IRequest<>)) 
+                    || requestType.IsImplemented(typeof(IRequest)))
                 && requestType.GetAttributes<AsServiceAttribute>().Any();
     }
 }

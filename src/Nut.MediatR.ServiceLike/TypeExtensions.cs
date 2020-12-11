@@ -29,6 +29,7 @@ namespace Nut.MediatR.ServiceLike
         public static bool IsImplemented(this Type type, Type interfaceType)
         {
             if (type.IsInterface) return false;
+            if (!interfaceType.IsInterface) return false;
             var isOpenInterface = interfaceType.IsOpenGeneric();
             return type.GetInterfaces().Any(i =>
             {

@@ -8,12 +8,13 @@
   <ItemGroup>
     <PackageReference Include="MediatR" Version="9.0.0" />
     <PackageReference Include="MediatR.Extensions.Microsoft.DependencyInjection" Version="9.0.0" />
-    <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="5.0.0" />
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="5.0.1" />
     <PackageReference Include="Microsoft.Extensions.Logging" Version="5.0.0" />
     <PackageReference Include="Microsoft.Extensions.Logging.Console" Version="5.0.0" />
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\..\src\Nut.MediatR.ServiceLike.DependencyInjection\Nut.MediatR.ServiceLike.DependencyInjection.csproj" />
     <ProjectReference Include="..\..\src\Nut.MediatR.ServiceLike\Nut.MediatR.ServiceLike.csproj" />
   </ItemGroup>
 </Project>

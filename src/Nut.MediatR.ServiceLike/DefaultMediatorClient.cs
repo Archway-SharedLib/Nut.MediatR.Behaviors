@@ -22,21 +22,27 @@ namespace Nut.MediatR.ServiceLike
 
         public async Task<TResult?> SendAsync<TResult>(string path, object request) where TResult : class
         {
+            if (request is null)
+            {
+                throw new ArgumentNullException(nameof(request));
+            }
+
             var mediatorRequest = registry.GetRequest(path);
             if(mediatorRequest == null)
             {
                 throw new InvalidOperationException("Mediator request was not found.");
             }
-            object value = TranslateType(request, mediatorRequest.RequestType);
-            var result = await mediator.Send(value).ConfigureAwait(false);
+            var value = TranslateType(request, mediatorRequest.RequestType);
+            var result = await mediator.Send(value!).ConfigureAwait(false);
 
             // Unit 型や null の取り扱いをどうするか。
 
             return TranslateType(result, typeof(TResult)) as TResult;
         }
 
-        private object TranslateType(object? value, Type type)
+        private object? TranslateType(object? value, Type type)
         {
+            if (value is null) return null;
             var json = JsonSerializer.Serialize(value, value.GetType(), new JsonSerializerOptions()
             {
             });
