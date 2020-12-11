@@ -8,14 +8,14 @@
 
   <PropertyGroup>
     <Authors>Archway</Authors>
-    <Description>The MediatR Behaviors using FluentValidation.</Description>
+    <Description>Access MediatR like a service.</Description>
     <Copyright>Copyright 2020 (c) Archway inc. All rights reserved.</Copyright>
-    <PackageTags>mediatr mediator behavior fluent validation Nut</PackageTags>
+    <PackageTags>mediatr Nut mediator service</PackageTags>
     <PackageLicenseExpression>https://github.com/Archway-SharedLib/Nut.MediatR/blob/main/LICENSE</PackageLicenseExpression>
     <PackageProjectUrl>https://github.com/Archway-SharedLib/Nut.MediatR</PackageProjectUrl>
     <RepositoryType>GIT</RepositoryType>
-    <PackageId>Nut.MediatR.Behaviors.FluentValidation</PackageId>
-    <RootNamespace>Nut.MediatR</RootNamespace>
+    <PackageId>Nut.MediatR.ServiceLike</PackageId>
+    <RootNamespace>Nut.MediatR.ServiceLike</RootNamespace>
     <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
     <PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
     <!--source link-->
@@ -31,7 +31,6 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="FluentValidation" Version="9.3.0" />
     <PackageReference Include="MediatR" Version="9.0.0" />
     <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.0.0">
       <PrivateAssets>all</PrivateAssets>
@@ -50,4 +49,9 @@
     </None>
   </ItemGroup>
 
+  <!--<ItemGroup>
+    <EmbeddedResource Update="Resources\Strings.resx">
+      <Generator></Generator>
+    </EmbeddedResource>
+  </ItemGroup>-->
 </Project>
