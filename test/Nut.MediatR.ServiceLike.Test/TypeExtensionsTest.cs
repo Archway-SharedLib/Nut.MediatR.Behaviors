@@ -131,6 +131,16 @@ namespace Nut.MediatR.ServiceLike.Test
         public void IsImplementd_インターフェイスを継承してない場合はtrue(Type type, Type interfaceType)
             => TypeExtensions.IsImplemented(type, interfaceType).Should().BeFalse();
 
+        [Fact]
+        public void Activate_インスタンスを作成できる()
+            => TypeExtensions.Activate<ActivateInterface>(typeof(ActivateClass)).Should().NotBeNull();
+
+        //-----------------------------
+
+        public interface ActivateInterface { }
+
+        public class ActivateClass: ActivateInterface { }
+
         public abstract class IsConcreteAbstract { }
 
         public interface IsConcreteInterface { }

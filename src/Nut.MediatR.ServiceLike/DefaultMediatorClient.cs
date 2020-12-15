@@ -33,7 +33,12 @@ namespace Nut.MediatR.ServiceLike
                 throw new InvalidOperationException("Mediator request was not found.");
             }
             var value = TranslateType(request, mediatorRequest.RequestType);
-            var result = await mediator.Send(value!).ConfigureAwait(false);
+
+            var context = new RequestContext(mediatorRequest.Path, mediatorRequest.RequestType, typeof(TResult), factory);
+
+            var result = await ExecuteAsync(new Queue<Type>(mediatorRequest.Filters), value, mediator, context).ConfigureAwait(false);
+
+            // var result = await mediator.Send(value!).ConfigureAwait(false);
 
             return TranslateType(result, typeof(TResult)) as TResult;
         }
@@ -45,6 +50,19 @@ namespace Nut.MediatR.ServiceLike
             {
             });
             return JsonSerializer.Deserialize(json, type);
+        }
+
+        private async Task<object?> ExecuteAsync(Queue<Type> filterTypes, object? parameter, IMediator mediator, RequestContext context)
+        {
+            if (filterTypes.TryDequeue(out Type filterType))
+            {
+                var filter = filterType.Activate<IFilter>();
+                return await filter.HandleAsync(context, parameter, async (newParam) =>
+                {
+                    return await ExecuteAsync(filterTypes, parameter, mediator, context).ConfigureAwait(false);
+                }).ConfigureAwait(false);
+            }
+            return await mediator.Send(parameter!).ConfigureAwait(false);
         }
     }
 }

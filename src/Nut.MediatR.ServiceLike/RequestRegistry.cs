@@ -9,19 +9,20 @@ namespace Nut.MediatR.ServiceLike
     {
         private ConcurrentDictionary<string, MediatorRequest> requestPool = new ConcurrentDictionary<string, MediatorRequest>();
 
-        public void Add(Type type)
+        public void Add(Type type, params Type[] filterTypes)
         {
-            Add(type, false);
+            Add(type, false, filterTypes);
         }
 
-        public void Add(Type type, bool ignoreDuplication)
+        public void Add(Type type, bool ignoreDuplication, params Type[] filterTypes)
         {
             if (type is null)
             {
                 throw new ArgumentNullException(nameof(type));
             }
+            FilterSupport.ThrowIfInvalidFileterTypeAllWith(filterTypes);
 
-            var requests = MediatorRequest.Create(type);
+            var requests = MediatorRequest.Create(type, filterTypes);
             foreach (var request in requests)
             {
                 if (!requestPool.TryAdd(request.Path, request))

@@ -1,6 +1,8 @@
 ﻿using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Reflection;
 using System.Text;
 
@@ -39,6 +41,21 @@ namespace Nut.MediatR.ServiceLike
                 }
                 return i == interfaceType;
             });
+        }
+
+        public static bool HasDefaultConstructor(this Type type) => GetDefaultConstructor(type) != null;
+
+        public static ConstructorInfo GetDefaultConstructor(this Type type) => type.GetConstructor(Type.EmptyTypes);
+
+        private static ConcurrentDictionary<Type, Func<object>> activatorCache = new ConcurrentDictionary<Type, Func<object>>();
+
+        public static T Activate<T>(this Type type)
+        {
+            var expr = activatorCache.GetOrAdd(type, (t) =>
+            {
+                return Expression.Lambda<Func<object>>(Expression.New(type.GetDefaultConstructor())).Compile();
+            });
+            return (T)expr.Invoke();
         }
     }
 }
