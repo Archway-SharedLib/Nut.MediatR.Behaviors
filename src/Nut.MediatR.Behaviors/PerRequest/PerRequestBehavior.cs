@@ -37,7 +37,6 @@ namespace Nut.MediatR
             ).ConfigureAwait(false);
         }
 
-
         private static class Cache<TReqCache, TResCache>
         {
             public static Type[] Types { get; } = GetBehaviorTypesFromAttribute();
@@ -45,7 +44,7 @@ namespace Nut.MediatR
             private static Type[] GetBehaviorTypesFromAttribute()
             {
                 var targetType = typeof(TRequest);
-                if (!(targetType.GetCustomAttribute(typeof(WithBehaviorsAttribute), true) is WithBehaviorsAttribute attribute))
+                if (targetType.GetCustomAttribute(typeof(WithBehaviorsAttribute), true) is not WithBehaviorsAttribute attribute)
                     return new Type[0];
                 return attribute.BehaviorTypes.Select(t => t.MakeGenericType(typeof(TReqCache), typeof(TResCache))).ToArray();
             }

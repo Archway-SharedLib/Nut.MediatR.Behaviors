@@ -34,6 +34,11 @@ namespace Nut.MediatR.ServiceLike
             }
         }
 
+        public IEnumerable<string> GetEndpoints()
+        {
+            return requestPool.Keys;
+        }
+
         public MediatorRequest? GetRequest(string path)
         {
             if(requestPool.TryGetValue(path, out var value))

@@ -10,11 +10,8 @@ namespace Nut.MediatR.ServiceLike.DependencyInjection
     {
         public static IServiceCollection AddMediatRServiceLike(this IServiceCollection services, params Assembly[] assemblies)
         {
-            var registry = services
-                .LastOrDefault(s => s.ServiceType == typeof(RequestRegistry))?
-                .ImplementationInstance as RequestRegistry;
-
-            if(registry == null)
+            if (!(services.LastOrDefault(s => s.ServiceType == typeof(RequestRegistry))?
+                .ImplementationInstance is RequestRegistry registry))
             {
                 registry = new RequestRegistry();
             }

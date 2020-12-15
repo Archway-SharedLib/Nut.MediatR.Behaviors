@@ -21,7 +21,7 @@ namespace Nut.MediatR
         public async Task<TResponse> Handle(TRequest request, CancellationToken cancellationToken, RequestHandlerDelegate<TResponse> next)
         {
             var logger = ServiceFactory.GetInstance<ILogger<LoggingBehavior<TRequest, TResponse>>>();
-            if(logger == null)
+            if(logger is null)
             {
                 return await next().ConfigureAwait(false);
             }
@@ -29,7 +29,7 @@ namespace Nut.MediatR
             var collector = ServiceFactory.GetInstance<ILoggingInOutValueCollector<TRequest, TResponse>>() 
                 ?? this.GetDefaultCollector();
             
-            var inValue = collector != null ? 
+            var inValue = collector is not null ? 
                 await collector.CollectInValueAsync(request, cancellationToken).ConfigureAwait(false) :
                 null;
             
@@ -49,7 +49,7 @@ namespace Nut.MediatR
                 var result = await next().ConfigureAwait(false);
                 watch.Stop();
 
-                var outValue = collector != null ?
+                var outValue = collector is not null ?
                     await collector.CollectOutValueAsync(result, cancellationToken).ConfigureAwait(false) :
                     null;
 

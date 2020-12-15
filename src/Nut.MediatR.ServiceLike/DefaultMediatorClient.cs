@@ -28,21 +28,19 @@ namespace Nut.MediatR.ServiceLike
             }
 
             var mediatorRequest = registry.GetRequest(path);
-            if(mediatorRequest == null)
+            if(mediatorRequest is null)
             {
                 throw new InvalidOperationException("Mediator request was not found.");
             }
             var value = TranslateType(request, mediatorRequest.RequestType);
             var result = await mediator.Send(value!).ConfigureAwait(false);
 
-            // Unit 型や null の取り扱いをどうするか。
-
             return TranslateType(result, typeof(TResult)) as TResult;
         }
 
         private object? TranslateType(object? value, Type type)
         {
-            if (value is null) return null;
+            if (value is null or Unit) return null;
             var json = JsonSerializer.Serialize(value, value.GetType(), new JsonSerializerOptions()
             {
             });
