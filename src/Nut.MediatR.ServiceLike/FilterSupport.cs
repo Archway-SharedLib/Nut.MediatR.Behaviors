@@ -30,12 +30,7 @@ namespace Nut.MediatR.ServiceLike
             return true;
         }
 
-        //public static IFilter Activate(Type type)
-        //{
-
-        //}
-
         private static bool IsFilterType(Type behaviorType)
-            => behaviorType.IsImplemented(typeof(IFilter)) && behaviorType.HasDefaultConstructor();
+            => behaviorType.IsImplemented(typeof(IMediatorServiceFilter)) && behaviorType.HasDefaultConstructor();
     }
 }

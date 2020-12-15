@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 using Xunit;
 
@@ -135,11 +136,36 @@ namespace Nut.MediatR.ServiceLike.Test
         public void Activate_インスタンスを作成できる()
             => TypeExtensions.Activate<ActivateInterface>(typeof(ActivateClass)).Should().NotBeNull();
 
+        [Fact]
+        public void HasDefaultConstructor_デフォルトコンストラクタがある場合はtrueが返る()
+            => TypeExtensions.HasDefaultConstructor(typeof(ActivateClass)).Should().BeTrue();
+
+        [Fact]
+        public void HasDefaultConstructor_デフォルトコンストラクタがない場合はfalseが返る()
+            => TypeExtensions.HasDefaultConstructor(typeof(ActivateClass2)).Should().BeFalse();
+
+        [Fact]
+        public void GetDefaultConstructor_デフォルトコンストラクタがある場合はConstructorInfoが返る()
+            => TypeExtensions.GetDefaultConstructor(typeof(ActivateClass)).Should().BeAssignableTo<ConstructorInfo>();
+
+        [Fact]
+        public void GetDefaultConstructor_デフォルトコンストラクタがない場合はnullが返る()
+            => TypeExtensions.GetDefaultConstructor(typeof(ActivateClass2)).Should().BeNull();
+
         //-----------------------------
 
         public interface ActivateInterface { }
 
         public class ActivateClass: ActivateInterface { }
+
+        public class ActivateClass2 
+        { 
+            public ActivateClass2(string value)
+            {
+
+            }
+        }
+
 
         public abstract class IsConcreteAbstract { }
 

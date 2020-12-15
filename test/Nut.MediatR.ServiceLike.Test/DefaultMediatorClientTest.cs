@@ -128,6 +128,30 @@ namespace Nut.MediatR.ServiceLike.Test
             pong.Should().BeNull();
         }
 
+        [Fact]
+        public async Task SendAsync_Filterが設定されている場合は順番に実行される()
+        {
+            var services = new ServiceCollection();
+            services.AddMediatR(typeof(ServicePing).Assembly);
+
+            var check = new FilterExecutionCheck();
+            services.AddSingleton(check);
+            var provider = services.BuildServiceProvider();
+
+            var serviceFactory = provider.GetService<ServiceFactory>();
+            var mediator = provider.GetService<IMediator>();
+            var registry = new RequestRegistry();
+            registry.Add(typeof(ServicePing), typeof(Filter1), typeof(Filter2));
+
+            var client = new DefaultMediatorClient(mediator, registry, serviceFactory);
+
+            var pong = await client.SendAsync<Pong>("/ping", new ServicePing() { Value = "Ping" });
+
+            pong.Value.Should().Be("Ping Pong");
+            check.Checks.Should().HaveCount(2);
+            check.Checks[0].Should().Be("1");
+            check.Checks[1].Should().Be("2");
+        }
 
         public class LocalPong
         {

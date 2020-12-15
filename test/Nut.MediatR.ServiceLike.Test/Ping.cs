@@ -19,6 +19,12 @@ namespace Nut.MediatR.ServiceLike.Test
         public string Value { get; set; }
     }
 
+    [AsService("/ping", typeof(Filter1), typeof(Filter4))]
+    public class ServiceWithFilterPing : IRequest<Pong>
+    {
+        public string Value { get; set; }
+    }
+
     [AsService("/ping/1")]
     [AsService("/ping/2")]
     public class MultiServicePing : IRequest<Pong>
@@ -72,5 +78,50 @@ namespace Nut.MediatR.ServiceLike.Test
         }
     }
 
+    public class Filter1 : IMediatorServiceFilter
+    {
+        public async Task<object> HandleAsync(RequestContext context, object parameter, Func<object, Task<object>> next)
+        {
+            var check = context.ServiceFactory.GetInstance<FilterExecutionCheck>();
+            check.Checks.Add("1");
+            return await next(parameter);
+        }
+    }
 
+    public class Filter2 : IMediatorServiceFilter
+    {
+        public async Task<object> HandleAsync(RequestContext context, object parameter, Func<object, Task<object>> next)
+        {
+            var check = context.ServiceFactory.GetInstance<FilterExecutionCheck>();
+            check.Checks.Add("2");
+            return await next(parameter);
+        }
+    }
+
+    public class Filter3 : IMediatorServiceFilter
+    {
+        public async Task<object> HandleAsync(RequestContext context, object parameter, Func<object, Task<object>> next)
+        {
+            var check = context.ServiceFactory.GetInstance<FilterExecutionCheck>();
+            check.Checks.Add("3");
+            return await next(parameter);
+        }
+    }
+
+    public class Filter4 : IMediatorServiceFilter
+    {
+        public async Task<object> HandleAsync(RequestContext context, object parameter, Func<object, Task<object>> next)
+        {
+            var check = context.ServiceFactory.GetInstance<FilterExecutionCheck>();
+            check.Checks.Add("4");
+            return await next(parameter);
+        }
+    }
+
+    public class FilterExecutionCheck 
+    {
+
+        public List<string> Checks { get; set; } = new List<string>();
+
+    }
 }

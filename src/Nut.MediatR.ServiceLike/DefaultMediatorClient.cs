@@ -37,9 +37,7 @@ namespace Nut.MediatR.ServiceLike
             var context = new RequestContext(mediatorRequest.Path, mediatorRequest.RequestType, typeof(TResult), factory);
 
             var result = await ExecuteAsync(new Queue<Type>(mediatorRequest.Filters), value, mediator, context).ConfigureAwait(false);
-
-            // var result = await mediator.Send(value!).ConfigureAwait(false);
-
+            
             return TranslateType(result, typeof(TResult)) as TResult;
         }
 
@@ -56,10 +54,10 @@ namespace Nut.MediatR.ServiceLike
         {
             if (filterTypes.TryDequeue(out Type filterType))
             {
-                var filter = filterType.Activate<IFilter>();
+                var filter = filterType.Activate<IMediatorServiceFilter>();
                 return await filter.HandleAsync(context, parameter, async (newParam) =>
                 {
-                    return await ExecuteAsync(filterTypes, parameter, mediator, context).ConfigureAwait(false);
+                    return await ExecuteAsync(filterTypes, newParam, mediator, context).ConfigureAwait(false);
                 }).ConfigureAwait(false);
             }
             return await mediator.Send(parameter!).ConfigureAwait(false);

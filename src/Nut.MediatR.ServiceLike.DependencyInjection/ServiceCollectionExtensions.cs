@@ -1,6 +1,7 @@
 ﻿using MediatR;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
+using System;
 using System.Linq;
 using System.Reflection;
 
@@ -8,7 +9,7 @@ namespace Nut.MediatR.ServiceLike.DependencyInjection
 {
     public static class ServiceCollectionExtensions
     {
-        public static IServiceCollection AddMediatRServiceLike(this IServiceCollection services, params Assembly[] assemblies)
+        public static IServiceCollection AddMediatRServiceLike(this IServiceCollection services, Assembly assembly, params Type[] filterTypes)
         {
             if (!(services.LastOrDefault(s => s.ServiceType == typeof(RequestRegistry))?
                 .ImplementationInstance is RequestRegistry registry))
@@ -17,12 +18,11 @@ namespace Nut.MediatR.ServiceLike.DependencyInjection
             }
             services.TryAddSingleton(registry);
 
-            var requests = assemblies
-                .SelectMany(assem => assem.GetTypes())
+            var requests = assembly.GetTypes()
                 .Where(type => MediatorRequest.CanServicalize(type));
             foreach(var request in requests)
             {
-                registry.Add(request, true);
+                registry.Add(request, true, filterTypes);
             }
 
             services.TryAddTransient<IMediatorClient, DefaultMediatorClient>();

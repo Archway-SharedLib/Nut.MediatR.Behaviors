@@ -4,10 +4,10 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 
-namespace ServiceLikeSample.Sample.Void
+namespace ServiceLikeSample.Sample.Filter
 {
-    [AsService("/void")]
-    public class VoidRequest : IRequest<Unit>
+    [AsService("/filter", typeof(ParamAndResultValueConverterFilter))]
+    public class FilterRequest: IRequest<FilterResult>
     {
         public string Id { get; set; }
     }

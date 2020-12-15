@@ -36,5 +36,12 @@ namespace Nut.MediatR.ServiceLike.Test
             var attr = new AsServiceAttribute(expect);
             attr.Path.Should().Be(expect);
         }
+
+        [Fact]
+        public void ctor_filterTypesがnullの場合は例外が発生する()
+        {
+            Action act = () => new AsServiceAttribute("/this/is/service/path", null);
+            act.Should().Throw<ArgumentException>();
+        }
     }
 }
