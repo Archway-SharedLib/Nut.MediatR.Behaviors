@@ -13,6 +13,7 @@ variables:
   buildConfiguration: 'Release'
 
 steps:
+
 - task: UseDotNet@2
   displayName: 'Install .Net 5 SDK'
   inputs:
@@ -20,7 +21,13 @@ steps:
     version: '5.0.x'
 - script: dotnet build --configuration $(buildConfiguration)
   displayName: 'dotnet build $(buildConfiguration)'
-- task: DotNetCoreCLI@2
+# - task: DotNetCoreCLI@2
+#   inputs:
+#     command: 'pack'
+#     packagesToPack: 'src/**/*.csproj'
+#     versioningScheme: 'off'
+
+- task: NuGetCommand@2
   inputs:
     command: 'pack'
     packagesToPack: 'src/**/*.csproj'
