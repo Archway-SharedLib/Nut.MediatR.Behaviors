@@ -9,10 +9,10 @@ Nut.MediatRは[MediatR]を利用した、様々な機能を提供します。
 
 Nut.MediatR.Behaviorsは[MediatR]の、様々なアプリケーションで利用できる汎用のカスタム[Behavior]を提供します。次のBehaviorが含まれます。
 
-- [PerRequestBehavior](./docs/PerRequestBehavior.md)
-- [AuthorizationBehavior](./docs/AuthorizationBehavior.md)
-- [LoggingBehavior](./docs/LoggingBehavior.md)
-- [DataAnnotationValidationBehavior](./docs/DataAnnotationValidationBehavior.md)
+- [PerRequestBehavior](./docs/behavior/PerRequestBehavior.md)
+- [AuthorizationBehavior](./docs/behavior/AuthorizationBehavior.md)
+- [LoggingBehavior](./docs/behavior/LoggingBehavior.md)
+- [DataAnnotationValidationBehavior](./docs/behavior/DataAnnotationValidationBehavior.md)
 
 ```cs
 [WithBehaviors(
@@ -30,18 +30,14 @@ public class ProductQuery: IRequest<ProductQueryResult> {
 
 Nut.MediatR.Behaviors.FluentValidationは[FluentValidation]を利用したバリデーションを実行する、[MediatR]の[Behavior](https://github.com/jbogard/MediatR/wiki/Behaviors)を提供します。
 
-詳細は[ドキュメント](./docs/FluentValidationBehavior.md)を参照してください。
-
-[MediatR]:https://github.com/jbogard/MediatR
-[Behavior]:https://github.com/jbogard/MediatR/wiki/Behaviors
-[FluentValidation]:https://fluentvalidation.net/
+詳細は[ドキュメント](./docs/behavior/FluentValidationBehavior.md)を参照してください。
 
 ## Nut.MediatR.ServiceLike
 
-> This library is not yet available.
-
-Nut.MediatR.ServiceLikeはMediatRのハンドラを、まるでサービスのように文字列のパスを指定して実行できるようにするライブラリです。
+Nut.MediatR.ServiceLikeは[MediatR]のハンドラを、サービスのように文字列のパスを指定して実行できるようにするライブラリです。
 Nut.MediatR.ServiceLikeを利用することで、`IRequest`の実装自体への依存も無くせます。
+
+詳細は[ドキュメント](./docs/serviceLike/ServiceLike.md)を参照してください。
 
 ```cs
 [AsService("/users/detail")]
@@ -63,3 +59,19 @@ public class UserService
     }
 }
 ```
+
+## Nut.MediatR.ServiceLike.DependencyInjection
+
+Nut.MediatR.ServiceLike.DependencyInjectionは[Microsoft.Extensions.DependencyInjection](https://docs.microsoft.com/ja-jp/dotnet/core/extensions/dependency-injection)の`IServiceCollection`を通して、Nut.MediatR.ServiceLikeを設定します。
+
+詳細は[ドキュメント](./docs/serviceLike/DependencyInjection.md)を参照してください。
+
+```cs
+services
+    .AddMediatR(typeof(Startup))
+    .AddMediatRServiceLike(typeof(Startup).Assembly);
+```
+
+[MediatR]:https://github.com/jbogard/MediatR
+[Behavior]:https://github.com/jbogard/MediatR/wiki/Behaviors
+[FluentValidation]:https://fluentvalidation.net/
