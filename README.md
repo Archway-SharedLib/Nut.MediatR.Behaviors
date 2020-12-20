@@ -40,8 +40,8 @@ Nut.MediatR.Behaviors.FluentValidationは[FluentValidation]を利用したバリ
 
 ## Nut.MediatR.ServiceLike
 
-[![NuGet](https://img.shields.io/nuget/vpre/Nut.MediatR.Behaviors.ServiceLike.svg)](https://www.nuget.org/packages/Nut.MediatR.Behaviors.ServiceLike) 
-[![NuGet](https://img.shields.io/nuget/dt/Nut.MediatR.Behaviors.ServiceLike.svg)](https://www.nuget.org/packages/Nut.MediatR.Behaviors.ServiceLike)
+[![NuGet](https://img.shields.io/nuget/vpre/Nut.MediatR.ServiceLike.svg)](https://www.nuget.org/packages/Nut.MediatR.ServiceLike) 
+[![NuGet](https://img.shields.io/nuget/dt/Nut.MediatR.ServiceLike.svg)](https://www.nuget.org/packages/Nut.MediatR.ServiceLike)
 
 Nut.MediatR.ServiceLikeは[MediatR]のハンドラを、サービスのように文字列のパスを指定して実行できるようにするライブラリです。
 Nut.MediatR.ServiceLikeを利用することで、`IRequest`の実装自体への依存も無くせます。
@@ -71,8 +71,8 @@ public class UserService
 
 ## Nut.MediatR.ServiceLike.DependencyInjection
 
-[![NuGet](https://img.shields.io/nuget/vpre/Nut.MediatR.Behaviors.ServiceLike.DependencyInjection.svg)](https://www.nuget.org/packages/Nut.MediatR.Behaviors.ServiceLike.DependencyInjection) 
-[![NuGet](https://img.shields.io/nuget/dt/Nut.MediatR.Behaviors.ServiceLike.DependencyInjection.svg)](https://www.nuget.org/packages/Nut.MediatR.Behaviors.ServiceLike.DependencyInjection)
+[![NuGet](https://img.shields.io/nuget/vpre/Nut.MediatR.ServiceLike.DependencyInjection.svg)](https://www.nuget.org/packages/Nut.MediatR.ServiceLike.DependencyInjection) 
+[![NuGet](https://img.shields.io/nuget/dt/Nut.MediatR.ServiceLike.DependencyInjection.svg)](https://www.nuget.org/packages/Nut.MediatR.ServiceLike.DependencyInjection)
 
 Nut.MediatR.ServiceLike.DependencyInjectionは[Microsoft.Extensions.DependencyInjection](https://docs.microsoft.com/ja-jp/dotnet/core/extensions/dependency-injection)の`IServiceCollection`を通して、Nut.MediatR.ServiceLikeを設定します。
 
