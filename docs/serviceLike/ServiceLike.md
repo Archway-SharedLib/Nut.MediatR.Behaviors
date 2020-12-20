@@ -89,7 +89,7 @@ public class ExceptionFilter : IMediatorServiceFilter
 2. `AsServiceAttibute`の`filterTypes`パラメーター
 
 実行される順序も、上記の並びで実行されます。
-次のコード例では`Filter1`、`Filter2`、`Filter3`、`Filter2`の順番となります。
+次のコード例では`Filter1`、`Filter2`、`Filter3`、`Filter4`の順番となります。
 
 ```cs
 [AsService("/sample", typeof(Filter3), typeof(Filter4))]
