@@ -34,3 +34,33 @@ public class SampleAuthorizer : IAuthorizer<SampleRequest>
 ## IAuthorizerの登録
 
 `AuthorizationBehavior`はコンテナ経由で`IAuthorizer<TRequest>`の実装を取得するため、事前にコンテナに登録されている必要があります。
+
+## デフォルトのIAuthorizerの設定
+
+`AuthorizationBehavior`を継承して、`GetAuthorizers`メソッドをオーバーライドすることでデフォルトの`IAuthorizer<TRequest, TResponse>`を設定できます。
+`AuthorizationBehavior`は標準では`GetAuthorizers`メソッドの中から`GetRegisterdAuthorizers`メソッドを実行し、コンテナに登録されている`IAuthorizer<TRequest, TResponse>`を取得します。
+
+次の例では`GetRegisterdAuthorizers`メソッドの結果、登録されている`IAuthorizer<TRequest, TResponse>`が見つからなかった場合にデフォルトの`IAuthorizer<TRequest, TResponse>`を返すようにしています。
+
+```cs
+public class CustomAuthorizationBehavior<TRequest, TResponse> :
+    AuthorizationBehavior<TRequest, TResponse>
+{
+    public CustomAuthorizationBehavior(ServiceFactory serviceFactory) : base(serviceFactory)
+    {
+    }
+
+    protected override IEnumerable<IAuthorizer<TRequest>> GetAuthorizers()
+    {
+        var authorizers = this.GetRegisterdAuthorizers();
+        if (authorizers.Any())
+        {
+            yield return DefaultAuthorizer<TRequest>();
+        }
+        else
+        {
+            foreach (var authorizer in authorizers) yield return authorizer;
+        }
+    }
+}
+```
