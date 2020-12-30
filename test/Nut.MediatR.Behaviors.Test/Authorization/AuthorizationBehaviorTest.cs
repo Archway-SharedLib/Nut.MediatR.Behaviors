@@ -110,7 +110,39 @@ namespace Nut.MediatR.Test.Authorization
             list.Count.Should().Be(1);
             list[0].Should().Be(AuthorizerMessages.FailurAuthorizer1Message);
         }
+
+        [Fact]
+        public async Task Handle_GetAuthorizerからnullが返ったら処理が実行されずそのまま終了する()
+        {
+            var list = new List<string>();
+            var factory = new ServiceFactory(type =>
+            {
+                return new IAuthorizer<TestBehaviorRequest>[]
+                {
+                    new SuccessAuthorizer1(list),
+                    new FailurAuthorizer1(list, "unauthorized!"),
+                    new SuccessAuthorizer2(list)
+                };
+            });
+            var auth = new NullAuthorizationBehavior<TestBehaviorRequest, TestBehaviorResponse>(factory);
+            await auth.Handle(new TestBehaviorRequest(), new CancellationToken(), () => Task.FromResult(new TestBehaviorResponse()));
+
+            list.Should().BeEmpty();
+        }
     }
+
+    public class NullAuthorizationBehavior<TRequest, TResponse> : AuthorizationBehavior<TRequest, TResponse>
+    {
+        public NullAuthorizationBehavior(ServiceFactory serviceFactory) : base(serviceFactory)
+        {
+        }
+
+        protected override IEnumerable<IAuthorizer<TRequest>> GetAuthorizers()
+        {
+            return null;
+        }
+    }
+
 
     public static class AuthorizerMessages
     {
