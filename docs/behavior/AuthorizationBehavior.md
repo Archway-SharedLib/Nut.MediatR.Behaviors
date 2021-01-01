@@ -53,14 +53,11 @@ public class CustomAuthorizationBehavior<TRequest, TResponse> :
     protected override IEnumerable<IAuthorizer<TRequest>> GetAuthorizers()
     {
         var authorizers = this.GetRegisterdAuthorizers();
-        if (authorizers.Any())
+        if (!authorizers.Any())
         {
-            yield return DefaultAuthorizer<TRequest>();
+            return new DefaultAuthorizer<TRequest>[] { DefaultAuthorizer<TRequest>() };
         }
-        else
-        {
-            foreach (var authorizer in authorizers) yield return authorizer;
-        }
+        return authorizers;
     }
 }
 ```
