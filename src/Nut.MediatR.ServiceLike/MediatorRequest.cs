@@ -25,8 +25,7 @@ namespace Nut.MediatR.ServiceLike
 
             if (!CanServicalize(requestType))
             {
-                throw new ArgumentException("The requestType argument specify implement IRequest(<T>) and the closed generic type with AsAserviceAttribute.",
-                    nameof(requestType));
+                throw new ArgumentException(SR.Argument_CanNotServicalize(nameof(requestType)));
             }
             var attrs = requestType.GetAttributes<AsServiceAttribute>(true);
             return attrs.Select(attr => 

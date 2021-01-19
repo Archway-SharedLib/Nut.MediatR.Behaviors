@@ -11,7 +11,7 @@ namespace Nut.MediatR.ServiceLike
             var result = IsValidTIlterTypeAllCore(filterTypes);
             if(!result)
             {
-                throw new ArgumentException("TypeはIFilterを実装しているデフォルトコンストラクタを持ったクラスでなければなりません。");
+                throw new ArgumentException(SR.FilterTypeConstratins);
             }
         }
 

@@ -11,7 +11,7 @@ namespace Nut.MediatR.ServiceLike
         {
             if (string.IsNullOrWhiteSpace(path))
             {
-                throw new ArgumentException($"'{nameof(path)}' を null または空白にすることはできません", nameof(path));
+                throw new ArgumentException(SR.Argument_CanNotNullOrWhitespace(nameof(path)));
             }
             Path = path;
             MediatorParameterType = mediatorParameterType ?? throw new ArgumentNullException(nameof(mediatorParameterType));

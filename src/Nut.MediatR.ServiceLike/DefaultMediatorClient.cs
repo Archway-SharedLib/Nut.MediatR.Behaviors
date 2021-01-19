@@ -30,7 +30,7 @@ namespace Nut.MediatR.ServiceLike
             var mediatorRequest = registry.GetRequest(path);
             if(mediatorRequest is null)
             {
-                throw new InvalidOperationException("Mediator request was not found.");
+                throw new InvalidOperationException(SR.MediatorRequestNotFound(path));
             }
             var value = TranslateType(request, mediatorRequest.RequestType);
 

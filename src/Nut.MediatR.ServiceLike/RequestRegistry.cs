@@ -29,7 +29,7 @@ namespace Nut.MediatR.ServiceLike
                 {
                     if(!ignoreDuplication)
                     {
-                        throw new ArgumentException($"Already contains path({request.Path})", nameof(type));
+                        throw new ArgumentException(SR.Registry_AlreadyContainsPath(request.Path), nameof(type));
                     }
                 }
             }
