@@ -35,7 +35,7 @@ namespace Nut.MediatR.ServiceLike.Test
         [Fact]
         public void Create_引数の型がIRequestを継承していない場合例外が発行される()
         {
-            Action act = () => MediatorRequest.Create(typeof(TestPlanRequest));
+            Action act = () => MediatorRequest.Create(typeof(TestPlainRequest));
             act.Should().Throw<ArgumentException>();
         }
 
@@ -85,7 +85,7 @@ namespace Nut.MediatR.ServiceLike.Test
         public abstract class TestAbstractRequest : IRequest<Unit> { }
 
         [AsService("/path")]
-        public class TestPlanRequest { }
+        public class TestPlainRequest { }
 
         public abstract class TestNotServicRequest : IRequest<Unit> { }
 

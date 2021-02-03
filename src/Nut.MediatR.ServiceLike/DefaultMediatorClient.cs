@@ -10,14 +10,25 @@ namespace Nut.MediatR.ServiceLike
     public class DefaultMediatorClient : IMediatorClient
     {
         private readonly IMediator mediator;
-        private readonly RequestRegistry registry;
+        private readonly RequestRegistry requestRegistry;
+        private readonly EventRegistry eventRegistry;
         private readonly ServiceFactory factory;
 
+        [Obsolete("This constructor is not supoort the AsEvent feature. Please use ctor(RequestRegistry, EventRegistry, ServiceFactory).")]
         public DefaultMediatorClient(IMediator mediator, RequestRegistry registry, ServiceFactory factory)
         {
             this.mediator = mediator ?? throw new ArgumentNullException(nameof(mediator));
-            this.registry = registry ?? throw new ArgumentNullException(nameof(registry));
+            this.requestRegistry = registry ?? throw new ArgumentNullException(nameof(registry));
             this.factory = factory ?? throw new ArgumentNullException(nameof(factory));
+            this.eventRegistry = new EventRegistry();
+        }
+
+        public DefaultMediatorClient(RequestRegistry requestRegistry, EventRegistry eventRegistry, ServiceFactory factory)
+        {
+            this.requestRegistry = requestRegistry ?? throw new ArgumentNullException(nameof(requestRegistry));
+            this.eventRegistry = eventRegistry ?? throw new ArgumentNullException(nameof(eventRegistry));
+            this.factory = factory ?? throw new ArgumentNullException(nameof(factory));
+            this.mediator = new ServiceLikeMediator(factory);
         }
 
         public async Task<TResult?> SendAsync<TResult>(string path, object request) where TResult : class
@@ -27,7 +38,7 @@ namespace Nut.MediatR.ServiceLike
                 throw new ArgumentNullException(nameof(request));
             }
 
-            var mediatorRequest = registry.GetRequest(path);
+            var mediatorRequest = requestRegistry.GetRequest(path);
             if(mediatorRequest is null)
             {
                 throw new InvalidOperationException(SR.MediatorRequestNotFound(path));
@@ -61,6 +72,26 @@ namespace Nut.MediatR.ServiceLike
                 }).ConfigureAwait(false);
             }
             return await mediator.Send(parameter!).ConfigureAwait(false);
+        }
+
+        public Task PublishAsync(string key, object @event)
+        {
+            if (@event is null)
+            {
+                throw new ArgumentNullException(nameof(@event));
+            }
+
+            var mediatorEvent = eventRegistry.GetEvent(key);
+            if (mediatorEvent is null)
+            {
+                throw new InvalidOperationException(SR.MediatorEventNotFound(key));
+            }
+
+            var value = TranslateType(@event, mediatorEvent.EventType);
+
+            mediator.Publish(value!);
+
+            return Task.CompletedTask;
         }
     }
 }

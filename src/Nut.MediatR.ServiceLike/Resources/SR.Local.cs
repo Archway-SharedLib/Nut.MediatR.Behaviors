@@ -24,7 +24,10 @@ namespace System
         internal static string Argument_CanNotServicalize(string paramName) => Format(GetResourceString(nameof(Argument_CanNotServicalize), "{0} argument must be implemented as a closed generic type of IRequest(<T>) with AsServiceAttribute."), paramName);
 
         internal static string Registry_AlreadyContainsPath(string path) => Format(GetResourceString(nameof(Registry_AlreadyContainsPath), "Already contains path: {0}"), path);
-        
+
+        internal static string Argument_CanNotEventalize(string paramName) => Format(GetResourceString(nameof(Argument_CanNotEventalize), "{0} argument must be implemented as a closed generic type of INotification with AsEventAttribute."), paramName);
+
+        internal static string MediatorEventNotFound(string path) => Format(GetResourceString(nameof(MediatorEventNotFound), "Mediator event was not found. path: {0}"), path);
 
     }
 }

@@ -21,6 +21,40 @@ namespace Nut.MediatR.Behaviors.FluentValidation.Test
         }
 
         [Fact]
+        public async Task Handle_バリデータが空の場合はそのまま実行される()
+        {
+            var executed = false;
+            var behavior = new FluentValidationBehavior<TestBehaviorRequest, TestBehaviorResponse>(
+                new ServiceFactory(_ => new List<IValidator<TestBehaviorRequest>>()));
+            await behavior.Handle(
+                new TestBehaviorRequest(),
+                new CancellationToken(),
+                () =>
+                {
+                    executed = true;
+                    return Task.FromResult(new TestBehaviorResponse());
+                });
+            executed.Should().BeTrue();
+        }
+
+        [Fact]
+        public async Task Handle_バリデータがnullの場合はそのまま実行される()
+        {
+            var executed = false;
+            var behavior = new FluentValidationBehavior<TestBehaviorRequest, TestBehaviorResponse>(
+                new ServiceFactory(_ => null));
+            await behavior.Handle(
+                new TestBehaviorRequest(),
+                new CancellationToken(),
+                () =>
+                {
+                    executed = true;
+                    return Task.FromResult(new TestBehaviorResponse());
+                });
+            executed.Should().BeTrue();
+        }
+
+        [Fact]
         public void Handle_バリデーションが実行されてエラーがある場合は例外が発生する()
         {
             var executed = false;

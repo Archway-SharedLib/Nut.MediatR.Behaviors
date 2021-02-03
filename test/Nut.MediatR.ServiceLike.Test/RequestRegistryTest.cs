@@ -20,7 +20,7 @@ namespace Nut.MediatR.ServiceLike.Test
         }
 
         [Fact]
-        public void Add_AsServiceが複数付与されている場合は複数追加されされない()
+        public void Add_AsServiceが複数付与されている場合は複数追加される()
         {
             var registry = new RequestRegistry();
             registry.Add(typeof(MultiServicePing));
@@ -28,7 +28,7 @@ namespace Nut.MediatR.ServiceLike.Test
             var req = registry.GetRequest("/ping/1");
             req.Should().NotBeNull();
             var req2 = registry.GetRequest("/ping/2");
-            req.Should().NotBeNull();
+            req2.Should().NotBeNull();
 
             registry.GetEndpoints().Should().HaveCount(2);
         }
@@ -39,7 +39,7 @@ namespace Nut.MediatR.ServiceLike.Test
             var registry = new RequestRegistry();
             registry.Add(typeof(ServicePing));
 
-            Action act = () => registry.Add(typeof(ServicePing));
+            Action act = () => registry.Add(typeof(ServicePing2));
 
             act.Should().Throw<ArgumentException>();
             registry.GetEndpoints().Should().HaveCount(1);
@@ -111,7 +111,7 @@ namespace Nut.MediatR.ServiceLike.Test
         }
 
         [Fact]
-        public void Add_RequestにFilterあ設定されている場合は末尾に追加される()
+        public void Add_RequestにFilterが設定されている場合は末尾に追加される()
         {
             var registry = new RequestRegistry();
             registry.Add(typeof(ServiceWithFilterPing), typeof(Filter2), typeof(Filter3));
@@ -123,6 +123,13 @@ namespace Nut.MediatR.ServiceLike.Test
             filters[1].Should().Be(typeof(Filter3));
             filters[2].Should().Be(typeof(Filter1));
             filters[3].Should().Be(typeof(Filter4));
+        }
+
+        [Fact]
+        public void GetRequest_設定されていないパスが指定された場合はnullが返る()
+        {
+            var registry = new RequestRegistry();
+            registry.GetRequest("/unknown/path").Should().BeNull();
         }
     }
 }
