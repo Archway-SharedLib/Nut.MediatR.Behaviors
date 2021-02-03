@@ -189,13 +189,14 @@ namespace Nut.MediatR.ServiceLike.Test
         }
 
         [Fact]
-        public void PublisAsync_keyに一致するイベントが見つからない場合は例外が発生する()
+        public void PublisAsync_keyに一致するイベントが見つからない場合はなにも実行されず終了する()
         {
             var serviceFactory = new ServiceFactory(_ => null);
             var client = new DefaultMediatorClient(new RequestRegistry(), new NotificationRegistry(), serviceFactory);
 
-            Func<Task> act = () => client.PublishAsync("key", new Pang());
-            act.Should().Throw<InvalidOperationException>();
+            client.PublishAsync("key", new Pang());
+
+            //TODO: assertion
         }
 
         [Fact]
@@ -225,6 +226,55 @@ namespace Nut.MediatR.ServiceLike.Test
             foreach (var bangItem in holder.Pangs)
             {
                 paramBang.Should().Be(bangItem);
+            }
+        }
+
+        [Fact]
+        public async Task PublishAsync_Notification内で例外が発生してもnotifySendingErrorがfalseの場合は続行される()
+        {
+            var services = new ServiceCollection();
+            services.AddMediatR(typeof(ExceptionPang).Assembly);
+            var provider = services.BuildServiceProvider();
+
+            var serviceFactory = provider.GetService<ServiceFactory>();
+            var registry = new NotificationRegistry();
+            registry.Add(typeof(ExceptionPang));
+
+            var client = new DefaultMediatorClient(new RequestRegistry(), registry, serviceFactory);
+            await client.PublishAsync(nameof(ExceptionPang), new { }, false);
+
+            //TODO: assertion
+        }
+
+        [Fact]
+        public void PublishAsync_Notification内で例外が発生してもnotifySendingErrorがtrueの場合は例外が発行される()
+        {
+            var services = new ServiceCollection();
+            services.AddMediatR(typeof(ExceptionPang).Assembly);
+            var provider = services.BuildServiceProvider();
+
+            var serviceFactory = provider.GetService<ServiceFactory>();
+            var registry = new NotificationRegistry();
+            registry.Add(typeof(ExceptionPang));
+
+            var client = new DefaultMediatorClient(new RequestRegistry(), registry, serviceFactory);
+            Func<Task> act = () => client.PublishAsync(nameof(ExceptionPang), new { }, true);
+            act.Should().Throw<InvalidOperationException>();
+        }
+
+        [AsEvent(nameof(ExceptionPang))]
+        public class ExceptionPang: INotification 
+        {
+            public ExceptionPang(string value)
+            {
+
+            }
+        }
+        public class ExceptionPangHandler : INotificationHandler<ExceptionPang>
+        {
+            public Task Handle(ExceptionPang notification, CancellationToken cancellationToken)
+            {
+                throw new NotImplementedException();
             }
         }
 
@@ -290,7 +340,5 @@ namespace Nut.MediatR.ServiceLike.Test
             {
             }
         }
-
-
     }
 }

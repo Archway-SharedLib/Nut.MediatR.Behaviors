@@ -129,9 +129,6 @@
   <data name="FilterTypeConstratins" xml:space="preserve">
     <value>FilterType must implement the IMediatorServiceFilter and have a default constructor.</value>
   </data>
-  <data name="MediatorNotificationNotFound" xml:space="preserve">
-    <value>Mediator notification was not found. key: {0}</value>
-  </data>
   <data name="MediatorRequestNotFound" xml:space="preserve">
     <value>Mediator request was not found. path: {0}</value>
   </data>

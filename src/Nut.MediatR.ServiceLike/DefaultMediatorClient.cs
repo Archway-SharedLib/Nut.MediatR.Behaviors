@@ -74,22 +74,28 @@ namespace Nut.MediatR.ServiceLike
             return await mediator.Send(parameter!).ConfigureAwait(false);
         }
 
-        public Task PublishAsync(string key, object @event)
+        public Task PublishAsync(string key, object notification, bool notifySendingError = false)
         {
-            if (@event is null)
+            if (notification is null)
             {
-                throw new ArgumentNullException(nameof(@event));
+                throw new ArgumentNullException(nameof(notification));
             }
 
-            var mediatorEvent = eventRegistry.GetNotification(key);
-            if (mediatorEvent is null)
+            var mediatorNotifications = eventRegistry.GetNotifications(key);
+
+            foreach (var mediatorNotification in mediatorNotifications)
             {
-                throw new InvalidOperationException(SR.MediatorNotificationNotFound(key));
+                try
+                {
+                    var value = TranslateType(notification, mediatorNotification.NotificationType);
+                    mediator.Publish(value!);
+                }
+                catch (Exception)
+                {
+                    if (notifySendingError) throw;
+                    //TODO: Logging
+                }
             }
-
-            var value = TranslateType(@event, mediatorEvent.NotificationType);
-
-            mediator.Publish(value!);
 
             return Task.CompletedTask;
         }

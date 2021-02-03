@@ -1,20 +1,16 @@
 ﻿using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 
 namespace Nut.MediatR.ServiceLike
 {
     public class NotificationRegistry
     {
-        private ConcurrentDictionary<string, MediatorNotification> eventPool = new ConcurrentDictionary<string, MediatorNotification>();
+        private ConcurrentDictionary<string, ConcurrentBag<MediatorNotification>> notificationPool = new();
 
         public void Add(Type type)
-        {
-            Add(type, false);
-        }
-
-        public void Add(Type type, bool ignoreDuplication)
         {
             if (type is null)
             {
@@ -24,28 +20,23 @@ namespace Nut.MediatR.ServiceLike
             var notifications = MediatorNotification.Create(type);
             foreach (var notification in notifications)
             {
-                if (!eventPool.TryAdd(notification.Key, notification))
-                {
-                    if(!ignoreDuplication)
-                    {
-                        throw new ArgumentException(SR.Registry_AlreadyContainsKey(notification.Key), nameof(type));
-                    }
-                }
+                var bag = notificationPool.GetOrAdd(notification.Key, key => new ConcurrentBag<MediatorNotification>());
+                bag.Add(notification);
             }
         }
 
         public IEnumerable<string> GetKeys()
         {
-            return eventPool.Keys;
+            return notificationPool.Keys;
         }
 
-        public MediatorNotification? GetNotification(string key)
+        public IEnumerable<MediatorNotification> GetNotifications(string key)
         {
-            if(eventPool.TryGetValue(key, out var value))
+            if(notificationPool.TryGetValue(key, out var value))
             {
-                return value;
+                return value!;
             }
-            return null;
+            return Enumerable.Empty<MediatorNotification>();
         }
     }
 }

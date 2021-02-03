@@ -9,6 +9,6 @@ namespace Nut.MediatR.ServiceLike
     {
         Task<TResult?> SendAsync<TResult>(string path, object request) where TResult : class;
 
-        Task PublishAsync(string key, object notification);
+        Task PublishAsync(string key, object notification, bool notifySendingError = false);
     }
 }

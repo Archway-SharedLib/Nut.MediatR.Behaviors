@@ -30,8 +30,8 @@ namespace Nut.MediatR.ServiceLike.DependencyInjection.Test
             var provider = services.BuildServiceProvider();
 
             var registry = provider.GetService<NotificationRegistry>();
-            registry.GetNotification("pang").Should().NotBeNull();
-            registry.GetNotification("pang2").Should().NotBeNull();
+            registry.GetNotifications("pang").Should().NotBeNull();
+            registry.GetNotifications("pang2").Should().NotBeNull();
         }
 
         [Fact]
@@ -62,8 +62,8 @@ namespace Nut.MediatR.ServiceLike.DependencyInjection.Test
             var registryFromService = provider.GetService<NotificationRegistry>();
 
             registryFromService.Should().BeSameAs(registry);
-            registry.GetNotification("pang").Should().NotBeNull();
-            registry.GetNotification("pang2").Should().NotBeNull();
+            registry.GetNotifications("pang").Should().NotBeNull();
+            registry.GetNotifications("pang2").Should().NotBeNull();
         }
 
         [Fact]
