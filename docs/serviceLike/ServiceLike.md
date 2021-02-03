@@ -6,7 +6,7 @@ ServiceLikeは、[MediatR]のハンドラを文字列で指定して実行でき
 
 ## IRequestをサービスのように利用する
 
-パスを設定して公開するには`IRequest`に`AsServiceAttribute`属性を設定します。
+パスを設定してサービスのように公開するには`IRequest`に`AsServiceAttribute`属性を設定します。
 
 ```cs
 [AsService("/basic")]
@@ -31,7 +31,7 @@ requestRegistry.Add(typeof(BasicRequest));
 リクエストを実行するには、`DefaultMediatorClient`のインスタンスを利用します。
 
 ```cs
-var client = new DefaultMediatorClient(mediator, requestRegistry, serviceFactory);
+var client = new DefaultMediatorClient(requestRegistry, notificationRegistry, serviceFactory);
 var result = await client.SendAsync<Output>("/basic", new { Id = "345" });
 ```
 
@@ -103,6 +103,47 @@ requestRegistry.Add(typeof(SampleRequest), typeof(Filter1), typeof(Filter2));
 
 ## INotificationをイベントのように利用する
 
-TODO: 
+キーを設定してイベントのように公開するには`INotification`に`AsEventAttribute`属性を設定します。
+
+```cs
+[AsEvent("basic")]
+public class BasicNotification: INotification
+{
+    public string Id { get; set; }
+}
+```
+
+`AsEventAttribute`属性は一つの`INotification`の実装に対して複数設定して、複数のキーを指定できます。
+
+この型の`Type`を`NotificationRegistry`のインスタンスに追加することで、設定内容が検証され、キーで呼び出しできるようにオブジェクトが構築されます。
+
+```cs
+notificationRegistry.Add(typeof(BasicNotification));
+```
+
+ただし、`NotificationRegistry`への登録などはDIコンテナ等を通じて隠ぺいされるため、通常は実装する必要はありません。
+
+### 通知の実行
+
+通知を実行するには、`DefaultMediatorClient`のインスタンスを利用します。
+
+```cs
+var client = new DefaultMediatorClient(requestRegistry, notificationRegistry, serviceFactory);
+await client.PublishAsync("basic", new { Id = "345" });
+```
+
+`PublishAsync`は非同期で待ち合わせを行わず`INotificationHandler`を実行します。
+そのため`PublishAsync`メソッドが完了しても、`INotificationHandler`は完了していない可能性があります。
+
+`DefaultMediatorClient`のインスタンスの構築も、通常はDIコンテナを通じて行われるため、実装する必要はありません。
+
+#### 引数の型
+
+`DefaultMediatorClient`の`PublishAsync`に渡す引数の値は、実際の`INotification`で定義されている型である必要はありません。内部で`System.Text.Json`を利用して、次のような操作が行われているため同等の構造であれば多くの値が変換できます。
+
+- 引数の値をシリアライズしてJSON文字列を作成する
+- JSON文字列をIRequestにデシリアライズする
+
+ただし、引数と戻り値ともに`null`または`MediatR.Unit`型の場合は`null`に変換されます。
 
 [MediatR]:https://github.com/jbogard/MediatR
