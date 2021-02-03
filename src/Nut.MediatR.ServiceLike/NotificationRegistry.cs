@@ -5,9 +5,9 @@ using System.Text;
 
 namespace Nut.MediatR.ServiceLike
 {
-    public class EventRegistry
+    public class NotificationRegistry
     {
-        private ConcurrentDictionary<string, MediatorEvent> eventPool = new ConcurrentDictionary<string, MediatorEvent>();
+        private ConcurrentDictionary<string, MediatorNotification> eventPool = new ConcurrentDictionary<string, MediatorNotification>();
 
         public void Add(Type type)
         {
@@ -21,14 +21,14 @@ namespace Nut.MediatR.ServiceLike
                 throw new ArgumentNullException(nameof(type));
             }
 
-            var events = MediatorEvent.Create(type);
-            foreach (var @event in events)
+            var notifications = MediatorNotification.Create(type);
+            foreach (var notification in notifications)
             {
-                if (!eventPool.TryAdd(@event.Key, @event))
+                if (!eventPool.TryAdd(notification.Key, notification))
                 {
                     if(!ignoreDuplication)
                     {
-                        throw new ArgumentException(SR.Registry_AlreadyContainsPath(@event.Key), nameof(type));
+                        throw new ArgumentException(SR.Registry_AlreadyContainsKey(notification.Key), nameof(type));
                     }
                 }
             }
@@ -39,7 +39,7 @@ namespace Nut.MediatR.ServiceLike
             return eventPool.Keys;
         }
 
-        public MediatorEvent? GetEvent(string key)
+        public MediatorNotification? GetNotification(string key)
         {
             if(eventPool.TryGetValue(key, out var value))
             {

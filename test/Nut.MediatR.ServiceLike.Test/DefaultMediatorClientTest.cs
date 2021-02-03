@@ -48,12 +48,12 @@ namespace Nut.MediatR.ServiceLike.Test
         [Fact]
         public void ctor_requestRegistryがnullの場合は例外が発生する()
         {
-            Action act = () => new DefaultMediatorClient(null, new EventRegistry(), new ServiceFactory(_ => null));
+            Action act = () => new DefaultMediatorClient(null, new NotificationRegistry(), new ServiceFactory(_ => null));
             act.Should().Throw<ArgumentNullException>();
         }
 
         [Fact]
-        public void ctor_eventRegistryがnullの場合は例外が発生する()
+        public void ctor_notificationRegistryがnullの場合は例外が発生する()
         {
             Action act = () => new DefaultMediatorClient(new RequestRegistry(), null, new ServiceFactory(_ => null));
             act.Should().Throw<ArgumentNullException>();
@@ -62,7 +62,7 @@ namespace Nut.MediatR.ServiceLike.Test
         [Fact]
         public void ctor_serviceFactoryがnullの場合は例外が発生する()
         {
-            Action act = () => new DefaultMediatorClient(new RequestRegistry(), new EventRegistry(), null);
+            Action act = () => new DefaultMediatorClient(new RequestRegistry(), new NotificationRegistry(), null);
             act.Should().Throw<ArgumentNullException>();
         }
 
@@ -70,7 +70,7 @@ namespace Nut.MediatR.ServiceLike.Test
         public void SendAsync_requestがnullの場合は例外が発生する()
         {
             var serviceFactory = new ServiceFactory(_ => null);
-            var client = new DefaultMediatorClient(new RequestRegistry(), new EventRegistry(), serviceFactory);
+            var client = new DefaultMediatorClient(new RequestRegistry(), new NotificationRegistry(), serviceFactory);
 
             Func<Task> act = () => client.SendAsync<Pong>("/path", null);
             act.Should().Throw<ArgumentNullException>();
@@ -80,7 +80,7 @@ namespace Nut.MediatR.ServiceLike.Test
         public void SendAsync_pathに一致するリクエストが見つからない場合は例外が発生する()
         {
             var serviceFactory = new ServiceFactory(_ => null);
-            var client = new DefaultMediatorClient(new RequestRegistry(), new EventRegistry(), serviceFactory);
+            var client = new DefaultMediatorClient(new RequestRegistry(), new NotificationRegistry(), serviceFactory);
 
             Func<Task> act = () => client.SendAsync<Pong>("/path", new ServicePing());
             act.Should().Throw<InvalidOperationException>();
@@ -97,7 +97,7 @@ namespace Nut.MediatR.ServiceLike.Test
             var registry = new RequestRegistry();
             registry.Add(typeof(ServicePing));
 
-            var client = new DefaultMediatorClient(registry, new EventRegistry(), serviceFactory);
+            var client = new DefaultMediatorClient(registry, new NotificationRegistry(), serviceFactory);
 
             var pong = await client.SendAsync<Pong>("/ping", new ServicePing() { Value = "Ping" });
             pong.Value.Should().Be("Ping Pong");
@@ -114,7 +114,7 @@ namespace Nut.MediatR.ServiceLike.Test
             var registry = new RequestRegistry();
             registry.Add(typeof(ServicePing));
 
-            var client = new DefaultMediatorClient(registry, new EventRegistry(), serviceFactory);
+            var client = new DefaultMediatorClient(registry, new NotificationRegistry(), serviceFactory);
 
             var pong = await client.SendAsync<LocalPong>("/ping", new { Value = "Ping" });
             pong.Value.Should().Be("Ping Pong");
@@ -131,7 +131,7 @@ namespace Nut.MediatR.ServiceLike.Test
             var registry = new RequestRegistry();
             registry.Add(typeof(ServiceNullPing));
 
-            var client = new DefaultMediatorClient(registry, new EventRegistry(), serviceFactory);
+            var client = new DefaultMediatorClient(registry, new NotificationRegistry(), serviceFactory);
 
             var pong = await client.SendAsync<Pong>("/ping/null", new { Value = "Ping" });
             pong.Should().BeNull();
@@ -148,7 +148,7 @@ namespace Nut.MediatR.ServiceLike.Test
             var registry = new RequestRegistry();
             registry.Add(typeof(VoidServicePing));
 
-            var client = new DefaultMediatorClient(registry, new EventRegistry(), serviceFactory);
+            var client = new DefaultMediatorClient(registry, new NotificationRegistry(), serviceFactory);
 
             var pong = await client.SendAsync<Pong>("/ping/void", new { Value = "Ping" });
             pong.Should().BeNull();
@@ -168,7 +168,7 @@ namespace Nut.MediatR.ServiceLike.Test
             var registry = new RequestRegistry();
             registry.Add(typeof(ServicePing), typeof(Filter1), typeof(Filter2));
 
-            var client = new DefaultMediatorClient(registry, new EventRegistry(), serviceFactory);
+            var client = new DefaultMediatorClient(registry, new NotificationRegistry(), serviceFactory);
 
             var pong = await client.SendAsync<Pong>("/ping", new ServicePing() { Value = "Ping" });
 
@@ -182,7 +182,7 @@ namespace Nut.MediatR.ServiceLike.Test
         public void PublisAsync_requestがnullの場合は例外が発生する()
         {
             var serviceFactory = new ServiceFactory(_ => null);
-            var client = new DefaultMediatorClient(new RequestRegistry(), new EventRegistry(), serviceFactory);
+            var client = new DefaultMediatorClient(new RequestRegistry(), new NotificationRegistry(), serviceFactory);
 
             Func<Task> act = () => client.PublishAsync("ev", null);
             act.Should().Throw<ArgumentNullException>();
@@ -192,7 +192,7 @@ namespace Nut.MediatR.ServiceLike.Test
         public void PublisAsync_keyに一致するイベントが見つからない場合は例外が発生する()
         {
             var serviceFactory = new ServiceFactory(_ => null);
-            var client = new DefaultMediatorClient(new RequestRegistry(), new EventRegistry(), serviceFactory);
+            var client = new DefaultMediatorClient(new RequestRegistry(), new NotificationRegistry(), serviceFactory);
 
             Func<Task> act = () => client.PublishAsync("key", new Pang());
             act.Should().Throw<InvalidOperationException>();
@@ -208,7 +208,7 @@ namespace Nut.MediatR.ServiceLike.Test
             var provider = services.BuildServiceProvider();
 
             var serviceFactory = provider.GetService<ServiceFactory>();
-            var registry = new EventRegistry();
+            var registry = new NotificationRegistry();
             registry.Add(typeof(MediatorClientTestPang));
 
             var client = new DefaultMediatorClient(new RequestRegistry(), registry, serviceFactory);

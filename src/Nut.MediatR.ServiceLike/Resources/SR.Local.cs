@@ -27,7 +27,9 @@ namespace System
 
         internal static string Argument_CanNotEventalize(string paramName) => Format(GetResourceString(nameof(Argument_CanNotEventalize), "{0} argument must be implemented as a closed generic type of INotification with AsEventAttribute."), paramName);
 
-        internal static string MediatorEventNotFound(string path) => Format(GetResourceString(nameof(MediatorEventNotFound), "Mediator event was not found. path: {0}"), path);
+        internal static string MediatorNotificationNotFound(string key) => Format(GetResourceString(nameof(MediatorNotificationNotFound), "Mediator notification was not found. key: {0}"), key);
+
+        internal static string Registry_AlreadyContainsKey(string key) => Format(GetResourceString(nameof(Registry_AlreadyContainsKey), "Already contains key: {0}"), key);
 
     }
 }

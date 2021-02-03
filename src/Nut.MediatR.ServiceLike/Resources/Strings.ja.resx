@@ -129,11 +129,14 @@
   <data name="FilterTypeConstratins" xml:space="preserve">
     <value>FilterType は IMediatorServiceFilter を実装し、デフォルトのコンストラクタを持つ必要があります。</value>
   </data>
-  <data name="MediatorEventNotFound" xml:space="preserve">
-    <value>MediatR イベントが見つかりません。 path: {0}</value>
+  <data name="MediatorNotificationNotFound" xml:space="preserve">
+    <value>MediatR 通知が見つかりません。 path: {0}</value>
   </data>
   <data name="MediatorRequestNotFound" xml:space="preserve">
     <value>MediatR リクエストが見つかりません。 path: {0}</value>
+  </data>
+  <data name="Registry_AlreadyContainsKey" xml:space="preserve">
+    <value>指定されたキーはすでに設定されています。 {0}</value>
   </data>
   <data name="Registry_AlreadyContainsPath" xml:space="preserve">
     <value>指定されたパスはすでに設定されています。 {0}</value>

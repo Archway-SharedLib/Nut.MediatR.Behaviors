@@ -11,7 +11,7 @@ namespace Nut.MediatR.ServiceLike
     {
         private readonly IMediator mediator;
         private readonly RequestRegistry requestRegistry;
-        private readonly EventRegistry eventRegistry;
+        private readonly NotificationRegistry eventRegistry;
         private readonly ServiceFactory factory;
 
         [Obsolete("This constructor is not supoort the AsEvent feature. Please use ctor(RequestRegistry, EventRegistry, ServiceFactory).")]
@@ -20,10 +20,10 @@ namespace Nut.MediatR.ServiceLike
             this.mediator = mediator ?? throw new ArgumentNullException(nameof(mediator));
             this.requestRegistry = registry ?? throw new ArgumentNullException(nameof(registry));
             this.factory = factory ?? throw new ArgumentNullException(nameof(factory));
-            this.eventRegistry = new EventRegistry();
+            this.eventRegistry = new NotificationRegistry();
         }
 
-        public DefaultMediatorClient(RequestRegistry requestRegistry, EventRegistry eventRegistry, ServiceFactory factory)
+        public DefaultMediatorClient(RequestRegistry requestRegistry, NotificationRegistry eventRegistry, ServiceFactory factory)
         {
             this.requestRegistry = requestRegistry ?? throw new ArgumentNullException(nameof(requestRegistry));
             this.eventRegistry = eventRegistry ?? throw new ArgumentNullException(nameof(eventRegistry));
@@ -81,13 +81,13 @@ namespace Nut.MediatR.ServiceLike
                 throw new ArgumentNullException(nameof(@event));
             }
 
-            var mediatorEvent = eventRegistry.GetEvent(key);
+            var mediatorEvent = eventRegistry.GetNotification(key);
             if (mediatorEvent is null)
             {
-                throw new InvalidOperationException(SR.MediatorEventNotFound(key));
+                throw new InvalidOperationException(SR.MediatorNotificationNotFound(key));
             }
 
-            var value = TranslateType(@event, mediatorEvent.EventType);
+            var value = TranslateType(@event, mediatorEvent.NotificationType);
 
             mediator.Publish(value!);
 

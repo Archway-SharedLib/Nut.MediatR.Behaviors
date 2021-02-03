@@ -7,14 +7,14 @@ using Xunit;
 
 namespace Nut.MediatR.ServiceLike.Test
 {
-    public class EventRegistryTest
+    public class NotificationRegistryTest
     {
         [Fact]
         public void Add_AsEventが付与されている場合は追加される()
         {
-            var registry = new EventRegistry();
+            var registry = new NotificationRegistry();
             registry.Add(typeof(Pang));
-            var ev = registry.GetEvent("pang");
+            var ev = registry.GetNotification("pang");
             ev.Should().NotBeNull();
             registry.GetKeys().Should().HaveCount(1);
         }
@@ -22,12 +22,12 @@ namespace Nut.MediatR.ServiceLike.Test
         [Fact]
         public void Add_AsEventが複数付与されている場合は複数追加される()
         {
-            var registry = new EventRegistry();
+            var registry = new NotificationRegistry();
             registry.Add(typeof(MultiPang));
             
-            var ev1 = registry.GetEvent("pang.1");
+            var ev1 = registry.GetNotification("pang.1");
             ev1.Should().NotBeNull();
-            var ev2 = registry.GetEvent("pang.2");
+            var ev2 = registry.GetNotification("pang.2");
             ev2.Should().NotBeNull();
 
             registry.GetKeys().Should().HaveCount(2);
@@ -36,7 +36,7 @@ namespace Nut.MediatR.ServiceLike.Test
         [Fact]
         public void Add_同じパスは例外が発生する()
         {
-            var registry = new EventRegistry();
+            var registry = new NotificationRegistry();
             registry.Add(typeof(Pang));
 
             Action act = () => registry.Add(typeof(Pang2));
@@ -48,7 +48,7 @@ namespace Nut.MediatR.ServiceLike.Test
         [Fact]
         public void Add_ignoreDuplicationをfalseにすると同じパスは例外が発生する()
         {
-            var registry = new EventRegistry();
+            var registry = new NotificationRegistry();
             registry.Add(typeof(Pang));
 
             Action act = () => registry.Add(typeof(Pang2), false);
@@ -60,13 +60,13 @@ namespace Nut.MediatR.ServiceLike.Test
         [Fact]
         public void Add_ignoreDuplicationをtrueにすると同じパスは無視される()
         {
-            var registry = new EventRegistry();
+            var registry = new NotificationRegistry();
             registry.Add(typeof(Pang));
 
             registry.Add(typeof(Pang2), true);
 
             registry.GetKeys().Should().HaveCount(1);
-            var type = registry.GetEvent("pang").EventType;
+            var type = registry.GetNotification("pang").NotificationType;
 
             type.Should().Be(typeof(Pang));
         }
@@ -74,7 +74,7 @@ namespace Nut.MediatR.ServiceLike.Test
         [Fact]
         public void Add_typeがnullの場合は例外が発生する()
         {
-            var registry = new EventRegistry();
+            var registry = new NotificationRegistry();
             Action act = () => registry.Add(null);
             act.Should().Throw<ArgumentNullException>();
         }
@@ -82,16 +82,16 @@ namespace Nut.MediatR.ServiceLike.Test
         [Fact]
         public void Add_typeがnullの場合は例外が発生する_withIgnoreDuplication()
         {
-            var registry = new EventRegistry();
+            var registry = new NotificationRegistry();
             Action act = () => registry.Add(null, true);
             act.Should().Throw<ArgumentNullException>();
         }
 
         [Fact]
-        public void GetEvent_設定されていないパスが指定された場合はnullが返る()
+        public void GetNotification_設定されていないパスが指定された場合はnullが返る()
         {
-            var registry = new EventRegistry();
-            registry.GetEvent("unknown.event").Should().BeNull();
+            var registry = new NotificationRegistry();
+            registry.GetNotification("unknown.event").Should().BeNull();
         }
     }
 }

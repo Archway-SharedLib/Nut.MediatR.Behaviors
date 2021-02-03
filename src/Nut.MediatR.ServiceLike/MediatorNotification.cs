@@ -6,33 +6,33 @@ using System.Linq;
 
 namespace Nut.MediatR.ServiceLike
 {
-    public class MediatorEvent
+    public class MediatorNotification
     {
-        private MediatorEvent(string key, Type eventType)
+        private MediatorNotification(string key, Type notificationType)
         {
             Key = key;
-            EventType = eventType;
+            NotificationType = notificationType;
         }
 
-        public static IEnumerable<MediatorEvent> Create(Type eventType)
+        public static IEnumerable<MediatorNotification> Create(Type notificationType)
         {
-            if (eventType is null)
+            if (notificationType is null)
             {
-                throw new ArgumentNullException(nameof(eventType));
+                throw new ArgumentNullException(nameof(notificationType));
             }
 
-            if (!CanEventalize(eventType))
+            if (!CanEventalize(notificationType))
             {
-                throw new ArgumentException(SR.Argument_CanNotEventalize(nameof(eventType)));
+                throw new ArgumentException(SR.Argument_CanNotEventalize(nameof(notificationType)));
             }
-            var attrs = eventType.GetAttributes<AsEventAttribute>(true);
+            var attrs = notificationType.GetAttributes<AsEventAttribute>(true);
             return attrs.Select(attr => 
             {
-                return new MediatorEvent(attr.Path, eventType);
+                return new MediatorNotification(attr.Path, notificationType);
             }).ToList();
         }
 
-        public Type EventType { get; }
+        public Type NotificationType { get; }
         
         public string Key { get; }
 

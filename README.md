@@ -43,8 +43,8 @@ Nut.MediatR.Behaviors.FluentValidationは[FluentValidation]を利用したバリ
 [![NuGet](https://img.shields.io/nuget/vpre/Nut.MediatR.ServiceLike.svg)](https://www.nuget.org/packages/Nut.MediatR.ServiceLike) 
 [![NuGet](https://img.shields.io/nuget/dt/Nut.MediatR.ServiceLike.svg)](https://www.nuget.org/packages/Nut.MediatR.ServiceLike)
 
-Nut.MediatR.ServiceLikeは[MediatR]のハンドラを、サービスのように文字列のパスを指定して実行できるようにするライブラリです。
-Nut.MediatR.ServiceLikeを利用することで、`IRequest`の実装自体への依存も無くせます。
+Nut.MediatR.ServiceLikeは[MediatR]のハンドラを、文字列で指定して実行できるようにするライブラリです。
+Nut.MediatR.ServiceLikeを利用することで、`IRequest`および`INotification`の実装自体への依存も無くせます。
 
 詳細は[ドキュメント](./docs/serviceLike/ServiceLike.md)を参照してください。
 

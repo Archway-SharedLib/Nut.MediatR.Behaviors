@@ -29,9 +29,9 @@ namespace Nut.MediatR.ServiceLike.DependencyInjection.Test
             services.AddMediatRServiceLike(typeof(ServicePing).Assembly);
             var provider = services.BuildServiceProvider();
 
-            var registry = provider.GetService<EventRegistry>();
-            registry.GetEvent("pang").Should().NotBeNull();
-            registry.GetEvent("pang2").Should().NotBeNull();
+            var registry = provider.GetService<NotificationRegistry>();
+            registry.GetNotification("pang").Should().NotBeNull();
+            registry.GetNotification("pang2").Should().NotBeNull();
         }
 
         [Fact]
@@ -54,16 +54,16 @@ namespace Nut.MediatR.ServiceLike.DependencyInjection.Test
         public void AddMediatRServiceLike_EventRegistryが先に登録されている場合はそのインスタンスが利用される()
         {
             var services = new ServiceCollection();
-            var registry = new EventRegistry();
+            var registry = new NotificationRegistry();
             services.AddSingleton(registry);
 
             services.AddMediatRServiceLike(typeof(ServicePing).Assembly);
             var provider = services.BuildServiceProvider();
-            var registryFromService = provider.GetService<EventRegistry>();
+            var registryFromService = provider.GetService<NotificationRegistry>();
 
             registryFromService.Should().BeSameAs(registry);
-            registry.GetEvent("pang").Should().NotBeNull();
-            registry.GetEvent("pang2").Should().NotBeNull();
+            registry.GetNotification("pang").Should().NotBeNull();
+            registry.GetNotification("pang2").Should().NotBeNull();
         }
 
         [Fact]
@@ -72,8 +72,8 @@ namespace Nut.MediatR.ServiceLike.DependencyInjection.Test
             var services = new ServiceCollection();
             var requestRegistry = new RequestRegistry();
             services.AddSingleton(requestRegistry);
-            var eventRegistry = new EventRegistry();
-            services.AddSingleton(eventRegistry);
+            var notificationRegistry = new NotificationRegistry();
+            services.AddSingleton(notificationRegistry);
             var serviceFactory = new ServiceFactory(_ => null);
             services.AddSingleton(serviceFactory);
 

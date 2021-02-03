@@ -1,10 +1,10 @@
 # ServiceLikeの使い方
 
-ServiceLikeは、[MediatR]のハンドラをサービスのように文字列のパスを指定して実行できるようにします。
-そうすることで`IRequest`の実装自体への依存も無くせます。
+ServiceLikeは、[MediatR]のハンドラを文字列で指定して実行できるようにします。
+そうすることで`IRequest`および`INotification`の実装自体への依存も無くせます。
 これは、例えば別のアセンブリで定義された`IRequest`の呼び出しを行いたいが、アセンブリ参照はさせたくない場合などに便利です。
 
-## リクエストの公開
+## IRequestをサービスのように利用する
 
 パスを設定して公開するには`IRequest`に`AsServiceAttribute`属性を設定します。
 
@@ -26,7 +26,7 @@ requestRegistry.Add(typeof(BasicRequest));
 
 ただし、`RequestRegistry`への登録などはDIコンテナ等を通じて隠ぺいされるため、通常は実装する必要はありません。
 
-## リクエストの実行
+### リクエストの実行
 
 リクエストを実行するには、`DefaultMediatorClient`のインスタンスを利用します。
 
@@ -37,7 +37,7 @@ var result = await client.SendAsync<Output>("/basic", new { Id = "345" });
 
 この`DefaultMediatorClient`のインスタンスの構築も、通常はDIコンテナを通じて行われるため、実装する必要はありません。
 
-### 引数と戻り値の型
+#### 引数と戻り値の型
 
 `DefaultMediatorClient`の`SendAsync`に渡す引数と戻り値の値は、実際の`IRequest`で定義されている型である必要はありません。内部で`System.Text.Json`を利用して、次のような操作が行われているため同等の構造であれば多くの値が変換できます。
 
@@ -50,7 +50,7 @@ var result = await client.SendAsync<Output>("/basic", new { Id = "345" });
 
 ただし、引数と戻り値ともに`null`または`MediatR.Unit`型の場合は`null`に変換されます。
 
-## フィルター
+### フィルター
 
 `DefaultMediatorClient`の`SendAsync`が実行され、引数の型が変換されてから`MediatR`の`IRequest`が実行されるまでの間で`IMediatorServiceFilter`を実装した独自の処理を挟み込めます。
 
@@ -58,7 +58,7 @@ var result = await client.SendAsync<Output>("/basic", new { Id = "345" });
 
 ![処理のシーケンス](./images/mediator_service_fileter_seq.drawio.svg)
 
-### フィルターの実装
+#### フィルターの実装
 
 フィルターは`IMediatorServiceFilter`を継承して、`HandleAsync`メソッドを実装します。`HandleAsync`にはリクエスト情報と`IRequest`に渡されるパラメーターの値、次に実行するフィルターもしくは`IRequest`呼び出しのデリゲートが渡されます。戻り値で返した値が`IRequest`呼び出しの結果として`DefaultMediatorClient`に渡されます。
 
@@ -81,7 +81,7 @@ public class ExceptionFilter : IMediatorServiceFilter
 }
 ```
 
-### フィルターの設定と実行順序
+#### フィルターの設定と実行順序
 
 実行するフィルターは次の箇所で`Type`を指定します。
 
@@ -100,5 +100,9 @@ public class SampleRequest: IRequest<SampleResult>
 
 requestRegistry.Add(typeof(SampleRequest), typeof(Filter1), typeof(Filter2));
 ```
+
+## INotificationをイベントのように利用する
+
+TODO: 
 
 [MediatR]:https://github.com/jbogard/MediatR

@@ -25,24 +25,24 @@ namespace Nut.MediatR.ServiceLike.DependencyInjection
                 requestRegistry.Add(request, true, filterTypes);
             }
 
-            if (!(services.LastOrDefault(s => s.ServiceType == typeof(EventRegistry))?
-                .ImplementationInstance is EventRegistry eventRegistry))
+            if (!(services.LastOrDefault(s => s.ServiceType == typeof(NotificationRegistry))?
+                .ImplementationInstance is NotificationRegistry notificationRegistry))
             {
-                eventRegistry = new EventRegistry();
+                notificationRegistry = new NotificationRegistry();
             }
-            services.TryAddSingleton(eventRegistry);
+            services.TryAddSingleton(notificationRegistry);
 
             var events = assembly.GetTypes()
-                .Where(type => MediatorEvent.CanEventalize(type));
+                .Where(type => MediatorNotification.CanEventalize(type));
             foreach (var ev in events)
             {
-                eventRegistry.Add(ev, true);
+                notificationRegistry.Add(ev, true);
             }
 
             services.TryAddTransient(typeof(IMediatorClient), provider =>
             {
                 var requestRegistry = provider.GetService<RequestRegistry>();
-                var eventRegistry = provider.GetService<EventRegistry>();
+                var eventRegistry = provider.GetService<NotificationRegistry>();
                 var serviceFactory = provider.GetService<ServiceFactory>();
                 return new DefaultMediatorClient(requestRegistry, eventRegistry, serviceFactory);
             });
