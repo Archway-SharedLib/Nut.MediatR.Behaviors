@@ -211,7 +211,9 @@ namespace Nut.MediatR.ServiceLike.Test
 
             var pang = new MediatorClientTestPang();
             await client.PublishAsync(nameof(MediatorClientTestPang), pang);
+            
             Thread.Sleep(1000); //それぞれで10だけまたしているため、1000あれば終わっているはず。
+            
             await Task.WhenAll(holder.Tasks);
             holder.Messages.Should().HaveCount(3).And.Contain("1", "2", "3");
             holder.Pangs.Should().HaveCount(3);
@@ -241,7 +243,7 @@ namespace Nut.MediatR.ServiceLike.Test
             await client.PublishAsync(nameof(ExceptionPang), new { });
             
             // Fire and forgetのため一旦スリープ
-            Thread.Sleep(100);
+            Thread.Sleep(1000);
             
             logger.Errors.Should().HaveCount(1);
         }
