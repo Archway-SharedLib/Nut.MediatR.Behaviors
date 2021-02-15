@@ -7,6 +7,7 @@ using Nut.MediatR.ServiceLike;
 using System.Threading.Tasks;
 using ServiceLikeSample.Sample.Basic;
 using System.Collections.Generic;
+using System.Threading;
 using ServiceLikeSample.Sample;
 using ServiceLikeSample.ServiceDto;
 using ServiceLikeSample.Sample.Filter;
@@ -53,7 +54,8 @@ namespace ServiceLikeSample
             // Eventを使う
             await client.PublishAsync("Mediator.SampleEvent", new { Id = "123", Name = "Bob", Age = 23 });
             logger.LogInformation("Complete Event Publish");
-
+            
+            Thread.Sleep(1000);
         }
     }
 }
