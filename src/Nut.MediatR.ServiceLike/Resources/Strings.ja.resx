@@ -138,4 +138,7 @@
   <data name="Registry_AlreadyContainsPath" xml:space="preserve">
     <value>指定されたパスはすでに設定されています。 {0}</value>
   </data>
+  <data name="Client_RaiseExWhenPublish" xml:space="preserve">
+    <value>イベントを発行したときに例外が発生しました。{0}</value>
+  </data>
 </root>

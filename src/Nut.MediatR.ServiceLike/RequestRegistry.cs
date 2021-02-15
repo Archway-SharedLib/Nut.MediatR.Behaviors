@@ -20,7 +20,7 @@ namespace Nut.MediatR.ServiceLike
             {
                 throw new ArgumentNullException(nameof(type));
             }
-            FilterSupport.ThrowIfInvalidFileterTypeAllWith(filterTypes);
+            FilterSupport.ThrowIfInvalidFilterTypeAllWith(filterTypes);
 
             var requests = MediatorRequest.Create(type, filterTypes);
             foreach (var request in requests)

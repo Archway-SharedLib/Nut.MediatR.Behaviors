@@ -19,7 +19,7 @@ namespace Nut.MediatR.ServiceLike
             this.Path = path;
 
             if (filterTypes is null) throw new ArgumentNullException(nameof(filterTypes));
-            FilterSupport.ThrowIfInvalidFileterTypeAllWith(filterTypes);
+            FilterSupport.ThrowIfInvalidFilterTypeAllWith(filterTypes);
             
             FilterTypes = new ReadOnlyCollection<Type>(filterTypes);
         }

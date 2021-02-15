@@ -1,6 +1,7 @@
 ﻿using MediatR;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -15,12 +16,8 @@ namespace Nut.MediatR.ServiceLike
 
         protected override Task PublishCore(IEnumerable<Func<INotification, CancellationToken, Task>> allHandlers, INotification notification, CancellationToken cancellationToken)
         {
-            foreach (var handler in allHandlers)
-            {
-                Task.Run(() => handler(notification, cancellationToken));
-            }
-
-            return Task.CompletedTask;
+            var tasks = allHandlers.Select(hanlder => hanlder(notification, cancellationToken));
+            return Task.WhenAll(tasks);
         }
     }
 }

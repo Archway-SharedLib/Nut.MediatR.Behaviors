@@ -1,0 +1,57 @@
+﻿using System;
+using Xunit;
+using FluentAssertions;
+using MediatR;
+using Microsoft.Extensions.DependencyInjection;
+
+namespace Nut.MediatR.ServiceLike.DependencyInjection.Test
+{
+    public class ServiceFactoryScopeTest
+    {
+        [Fact]
+        public void ctor_パラメーターがない場合は例外が発生する()
+        {
+            Action act = () => new ServiceFactoryScope(null!);
+            act.Should().Throw<ArgumentNullException>();
+        }
+
+        [Fact]
+        public void ServiceFactory_スコープで区切られたServiceFactoryが取得できる()
+        {
+            var services = new ServiceCollection();
+            services.AddScoped<Test>();
+            var provider = services.BuildServiceProvider();
+            using var outerScope = provider.CreateScope();
+            var outerTest1 = outerScope.ServiceProvider.GetService<Test>();
+            var outerTest2 = outerScope.ServiceProvider.GetService<Test>();
+
+            outerTest1.Should().Be(outerTest2);
+            
+            Test innerTest1 = null;
+            Test innerTest2 = null;
+            
+            using (var scope = new ServiceFactoryScope(provider))
+            {
+                innerTest1 = scope.ServiceFactory.GetInstance<Test>();
+                innerTest2 = scope.ServiceFactory.GetInstance<Test>();
+
+                innerTest1.Should().Be(innerTest2);
+                innerTest1.Should().NotBe(outerTest1);
+                innerTest1.Disposed.Should().BeFalse();
+                innerTest1.Disposed.Should().BeFalse();
+            }
+
+            innerTest1.Disposed.Should().BeTrue();
+            innerTest2.Disposed.Should().BeTrue();
+        }
+
+        private class Test: IDisposable
+        {
+            public bool Disposed { get; private set; } = false;
+            public void Dispose()
+            {
+                this.Disposed = true;
+            }
+        }
+    }
+}

@@ -29,5 +29,7 @@ namespace System
 
         internal static string Registry_AlreadyContainsKey(string key) => Format(GetResourceString(nameof(Registry_AlreadyContainsKey), "Already contains key: {0}"), key);
 
+        internal static string Client_RaiseExWhenPublish(string notificationType) => Format(GetResourceString(nameof(Client_RaiseExWhenPublish), "Raise exception when publish: {0}."), notificationType);
+   
     }
 }

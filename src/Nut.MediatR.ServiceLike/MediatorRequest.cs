@@ -21,7 +21,7 @@ namespace Nut.MediatR.ServiceLike
             {
                 throw new ArgumentNullException(nameof(requestType));
             }
-            FilterSupport.ThrowIfInvalidFileterTypeAllWith(filterTypes);
+            FilterSupport.ThrowIfInvalidFilterTypeAllWith(filterTypes);
 
             if (!CanServicalize(requestType))
             {

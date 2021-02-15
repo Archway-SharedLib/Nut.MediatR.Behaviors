@@ -138,4 +138,7 @@
   <data name="Registry_AlreadyContainsPath" xml:space="preserve">
     <value>Already contains path: {0}</value>
   </data>
+  <data name="Client_RaiseExWhenPublish" xml:space="preserve">
+    <value>Raise exception when publish: {0}.</value>
+  </data>
 </root>

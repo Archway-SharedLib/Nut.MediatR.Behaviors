@@ -19,7 +19,7 @@ namespace Nut.MediatR.ServiceLike.DependencyInjection
             services.TryAddSingleton(requestRegistry);
 
             var requests = assembly.GetTypes()
-                .Where(type => MediatorRequest.CanServicalize(type));
+                .Where(MediatorRequest.CanServicalize);
             foreach(var request in requests)
             {
                 requestRegistry.Add(request, true, filterTypes);
@@ -33,18 +33,25 @@ namespace Nut.MediatR.ServiceLike.DependencyInjection
             services.TryAddSingleton(notificationRegistry);
 
             var notifications = assembly.GetTypes()
-                .Where(type => MediatorNotification.CanEventalize(type));
+                .Where(MediatorNotification.CanEventalize);
             foreach (var notification in notifications)
             {
                 notificationRegistry.Add(notification);
             }
-
+            
             services.TryAddTransient(typeof(IMediatorClient), provider =>
             {
-                var requestRegistry = provider.GetService<RequestRegistry>();
-                var notificationRegistry = provider.GetService<NotificationRegistry>();
+                var reqRegistry = provider.GetService<RequestRegistry>();
+                var notiRegistry = provider.GetService<NotificationRegistry>();
                 var serviceFactory = provider.GetService<ServiceFactory>();
-                return new DefaultMediatorClient(requestRegistry, notificationRegistry, serviceFactory);
+                var scopedServiceFactoryFactory = new ScopedServiceFactoryFactory(provider);
+                
+                // TODO: create logger
+                return new DefaultMediatorClient(
+                    reqRegistry, 
+                    notiRegistry, 
+                    serviceFactory,
+                    scopedServiceFactoryFactory, null!);
             });
 
             return services;

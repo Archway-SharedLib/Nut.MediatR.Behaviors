@@ -27,9 +27,8 @@ namespace Nut.MediatR.ServiceLike
             }
             var attrs = notificationType.GetAttributes<AsEventAttribute>(true);
             return attrs.Select(attr => 
-            {
-                return new MediatorNotification(attr.Path, notificationType);
-            }).ToList();
+                new MediatorNotification(attr.Path, notificationType)
+            ).ToList();
         }
 
         public Type NotificationType { get; }

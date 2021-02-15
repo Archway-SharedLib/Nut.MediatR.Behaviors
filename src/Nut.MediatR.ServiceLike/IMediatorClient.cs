@@ -9,6 +9,9 @@ namespace Nut.MediatR.ServiceLike
     {
         Task<TResult?> SendAsync<TResult>(string path, object request) where TResult : class;
 
+        Task PublishAsync(string key, object notification);
+        
+        [Obsolete("This method will be removed in the near future. It always raises no exceptions.")]
         Task PublishAsync(string key, object notification, bool notifySendingError = false);
     }
 }

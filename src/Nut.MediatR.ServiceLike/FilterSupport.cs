@@ -6,16 +6,16 @@ namespace Nut.MediatR.ServiceLike
 {
     internal class FilterSupport
     {
-        public static void ThrowIfInvalidFileterTypeAllWith(IEnumerable<Type> filterTypes)
+        public static void ThrowIfInvalidFilterTypeAllWith(IEnumerable<Type> filterTypes)
         {
-            var result = IsValidTIlterTypeAllCore(filterTypes);
+            var result = IsValidFilterTypeAllCore(filterTypes);
             if(!result)
             {
                 throw new ArgumentException(SR.FilterTypeConstratins);
             }
         }
 
-        public static bool IsValidTIlterTypeAllCore(IEnumerable<Type> filterTypes)
+        public static bool IsValidFilterTypeAllCore(IEnumerable<Type> filterTypes)
         {
             if (filterTypes is null)
             {
