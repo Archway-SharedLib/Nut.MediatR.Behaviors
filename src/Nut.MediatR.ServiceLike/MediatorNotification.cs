@@ -3,6 +3,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+#pragma warning disable 618
 
 namespace Nut.MediatR.ServiceLike
 {
@@ -25,9 +26,14 @@ namespace Nut.MediatR.ServiceLike
             {
                 throw new ArgumentException(SR.Argument_CanNotEventalize(nameof(notificationType)));
             }
-            var attrs = notificationType.GetAttributes<AsEventAttribute>(true);
-            return attrs.Select(attr => 
-                new MediatorNotification(attr.Path, notificationType)
+
+            var evListenerAttrs = notificationType.GetAttributes<AsEventListenerAttribute>(true).ToList();
+            var paths = evListenerAttrs.Any()
+                ? evListenerAttrs.Select(attr => attr.Path)
+                : notificationType.GetAttributes<AsEventAttribute>(true).Select(attr => attr.Path);
+            
+            return paths.Select(path => 
+                new MediatorNotification(path, notificationType)
             ).ToList();
         }
 
@@ -39,6 +45,6 @@ namespace Nut.MediatR.ServiceLike
             => !requestType.IsOpenGeneric()
                 && requestType.IsConcrete()
                 && requestType.IsImplemented(typeof(INotification))
-                && requestType.GetAttributes<AsEventAttribute>().Any();
+                && (requestType.GetAttributes<AsEventListenerAttribute>().Any() || requestType.GetAttributes<AsEventAttribute>().Any());
     }
 }

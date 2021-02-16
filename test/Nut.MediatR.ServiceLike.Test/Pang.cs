@@ -7,29 +7,29 @@ using System.Threading.Tasks;
 
 namespace Nut.MediatR.ServiceLike.Test
 {
-    [AsEvent("pang")]
+    [AsEventListener("pang")]
     public record Pang: INotification
     {
     }
 
-    [AsEvent("pang")]
+    [AsEventListener("pang")]
     public record Pang2 : INotification
     {
     }
 
-    [AsEvent("pang.1")]
-    [AsEvent("pang.2")]
+    [AsEventListener("pang.1")]
+    [AsEventListener("pang.2")]
     public record MultiPang : INotification
     {
     }
 
-    [AsEvent("pang.open.generic")]
+    [AsEventListener("pang.open.generic")]
     public class OpenGenericPang<T> : INotification { }
 
-    [AsEvent("pang.abstract")]
+    [AsEventListener("pang.abstract")]
     public abstract class AbstractPang : INotification { }
 
-    [AsEvent("pang.plain")]
+    [AsEventListener("pang.plain")]
     public class PlainPang { }
 
     public class OnlyPang { }

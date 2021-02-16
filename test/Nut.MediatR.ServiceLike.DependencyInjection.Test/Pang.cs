@@ -7,12 +7,12 @@ using System.Threading.Tasks;
 
 namespace Nut.MediatR.ServiceLike.DependencyInjection.Test
 {
-    [AsEvent("pang")]
+    [AsEventListener("pang")]
     public class Pang: INotification
     {
     }
 
-    [AsEvent("pang2")]
+    [AsEventListener("pang2")]
     public class Pang2 : INotification
     {
     }

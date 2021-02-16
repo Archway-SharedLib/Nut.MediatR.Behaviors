@@ -6,7 +6,7 @@ using System.Text;
 
 namespace ServiceLikeSample.Sample.Notification
 {
-    [AsEvent("Mediator.SampleEvent")]
+    [AsEventListener("Mediator.SampleEvent")]
     public class SampleEvent : INotification
     {
         public SampleEvent(string id, string name, int age)
