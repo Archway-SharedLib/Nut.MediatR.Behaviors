@@ -54,26 +54,54 @@ namespace Nut.MediatR.ServiceLike.Test
         public string Value { get; set; }
     }
 
+    public class ExecuteCheck
+    {
+        public bool Executed { get; set; } = false;
+    }
+    
+    
     public class ServicePingHandler : IRequestHandler<ServicePing, Pong>
     {
+        private readonly ExecuteCheck check;
+
+        public ServicePingHandler(ExecuteCheck check)
+        {
+            this.check = check;
+        }
+
         public Task<Pong> Handle(ServicePing request, CancellationToken cancellationToken)
         {
+            this.check.Executed = true;
             return Task.FromResult(new Pong() { Value = request.Value + " Pong" });
         }
     }
 
     public class ServiceNullPingHandler : IRequestHandler<ServiceNullPing, Pong>
     {
+        private readonly ExecuteCheck check;
+
+        public ServiceNullPingHandler(ExecuteCheck check)
+        {
+            this.check = check;
+        }
         public Task<Pong> Handle(ServiceNullPing request, CancellationToken cancellationToken)
         {
+            this.check.Executed = true;
             return Task.FromResult(null as Pong);
         }
     }
 
     public class VoidServicePingHandler : IRequestHandler<VoidServicePing>
     {
+        private readonly ExecuteCheck check;
+
+        public VoidServicePingHandler(ExecuteCheck check)
+        {
+            this.check = check;
+        }
         public Task<Unit> Handle(VoidServicePing request, CancellationToken cancellationToken)
         {
+            this.check.Executed = true;
             return Unit.Task;
         }
     }

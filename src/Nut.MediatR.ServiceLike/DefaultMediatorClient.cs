@@ -18,7 +18,7 @@ namespace Nut.MediatR.ServiceLike
         private readonly IServiceLikeLogger? logger = null;
 
         [ExcludeFromCodeCoverage]
-        [Obsolete("This constructor is not support the AsEvent feature. Please use ctor(RequestRegistry, EventRegistry, ServiceFactory, IScopedServiceFactoryFactory).")]
+        [Obsolete("This constructor is not support the AsEvent feature. Therefore, it will be removed in v0.4.0. Please use ctor(RequestRegistry, EventRegistry, ServiceFactory, IScopedServiceFactoryFactory).")]
         public DefaultMediatorClient(IMediator mediator, RequestRegistry registry, ServiceFactory factory)
         {
             this.mediator = mediator ?? throw new ArgumentNullException(nameof(mediator));
@@ -29,7 +29,7 @@ namespace Nut.MediatR.ServiceLike
         }
 
         [ExcludeFromCodeCoverage]
-        [Obsolete("This constructor is not support the AsEvent feature. Please use ctor(RequestRegistry, EventRegistry, ServiceFactory, IScopedServiceFactoryFactory).")]
+        [Obsolete("This constructor is not support the AsEvent feature. Therefore, it will be removed in v0.4.0. Please use ctor(RequestRegistry, EventRegistry, ServiceFactory, IScopedServiceFactoryFactory).")]
         public DefaultMediatorClient(RequestRegistry requestRegistry, NotificationRegistry eventRegistry, ServiceFactory factory)
         {
             this.requestRegistry = requestRegistry ?? throw new ArgumentNullException(nameof(requestRegistry));
@@ -53,6 +53,15 @@ namespace Nut.MediatR.ServiceLike
 
         public async Task<TResult?> SendAsync<TResult>(string path, object request) where TResult : class
         {
+            var result = await SendAsyncInternal(path, request, typeof(TResult));
+            return TranslateType(result, typeof(TResult)) as TResult;
+        }
+
+        public async Task SendAsync(string path, object request)
+            => await SendAsyncInternal(path, request, null);
+
+        private async Task<object?> SendAsyncInternal(string path, object request, Type? resultType)
+        {
             if (request is null)
             {
                 throw new ArgumentNullException(nameof(request));
@@ -65,11 +74,9 @@ namespace Nut.MediatR.ServiceLike
             }
             var value = TranslateType(request, mediatorRequest.RequestType);
 
-            var context = new RequestContext(mediatorRequest.Path, mediatorRequest.RequestType, typeof(TResult), factory);
-
-            var result = await ExecuteAsync(new Queue<Type>(mediatorRequest.Filters), value, context).ConfigureAwait(false);
+            var context = new RequestContext(mediatorRequest.Path, mediatorRequest.RequestType, factory, resultType);
             
-            return TranslateType(result, typeof(TResult)) as TResult;
+            return await ExecuteAsync(new Queue<Type>(mediatorRequest.Filters), value, context).ConfigureAwait(false);
         }
 
         private object? TranslateType(object? value, Type type)
@@ -92,7 +99,7 @@ namespace Nut.MediatR.ServiceLike
         }
 
         [ExcludeFromCodeCoverage]
-        [Obsolete("This method will be removed in the near future. It always raises no exceptions.")]
+        [Obsolete("This method will be removed in the v0.4.0. It always raises no exceptions.")]
         public Task PublishAsync(string key, object notification, bool notifySendingError = false)
             => PublishAsync(key, notification);
         

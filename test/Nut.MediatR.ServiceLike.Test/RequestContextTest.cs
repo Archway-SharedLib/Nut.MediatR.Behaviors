@@ -14,42 +14,35 @@ namespace Nut.MediatR.ServiceLike.Test
         [Fact]
         public void ctor_pathがnullの場合は例外が発生する()
         {
-            Action act = () => new RequestContext(null, typeof(ServicePing), typeof(Pong), new ServiceFactory(_ => null));
+            Action act = () => new RequestContext(null, typeof(ServicePing),  new ServiceFactory(_ => null), typeof(Pong));
             act.Should().Throw<ArgumentException>();
         }
 
         [Fact]
         public void ctor_pathが空文字の場合は例外が発生する()
         {
-            Action act = () => new RequestContext(string.Empty, typeof(ServicePing), typeof(Pong), new ServiceFactory(_ => null));
+            Action act = () => new RequestContext(string.Empty, typeof(ServicePing), new ServiceFactory(_ => null), typeof(Pong));
             act.Should().Throw<ArgumentException>();
         }
 
         [Fact]
         public void ctor_pathが空白文字の場合は例外が発生する()
         {
-            Action act = () => new RequestContext(" ", typeof(ServicePing), typeof(Pong), new ServiceFactory(_ => null));
+            Action act = () => new RequestContext(" ", typeof(ServicePing), new ServiceFactory(_ => null), typeof(Pong));
             act.Should().Throw<ArgumentException>();
         }
 
         [Fact]
         public void ctor_mediatorParameterTypeがnullの場合は例外が発生する()
         {
-            Action act = () => new RequestContext("/this/is/path", null, typeof(Pong), new ServiceFactory(_ => null));
-            act.Should().Throw<ArgumentException>();
-        }
-
-        [Fact]
-        public void ctor_clientResultTypeがnullの場合は例外が発生する()
-        {
-            Action act = () => new RequestContext("/this/is/path", typeof(ServicePing), null, new ServiceFactory(_ => null));
+            Action act = () => new RequestContext("/this/is/path", null, new ServiceFactory(_ => null), typeof(Pong));
             act.Should().Throw<ArgumentException>();
         }
 
         [Fact]
         public void ctor_serviceFactoryがnullの場合は例外が発生する()
         {
-            Action act = () => new RequestContext("/this/is/path", typeof(ServicePing), typeof(Pong), null);
+            Action act = () => new RequestContext("/this/is/path", typeof(ServicePing), null, typeof(Pong));
             act.Should().Throw<ArgumentException>();
         }
 
@@ -58,15 +51,40 @@ namespace Nut.MediatR.ServiceLike.Test
         {
             var path = "/this/is/path";
             var mediatorParameterType = typeof(ServicePing);
-            var clientReusltType = typeof(Pong);
+            var clientResultType = typeof(Pong);
             var serviceFactory = new ServiceFactory(_ => null);
 
-            var context = new RequestContext(path, mediatorParameterType, clientReusltType, serviceFactory);
+            var context = new RequestContext(path, mediatorParameterType, serviceFactory, clientResultType);
 
             context.Path.Should().Be(path);
             context.MediatorParameterType.Should().Be(mediatorParameterType);
-            context.ClientResultType.Should().Be(clientReusltType);
+            context.ClientResultType.Should().Be(clientResultType);
             context.ServiceFactory.Should().Be(serviceFactory);
+        }
+
+        [Fact]
+        public void NeedClientResult_ClientResultTypeがnullの場合はfalseになる()
+        {
+            var path = "/this/is/path";
+            var mediatorParameterType = typeof(ServicePing);
+            var serviceFactory = new ServiceFactory(_ => null);
+            
+            var context = new RequestContext(path, mediatorParameterType, serviceFactory);
+            context.ClientResultType.Should().BeNull();
+            context.NeedClientResult.Should().BeFalse();
+        }
+        
+        [Fact]
+        public void NeedClientResult_ClientResultTypeがある場合はtrueになる()
+        {
+            var path = "/this/is/path";
+            var mediatorParameterType = typeof(ServicePing);
+            var serviceFactory = new ServiceFactory(_ => null);
+            var clientResultType = typeof(Pong);
+            
+            var context = new RequestContext(path, mediatorParameterType, serviceFactory, clientResultType);
+            context.ClientResultType.Should().Be(clientResultType);
+            context.NeedClientResult.Should().BeTrue();
         }
     }
 }

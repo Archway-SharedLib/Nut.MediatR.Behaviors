@@ -50,7 +50,7 @@ namespace Nut.MediatR.ServiceLike.Test
         }
         
         [Fact]
-        public void SendAsync_requestがnullの場合は例外が発生する()
+        public void T_SendAsync_requestがnullの場合は例外が発生する()
         {
             var serviceFactory = new ServiceFactory(_ => null);
             var client = new DefaultMediatorClient(new RequestRegistry(), new NotificationRegistry(),
@@ -61,7 +61,7 @@ namespace Nut.MediatR.ServiceLike.Test
         }
 
         [Fact]
-        public void SendAsync_pathに一致するリクエストが見つからない場合は例外が発生する()
+        public void T_SendAsync_pathに一致するリクエストが見つからない場合は例外が発生する()
         {
             var serviceFactory = new ServiceFactory(_ => null);
             var client = new DefaultMediatorClient(new RequestRegistry(), new NotificationRegistry(),
@@ -72,10 +72,12 @@ namespace Nut.MediatR.ServiceLike.Test
         }
 
         [Fact]
-        public async Task SendAsync_Mediatorが実行されて結果が返される()
+        public async Task T_SendAsync_Mediatorが実行されて結果が返される()
         {
             var services = new ServiceCollection();
             services.AddMediatR(typeof(ServicePing).Assembly);
+            var check = new ExecuteCheck();
+            services.AddTransient(_ => check);
             var provider = services.BuildServiceProvider();
 
             var serviceFactory = provider.GetService<ServiceFactory>()!;
@@ -87,13 +89,36 @@ namespace Nut.MediatR.ServiceLike.Test
 
             var pong = await client.SendAsync<Pong>("/ping", new ServicePing() { Value = "Ping" });
             pong!.Value.Should().Be("Ping Pong");
+            check.Executed.Should().BeTrue();
         }
-
+        
         [Fact]
-        public async Task SendAsync_引数と戻り値は変換可能_Jsonシリアライズデシリアライズに依存()
+        public async Task SendAsync_Mediatorが実行されるが結果は捨てられる()
         {
             var services = new ServiceCollection();
             services.AddMediatR(typeof(ServicePing).Assembly);
+            var check = new ExecuteCheck();
+            services.AddTransient(_ => check);
+            var provider = services.BuildServiceProvider();
+
+            var serviceFactory = provider.GetService<ServiceFactory>()!;
+            var registry = new RequestRegistry();
+            registry.Add(typeof(ServicePing));
+
+            var client = new DefaultMediatorClient(registry, new NotificationRegistry(), 
+                serviceFactory!, new InternalScopedServiceFactoryFactory(serviceFactory!), new TestLogger());
+
+            await client.SendAsync("/ping", new ServicePing() { Value = "Ping" });
+            check.Executed.Should().BeTrue();
+        }
+
+        [Fact]
+        public async Task T_SendAsync_引数と戻り値は変換可能_Jsonシリアライズデシリアライズに依存()
+        {
+            var services = new ServiceCollection();
+            services.AddMediatR(typeof(ServicePing).Assembly);
+            var check = new ExecuteCheck();
+            services.AddTransient(_ => check);
             var provider = services.BuildServiceProvider();
 
             var serviceFactory = provider.GetService<ServiceFactory>();
@@ -105,13 +130,16 @@ namespace Nut.MediatR.ServiceLike.Test
 
             var pong = await client.SendAsync<LocalPong>("/ping", new { Value = "Ping" });
             pong!.Value.Should().Be("Ping Pong");
+            check.Executed.Should().BeTrue();
         }
 
         [Fact]
-        public async Task SendAsync_戻り値がnullの場合はnullが返される()
+        public async Task T_SendAsync_戻り値がnullの場合はnullが返される()
         {
             var services = new ServiceCollection();
             services.AddMediatR(typeof(ServicePing).Assembly);
+            var check = new ExecuteCheck();
+            services.AddTransient(_ => check);
             var provider = services.BuildServiceProvider();
 
             var serviceFactory = provider.GetService<ServiceFactory>();
@@ -123,13 +151,36 @@ namespace Nut.MediatR.ServiceLike.Test
 
             var pong = await client.SendAsync<Pong>("/ping/null", new { Value = "Ping" });
             pong.Should().BeNull();
+            check.Executed.Should().BeTrue();
         }
-
+        
         [Fact]
-        public async Task SendAsync_戻り値がUnitの場合はnullで返される()
+        public async Task SendAsync_戻り値がnullの場合も結果が捨てられる()
         {
             var services = new ServiceCollection();
             services.AddMediatR(typeof(ServicePing).Assembly);
+            var check = new ExecuteCheck();
+            services.AddTransient(_ => check);
+            var provider = services.BuildServiceProvider();
+
+            var serviceFactory = provider.GetService<ServiceFactory>();
+            var registry = new RequestRegistry();
+            registry.Add(typeof(ServiceNullPing));
+
+            var client = new DefaultMediatorClient(registry, new NotificationRegistry(), 
+                serviceFactory!, new InternalScopedServiceFactoryFactory(serviceFactory!), new TestLogger());
+
+            await client.SendAsync("/ping/null", new { Value = "Ping" });
+            check.Executed.Should().BeTrue();
+        }
+
+        [Fact]
+        public async Task T_SendAsync_戻り値がUnitの場合はnullで返される()
+        {
+            var services = new ServiceCollection();
+            services.AddMediatR(typeof(ServicePing).Assembly);
+            var check = new ExecuteCheck();
+            services.AddTransient(_ => check);
             var provider = services.BuildServiceProvider();
 
             var serviceFactory = provider.GetService<ServiceFactory>();
@@ -141,16 +192,41 @@ namespace Nut.MediatR.ServiceLike.Test
 
             var pong = await client.SendAsync<Pong>("/ping/void", new { Value = "Ping" });
             pong.Should().BeNull();
+            check.Executed.Should().BeTrue();
+        }
+        
+        [Fact]
+        public async Task SendAsync_戻り値がUnitの場合も結果は捨てられる()
+        {
+            var services = new ServiceCollection();
+            services.AddMediatR(typeof(ServicePing).Assembly);
+            var check = new ExecuteCheck();
+            services.AddTransient(_ => check);
+            var provider = services.BuildServiceProvider();
+
+            var serviceFactory = provider.GetService<ServiceFactory>();
+            var registry = new RequestRegistry();
+            registry.Add(typeof(VoidServicePing));
+
+            var client = new DefaultMediatorClient(registry, new NotificationRegistry(), 
+                serviceFactory!, new InternalScopedServiceFactoryFactory(serviceFactory!), new TestLogger());
+
+            await client.SendAsync("/ping/void", new { Value = "Ping" });
+            check.Executed.Should().BeTrue();
         }
 
         [Fact]
-        public async Task SendAsync_Filterが設定されている場合は順番に実行される()
+        public async Task T_SendAsync_Filterが設定されている場合は順番に実行される()
         {
             var services = new ServiceCollection();
             services.AddMediatR(typeof(ServicePing).Assembly);
 
             var check = new FilterExecutionCheck();
             services.AddSingleton(check);
+            
+            var handlerCheck = new ExecuteCheck();
+            services.AddTransient(_ => handlerCheck);
+            
             var provider = services.BuildServiceProvider();
 
             var serviceFactory = provider.GetService<ServiceFactory>();
