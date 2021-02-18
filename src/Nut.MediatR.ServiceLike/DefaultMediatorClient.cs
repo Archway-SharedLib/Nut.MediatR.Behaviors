@@ -11,41 +11,41 @@ namespace Nut.MediatR.ServiceLike
     public class DefaultMediatorClient : IMediatorClient
     {
         private readonly IMediator mediator;
-        private readonly RequestRegistry requestRegistry;
-        private readonly NotificationRegistry eventRegistry;
+        private readonly ServiceRegistry serviceRegistry;
+        private readonly ListenerRegistry listenerRegistry;
         private readonly ServiceFactory factory;
         private readonly IScopedServiceFactoryFactory scopedServiceFactoryFactory;
         private readonly IServiceLikeLogger? logger = null;
 
         [ExcludeFromCodeCoverage]
         [Obsolete("This constructor is not support the AsEvent feature. Therefore, it will be removed in v0.4.0. Please use ctor(RequestRegistry, EventRegistry, ServiceFactory, IScopedServiceFactoryFactory).")]
-        public DefaultMediatorClient(IMediator mediator, RequestRegistry registry, ServiceFactory factory)
+        public DefaultMediatorClient(IMediator mediator, ServiceRegistry registry, ServiceFactory factory)
         {
             this.mediator = mediator ?? throw new ArgumentNullException(nameof(mediator));
-            this.requestRegistry = registry ?? throw new ArgumentNullException(nameof(registry));
+            this.serviceRegistry = registry ?? throw new ArgumentNullException(nameof(registry));
             this.factory = factory ?? throw new ArgumentNullException(nameof(factory));
-            this.eventRegistry = new NotificationRegistry();
+            this.listenerRegistry = new ListenerRegistry();
             this.scopedServiceFactoryFactory = new InternalScopedServiceFactoryFactory(factory);
         }
 
         [ExcludeFromCodeCoverage]
         [Obsolete("This constructor is not support the AsEvent feature. Therefore, it will be removed in v0.4.0. Please use ctor(RequestRegistry, EventRegistry, ServiceFactory, IScopedServiceFactoryFactory).")]
-        public DefaultMediatorClient(RequestRegistry requestRegistry, NotificationRegistry eventRegistry, ServiceFactory factory)
+        public DefaultMediatorClient(ServiceRegistry serviceRegistry, ListenerRegistry eventRegistry, ServiceFactory factory)
         {
-            this.requestRegistry = requestRegistry ?? throw new ArgumentNullException(nameof(requestRegistry));
-            this.eventRegistry = eventRegistry ?? throw new ArgumentNullException(nameof(eventRegistry));
+            this.serviceRegistry = serviceRegistry ?? throw new ArgumentNullException(nameof(serviceRegistry));
+            this.listenerRegistry = eventRegistry ?? throw new ArgumentNullException(nameof(eventRegistry));
             this.factory = factory ?? throw new ArgumentNullException(nameof(factory));
             this.mediator = new ServiceLikeMediator(factory);
             this.scopedServiceFactoryFactory = new InternalScopedServiceFactoryFactory(factory);
         }
         
-        public DefaultMediatorClient(RequestRegistry requestRegistry, NotificationRegistry eventRegistry, 
+        public DefaultMediatorClient(ServiceRegistry serviceRegistry, ListenerRegistry eventRegistry, 
             ServiceFactory serviceFactory, IScopedServiceFactoryFactory scopedServiceFactoryFactory,
             IServiceLikeLogger logger)
         {
             factory = serviceFactory ?? throw new ArgumentNullException(nameof(serviceFactory));;
-            this.requestRegistry = requestRegistry ?? throw new ArgumentNullException(nameof(requestRegistry));
-            this.eventRegistry = eventRegistry ?? throw new ArgumentNullException(nameof(eventRegistry));
+            this.serviceRegistry = serviceRegistry ?? throw new ArgumentNullException(nameof(serviceRegistry));
+            this.listenerRegistry = eventRegistry ?? throw new ArgumentNullException(nameof(eventRegistry));
             this.scopedServiceFactoryFactory = scopedServiceFactoryFactory ?? throw new ArgumentNullException(nameof(scopedServiceFactoryFactory));
             this.logger = logger;
             this.mediator = new Mediator(serviceFactory);
@@ -67,14 +67,14 @@ namespace Nut.MediatR.ServiceLike
                 throw new ArgumentNullException(nameof(request));
             }
 
-            var mediatorRequest = requestRegistry.GetRequest(path);
+            var mediatorRequest = serviceRegistry.GetService(path);
             if(mediatorRequest is null)
             {
                 throw new InvalidOperationException(SR.MediatorRequestNotFound(path));
             }
-            var value = TranslateType(request, mediatorRequest.RequestType);
+            var value = TranslateType(request, mediatorRequest.ServiceType);
 
-            var context = new RequestContext(mediatorRequest.Path, mediatorRequest.RequestType, factory, resultType);
+            var context = new RequestContext(mediatorRequest.Path, mediatorRequest.ServiceType, factory, resultType);
             
             return await ExecuteAsync(new Queue<Type>(mediatorRequest.Filters), value, context).ConfigureAwait(false);
         }
@@ -100,23 +100,23 @@ namespace Nut.MediatR.ServiceLike
 
         [ExcludeFromCodeCoverage]
         [Obsolete("This method will be removed in the v0.4.0. It always raises no exceptions.")]
-        public Task PublishAsync(string key, object notification, bool notifySendingError = false)
-            => PublishAsync(key, notification);
+        public Task PublishAsync(string key, object eventData, bool notifySendingError = false)
+            => PublishAsync(key, eventData);
         
-        public Task PublishAsync(string key, object notification)
+        public Task PublishAsync(string key, object eventData)
         {
-            if (notification is null)
+            if (eventData is null)
             {
-                throw new ArgumentNullException(nameof(notification));
+                throw new ArgumentNullException(nameof(eventData));
             }
 
-            var mediatorNotifications = eventRegistry.GetNotifications(key);
-            PublishAndForget(mediatorNotifications, notification);
+            var mediatorNotifications = listenerRegistry.GetListeners(key);
+            PublishAndForget(mediatorNotifications, eventData);
 
             return Task.CompletedTask;
         }
         
-        private void PublishAndForget(IEnumerable<MediatorNotification> notifications, object notification)
+        private void PublishAndForget(IEnumerable<MediatorListenerDescription> listeners, object notification)
         {
             Task.Run(async () =>
             {
@@ -124,20 +124,26 @@ namespace Nut.MediatR.ServiceLike
                 var publishTasks = new List<Task>();
                 var serviceLikeMediator = new ServiceLikeMediator(scope.ServiceFactory);
 
-                foreach (var mediatorNotification in notifications)
+                foreach (var listener in listeners)
                 {
                     try
                     {
-                        var value = TranslateType(notification, mediatorNotification.NotificationType);
-                        publishTasks.Add(serviceLikeMediator.Publish(value!));
+                        var value = TranslateType(notification, listener.ListenerType);
+                        publishTasks.Add(FireEvent(listener, serviceLikeMediator, value!));
                     }
                     catch (Exception ex)
                     {
-                        logger?.Error(SR.Client_RaiseExWhenPublish(mediatorNotification.NotificationType.Name), ex);
+                        logger?.Error(SR.Client_RaiseExWhenPublish(listener.ListenerType.Name), ex);
                     }
                 }
                 await Task.WhenAll(publishTasks);
             });
         }
+
+        private Task FireEvent(MediatorListenerDescription description, ServiceLikeMediator serviceLikeMediator,
+            object eventData)
+            => description.MediateType == MediateType.Notification
+                ? serviceLikeMediator.Publish(eventData)
+                : serviceLikeMediator.Send(eventData);
     }
 }

@@ -117,8 +117,8 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
-  <data name="Argument_CanNotEventalize" xml:space="preserve">
-    <value>{0} argument must be implemented as a closed generic type of INotification with AsEventAttribute.</value>
+  <data name="Argument_CanNotListenerize" xml:space="preserve">
+    <value>{0} argument must be implemented as a closed generic type of INotification or IRequest(&lt;T&gt;) with AsEventListenerAttribute.</value>
   </data>
   <data name="Argument_CanNotNullOrWhitespace" xml:space="preserve">
     <value>{0} cannot be null or empty.</value>

@@ -6,37 +6,37 @@ using System.Linq;
 
 namespace Nut.MediatR.ServiceLike
 {
-    public class MediatorRequest
+    public class MediatorServiceDescription
     {
-        private MediatorRequest(string path, Type requestType, IEnumerable<Type> filters)
+        private MediatorServiceDescription(string path, Type serviceType, IEnumerable<Type> filters)
         {
             Path = path;
-            RequestType = requestType;
+            ServiceType = serviceType;
             Filters = filters;
         }
 
-        public static IEnumerable<MediatorRequest> Create(Type requestType, params Type[] filterTypes)
+        public static IEnumerable<MediatorServiceDescription> Create(Type serviceType, params Type[] filterTypes)
         {
-            if (requestType is null)
+            if (serviceType is null)
             {
-                throw new ArgumentNullException(nameof(requestType));
+                throw new ArgumentNullException(nameof(serviceType));
             }
             FilterSupport.ThrowIfInvalidFilterTypeAllWith(filterTypes);
 
-            if (!CanServicalize(requestType))
+            if (!CanServicalize(serviceType))
             {
-                throw new ArgumentException(SR.Argument_CanNotServicalize(nameof(requestType)));
+                throw new ArgumentException(SR.Argument_CanNotServicalize(nameof(serviceType)));
             }
-            var attrs = requestType.GetAttributes<AsServiceAttribute>(true);
+            var attrs = serviceType.GetAttributes<AsServiceAttribute>(true);
             return attrs.Select(attr => 
             {
                 var attrFilters = attr.FilterTypes;
                 var filters = filterTypes.Concat(attrFilters).ToList();
-                return new MediatorRequest(attr.Path, requestType, filters);
+                return new MediatorServiceDescription(attr.Path, serviceType, filters);
             }).ToList();
         }
 
-        public Type RequestType { get; }
+        public Type ServiceType { get; }
 
         public IEnumerable<Type> Filters { get; }
         

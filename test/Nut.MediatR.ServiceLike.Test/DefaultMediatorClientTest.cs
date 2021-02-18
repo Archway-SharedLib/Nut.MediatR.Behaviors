@@ -17,7 +17,7 @@ namespace Nut.MediatR.ServiceLike.Test
         public void ctor_requestRegistryがnullの場合は例外が発生する()
         {
             var serviceFactory = new ServiceFactory(_ => null);
-            Action act = () => new DefaultMediatorClient(null, new NotificationRegistry(), 
+            Action act = () => new DefaultMediatorClient(null, new ListenerRegistry(), 
                 serviceFactory, new InternalScopedServiceFactoryFactory(serviceFactory), new TestLogger());
             act.Should().Throw<ArgumentNullException>();
         }
@@ -26,7 +26,7 @@ namespace Nut.MediatR.ServiceLike.Test
         public void ctor_notificationRegistryがnullの場合は例外が発生する()
         {
             var serviceFactory = new ServiceFactory(_ => null);
-            Action act = () => new DefaultMediatorClient(new RequestRegistry(), null!, 
+            Action act = () => new DefaultMediatorClient(new ServiceRegistry(), null!, 
                 serviceFactory, new InternalScopedServiceFactoryFactory(serviceFactory), new TestLogger());
             act.Should().Throw<ArgumentNullException>();
         }
@@ -35,7 +35,7 @@ namespace Nut.MediatR.ServiceLike.Test
         public void ctor_serviceFactoryがnullの場合は例外が発生する()
         {
             var serviceFactory = new ServiceFactory(_ => null);
-            Action act = () => new DefaultMediatorClient(new RequestRegistry(), new NotificationRegistry(), 
+            Action act = () => new DefaultMediatorClient(new ServiceRegistry(), new ListenerRegistry(), 
                 null!, new InternalScopedServiceFactoryFactory(serviceFactory), new TestLogger());
             act.Should().Throw<ArgumentNullException>();
         }
@@ -44,7 +44,7 @@ namespace Nut.MediatR.ServiceLike.Test
         public void ctor_ScopedServiceFactoryFactoryがnullの場合は例外が発生する()
         {
             var serviceFactory = new ServiceFactory(_ => null);
-            Action act = () => new DefaultMediatorClient(new RequestRegistry(), new NotificationRegistry(), 
+            Action act = () => new DefaultMediatorClient(new ServiceRegistry(), new ListenerRegistry(), 
                 serviceFactory, null!, new TestLogger());
             act.Should().Throw<ArgumentNullException>();
         }
@@ -53,7 +53,7 @@ namespace Nut.MediatR.ServiceLike.Test
         public void T_SendAsync_requestがnullの場合は例外が発生する()
         {
             var serviceFactory = new ServiceFactory(_ => null);
-            var client = new DefaultMediatorClient(new RequestRegistry(), new NotificationRegistry(),
+            var client = new DefaultMediatorClient(new ServiceRegistry(), new ListenerRegistry(),
                 serviceFactory, new InternalScopedServiceFactoryFactory(serviceFactory), new TestLogger());
 
             Func<Task> act = () => client.SendAsync<Pong>("/path", null);
@@ -64,7 +64,7 @@ namespace Nut.MediatR.ServiceLike.Test
         public void T_SendAsync_pathに一致するリクエストが見つからない場合は例外が発生する()
         {
             var serviceFactory = new ServiceFactory(_ => null);
-            var client = new DefaultMediatorClient(new RequestRegistry(), new NotificationRegistry(),
+            var client = new DefaultMediatorClient(new ServiceRegistry(), new ListenerRegistry(),
                 serviceFactory, new InternalScopedServiceFactoryFactory(serviceFactory), new TestLogger());
 
             Func<Task> act = () => client.SendAsync<Pong>("/path", new ServicePing());
@@ -81,10 +81,10 @@ namespace Nut.MediatR.ServiceLike.Test
             var provider = services.BuildServiceProvider();
 
             var serviceFactory = provider.GetService<ServiceFactory>()!;
-            var registry = new RequestRegistry();
+            var registry = new ServiceRegistry();
             registry.Add(typeof(ServicePing));
 
-            var client = new DefaultMediatorClient(registry, new NotificationRegistry(), 
+            var client = new DefaultMediatorClient(registry, new ListenerRegistry(), 
                 serviceFactory!, new InternalScopedServiceFactoryFactory(serviceFactory!), new TestLogger());
 
             var pong = await client.SendAsync<Pong>("/ping", new ServicePing() { Value = "Ping" });
@@ -102,10 +102,10 @@ namespace Nut.MediatR.ServiceLike.Test
             var provider = services.BuildServiceProvider();
 
             var serviceFactory = provider.GetService<ServiceFactory>()!;
-            var registry = new RequestRegistry();
+            var registry = new ServiceRegistry();
             registry.Add(typeof(ServicePing));
 
-            var client = new DefaultMediatorClient(registry, new NotificationRegistry(), 
+            var client = new DefaultMediatorClient(registry, new ListenerRegistry(), 
                 serviceFactory!, new InternalScopedServiceFactoryFactory(serviceFactory!), new TestLogger());
 
             await client.SendAsync("/ping", new ServicePing() { Value = "Ping" });
@@ -122,10 +122,10 @@ namespace Nut.MediatR.ServiceLike.Test
             var provider = services.BuildServiceProvider();
 
             var serviceFactory = provider.GetService<ServiceFactory>();
-            var registry = new RequestRegistry();
+            var registry = new ServiceRegistry();
             registry.Add(typeof(ServicePing));
 
-            var client = new DefaultMediatorClient(registry, new NotificationRegistry(), 
+            var client = new DefaultMediatorClient(registry, new ListenerRegistry(), 
                 serviceFactory!, new InternalScopedServiceFactoryFactory(serviceFactory!), new TestLogger());
 
             var pong = await client.SendAsync<LocalPong>("/ping", new { Value = "Ping" });
@@ -143,10 +143,10 @@ namespace Nut.MediatR.ServiceLike.Test
             var provider = services.BuildServiceProvider();
 
             var serviceFactory = provider.GetService<ServiceFactory>();
-            var registry = new RequestRegistry();
+            var registry = new ServiceRegistry();
             registry.Add(typeof(ServiceNullPing));
 
-            var client = new DefaultMediatorClient(registry, new NotificationRegistry(), 
+            var client = new DefaultMediatorClient(registry, new ListenerRegistry(), 
                 serviceFactory!, new InternalScopedServiceFactoryFactory(serviceFactory!), new TestLogger());
 
             var pong = await client.SendAsync<Pong>("/ping/null", new { Value = "Ping" });
@@ -164,10 +164,10 @@ namespace Nut.MediatR.ServiceLike.Test
             var provider = services.BuildServiceProvider();
 
             var serviceFactory = provider.GetService<ServiceFactory>();
-            var registry = new RequestRegistry();
+            var registry = new ServiceRegistry();
             registry.Add(typeof(ServiceNullPing));
 
-            var client = new DefaultMediatorClient(registry, new NotificationRegistry(), 
+            var client = new DefaultMediatorClient(registry, new ListenerRegistry(), 
                 serviceFactory!, new InternalScopedServiceFactoryFactory(serviceFactory!), new TestLogger());
 
             await client.SendAsync("/ping/null", new { Value = "Ping" });
@@ -184,10 +184,10 @@ namespace Nut.MediatR.ServiceLike.Test
             var provider = services.BuildServiceProvider();
 
             var serviceFactory = provider.GetService<ServiceFactory>();
-            var registry = new RequestRegistry();
+            var registry = new ServiceRegistry();
             registry.Add(typeof(VoidServicePing));
 
-            var client = new DefaultMediatorClient(registry, new NotificationRegistry(), 
+            var client = new DefaultMediatorClient(registry, new ListenerRegistry(), 
                 serviceFactory!, new InternalScopedServiceFactoryFactory(serviceFactory!), new TestLogger());
 
             var pong = await client.SendAsync<Pong>("/ping/void", new { Value = "Ping" });
@@ -205,10 +205,10 @@ namespace Nut.MediatR.ServiceLike.Test
             var provider = services.BuildServiceProvider();
 
             var serviceFactory = provider.GetService<ServiceFactory>();
-            var registry = new RequestRegistry();
+            var registry = new ServiceRegistry();
             registry.Add(typeof(VoidServicePing));
 
-            var client = new DefaultMediatorClient(registry, new NotificationRegistry(), 
+            var client = new DefaultMediatorClient(registry, new ListenerRegistry(), 
                 serviceFactory!, new InternalScopedServiceFactoryFactory(serviceFactory!), new TestLogger());
 
             await client.SendAsync("/ping/void", new { Value = "Ping" });
@@ -230,10 +230,10 @@ namespace Nut.MediatR.ServiceLike.Test
             var provider = services.BuildServiceProvider();
 
             var serviceFactory = provider.GetService<ServiceFactory>();
-            var registry = new RequestRegistry();
+            var registry = new ServiceRegistry();
             registry.Add(typeof(ServicePing), typeof(Filter1), typeof(Filter2));
 
-            var client = new DefaultMediatorClient(registry, new NotificationRegistry(), 
+            var client = new DefaultMediatorClient(registry, new ListenerRegistry(), 
                 serviceFactory!, new InternalScopedServiceFactoryFactory(serviceFactory!), new TestLogger());
 
             var pong = await client.SendAsync<Pong>("/ping", new ServicePing() { Value = "Ping" });
@@ -248,7 +248,7 @@ namespace Nut.MediatR.ServiceLike.Test
         public void PublishAsync_requestがnullの場合は例外が発生する()
         {
             var serviceFactory = new ServiceFactory(_ => null);
-            var client = new DefaultMediatorClient(new RequestRegistry(), new NotificationRegistry(), 
+            var client = new DefaultMediatorClient(new ServiceRegistry(), new ListenerRegistry(), 
                 serviceFactory, new InternalScopedServiceFactoryFactory(serviceFactory!), new TestLogger());
 
             Func<Task> act = () => client.PublishAsync("ev", null!);
@@ -259,7 +259,7 @@ namespace Nut.MediatR.ServiceLike.Test
         public void PublishAsync_keyに一致するイベントが見つからない場合はなにも実行されず終了する()
         {
             var serviceFactory = new ServiceFactory(_ => null);
-            var client = new DefaultMediatorClient(new RequestRegistry(), new NotificationRegistry(), 
+            var client = new DefaultMediatorClient(new ServiceRegistry(), new ListenerRegistry(), 
                 serviceFactory, new InternalScopedServiceFactoryFactory(serviceFactory!), new TestLogger());
 
             client.PublishAsync("key", new Pang());
@@ -277,10 +277,10 @@ namespace Nut.MediatR.ServiceLike.Test
             var provider = services.BuildServiceProvider();
 
             var serviceFactory = provider.GetService<ServiceFactory>();
-            var registry = new NotificationRegistry();
+            var registry = new ListenerRegistry();
             registry.Add(typeof(MediatorClientTestPang));
 
-            var client = new DefaultMediatorClient(new RequestRegistry(), registry, 
+            var client = new DefaultMediatorClient(new ServiceRegistry(), registry, 
                 serviceFactory!, new InternalScopedServiceFactoryFactory(serviceFactory!), new TestLogger());
             
             var holder = provider.GetService<TaskHolder>();
@@ -309,12 +309,12 @@ namespace Nut.MediatR.ServiceLike.Test
             var provider = services.BuildServiceProvider();
 
             var serviceFactory = provider.GetService<ServiceFactory>();
-            var registry = new NotificationRegistry();
+            var registry = new ListenerRegistry();
             registry.Add(typeof(ExceptionPang));
 
             var logger = new TestLogger();
             
-            var client = new DefaultMediatorClient(new RequestRegistry(), registry, 
+            var client = new DefaultMediatorClient(new ServiceRegistry(), registry, 
                 serviceFactory!, new InternalScopedServiceFactoryFactory(serviceFactory!), logger);
             await client.PublishAsync(nameof(ExceptionPang), new { });
             
@@ -324,7 +324,77 @@ namespace Nut.MediatR.ServiceLike.Test
             logger.Errors.Should().HaveCount(1);
         }
 
-        [AsEvent(nameof(ExceptionPang))]
+        [Fact]
+        public async Task PublishAsync_RequestもNotificationも実行される()
+        {
+            var services = new ServiceCollection();
+            services.AddMediatR(typeof(MixedRequest).Assembly);
+            services.AddSingleton<MixedTaskHolder>();
+            var provider = services.BuildServiceProvider();
+            
+            var serviceFactory = provider.GetService<ServiceFactory>();
+            var registry = new ListenerRegistry();
+            registry.Add(typeof(MixedRequest));
+            registry.Add(typeof(MixedNotification));
+            
+            var holder = provider.GetService<MixedTaskHolder>();
+            
+            var client = new DefaultMediatorClient(new ServiceRegistry(), registry, 
+                serviceFactory!, new InternalScopedServiceFactoryFactory(serviceFactory!), new TestLogger());
+            
+            await client.PublishAsync("mixed", new { });
+            
+            // Fire and forgetのため一旦スリープ
+            Thread.Sleep(1000);
+
+            holder.Messages.Should().HaveCount(2);
+            holder.Messages.Contains("request").Should().BeTrue();
+            holder.Messages.Contains("notification").Should().BeTrue();
+        }
+
+        [AsEventListener("mixed")]
+        public record MixedRequest : IRequest;
+        
+        [AsEventListener("mixed")]
+        public record MixedNotification : INotification;
+
+        public class MixedTaskHolder
+        {
+            public List<string> Messages { get; } = new();
+        }
+
+        public class MixedRequestHandler : IRequestHandler<MixedRequest>
+        {
+            private readonly MixedTaskHolder holder;
+
+            public MixedRequestHandler(MixedTaskHolder holder)
+            {
+                this.holder = holder;
+            }
+            public Task<Unit> Handle(MixedRequest request, CancellationToken cancellationToken)
+            {
+                holder.Messages.Add("request");
+                return Unit.Task;
+            }
+        }
+        
+        public class MixedNotificationHandler: INotificationHandler<MixedNotification>
+        {
+            private readonly MixedTaskHolder holder;
+
+            public MixedNotificationHandler(MixedTaskHolder holder)
+            {
+                this.holder = holder;
+            }
+            public Task Handle(MixedNotification request, CancellationToken cancellationToken)
+            {
+                holder.Messages.Add("notification");
+                return Task.CompletedTask;
+            }
+        }
+
+
+        [AsEventListener(nameof(ExceptionPang))]
         public class ExceptionPang: INotification 
         {
             public ExceptionPang(string value)
@@ -345,7 +415,7 @@ namespace Nut.MediatR.ServiceLike.Test
             public string Value { get; set; }
         }
 
-        [AsEvent(nameof(MediatorClientTestPang))]
+        [AsEventListener(nameof(MediatorClientTestPang))]
         public class MediatorClientTestPang: INotification
         {
         }

@@ -17,9 +17,9 @@ namespace Nut.MediatR.ServiceLike.DependencyInjection.Test
             services.AddMediatRServiceLike(typeof(ServicePing).Assembly);
             var provider = services.BuildServiceProvider();
 
-            var registry = provider.GetService<RequestRegistry>();
-            registry.GetRequest("/ping").Should().NotBeNull();
-            registry.GetRequest("/ping/void").Should().NotBeNull();
+            var registry = provider.GetService<ServiceRegistry>();
+            registry.GetService("/ping").Should().NotBeNull();
+            registry.GetService("/ping/void").Should().NotBeNull();
         }
 
         [Fact]
@@ -29,51 +29,51 @@ namespace Nut.MediatR.ServiceLike.DependencyInjection.Test
             services.AddMediatRServiceLike(typeof(ServicePing).Assembly);
             var provider = services.BuildServiceProvider();
 
-            var registry = provider.GetService<NotificationRegistry>();
-            registry.GetNotifications("pang").Should().NotBeNull();
-            registry.GetNotifications("pang2").Should().NotBeNull();
+            var registry = provider.GetService<ListenerRegistry>();
+            registry.GetListeners("pang").Should().NotBeNull();
+            registry.GetListeners("pang2").Should().NotBeNull();
         }
 
         [Fact]
         public void AddMediatRServiceLike_RequerstRegistryが先に登録されている場合はそのインスタンスが利用される()
         {
             var services = new ServiceCollection();
-            var registry = new RequestRegistry();
+            var registry = new ServiceRegistry();
             services.AddSingleton(registry);
 
             services.AddMediatRServiceLike(typeof(ServicePing).Assembly);
             var provider = services.BuildServiceProvider();
-            var registryFromService = provider.GetService<RequestRegistry>();
+            var registryFromService = provider.GetService<ServiceRegistry>();
             
             registryFromService.Should().BeSameAs(registry);
-            registry.GetRequest("/ping").Should().NotBeNull();
-            registry.GetRequest("/ping/void").Should().NotBeNull();
+            registry.GetService("/ping").Should().NotBeNull();
+            registry.GetService("/ping/void").Should().NotBeNull();
         }
 
         [Fact]
         public void AddMediatRServiceLike_EventRegistryが先に登録されている場合はそのインスタンスが利用される()
         {
             var services = new ServiceCollection();
-            var registry = new NotificationRegistry();
+            var registry = new ListenerRegistry();
             services.AddSingleton(registry);
 
             services.AddMediatRServiceLike(typeof(ServicePing).Assembly);
             var provider = services.BuildServiceProvider();
-            var registryFromService = provider.GetService<NotificationRegistry>();
+            var registryFromService = provider.GetService<ListenerRegistry>();
 
             registryFromService.Should().BeSameAs(registry);
-            registry.GetNotifications("pang").Should().NotBeNull();
-            registry.GetNotifications("pang2").Should().NotBeNull();
+            registry.GetListeners("pang").Should().NotBeNull();
+            registry.GetListeners("pang2").Should().NotBeNull();
         }
 
         [Fact]
         public void AddMediatRServiceLike_IMediatorClientはDefaultMediatorClientでIMediatorが無い方のコンストラクタが利用される()
         {
             var services = new ServiceCollection();
-            var requestRegistry = new RequestRegistry();
-            services.AddSingleton(requestRegistry);
-            var notificationRegistry = new NotificationRegistry();
-            services.AddSingleton(notificationRegistry);
+            var serviceRegistry = new ServiceRegistry();
+            services.AddSingleton(serviceRegistry);
+            var listenerRegistry = new ListenerRegistry();
+            services.AddSingleton(listenerRegistry);
             var serviceFactory = new ServiceFactory(_ => null);
             services.AddSingleton(serviceFactory);
 

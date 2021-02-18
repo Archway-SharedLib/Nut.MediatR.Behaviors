@@ -11,45 +11,45 @@ namespace Nut.MediatR.ServiceLike.DependencyInjection
     {
         public static IServiceCollection AddMediatRServiceLike(this IServiceCollection services, Assembly assembly, params Type[] filterTypes)
         {
-            if (!(services.LastOrDefault(s => s.ServiceType == typeof(RequestRegistry))?
-                .ImplementationInstance is RequestRegistry requestRegistry))
+            if (!(services.LastOrDefault(s => s.ServiceType == typeof(ServiceRegistry))?
+                .ImplementationInstance is ServiceRegistry serviceRegistry))
             {
-                requestRegistry = new RequestRegistry();
+                serviceRegistry = new ServiceRegistry();
             }
-            services.TryAddSingleton(requestRegistry);
+            services.TryAddSingleton(serviceRegistry);
 
-            var requests = assembly.GetTypes()
-                .Where(MediatorRequest.CanServicalize);
-            foreach(var request in requests)
+            var serviceDescriptions = assembly.GetTypes()
+                .Where(MediatorServiceDescription.CanServicalize);
+            foreach(var serviceDescription in serviceDescriptions)
             {
-                requestRegistry.Add(request, true, filterTypes);
+                serviceRegistry.Add(serviceDescription, true, filterTypes);
             }
 
-            if (!(services.LastOrDefault(s => s.ServiceType == typeof(NotificationRegistry))?
-                .ImplementationInstance is NotificationRegistry notificationRegistry))
+            if (!(services.LastOrDefault(s => s.ServiceType == typeof(ListenerRegistry))?
+                .ImplementationInstance is ListenerRegistry listenerRegistry))
             {
-                notificationRegistry = new NotificationRegistry();
+                listenerRegistry = new ListenerRegistry();
             }
-            services.TryAddSingleton(notificationRegistry);
+            services.TryAddSingleton(listenerRegistry);
 
-            var notifications = assembly.GetTypes()
-                .Where(MediatorNotification.CanEventalize);
-            foreach (var notification in notifications)
+            var listenerDescriptions = assembly.GetTypes()
+                .Where(MediatorListenerDescription.CanListenerize);
+            foreach (var listenerDescription in listenerDescriptions)
             {
-                notificationRegistry.Add(notification);
+                listenerRegistry.Add(listenerDescription);
             }
             
             services.TryAddTransient(typeof(IMediatorClient), provider =>
             {
-                var reqRegistry = provider.GetService<RequestRegistry>();
-                var notiRegistry = provider.GetService<NotificationRegistry>();
+                var servRegistry = provider.GetService<ServiceRegistry>();
+                var lisRegistry = provider.GetService<ListenerRegistry>();
                 var serviceFactory = provider.GetService<ServiceFactory>();
                 var scopedServiceFactoryFactory = new ScopedServiceFactoryFactory(provider);
                 
                 // TODO: create logger
                 return new DefaultMediatorClient(
-                    reqRegistry, 
-                    notiRegistry, 
+                    servRegistry, 
+                    lisRegistry, 
                     serviceFactory,
                     scopedServiceFactoryFactory, null!);
             });

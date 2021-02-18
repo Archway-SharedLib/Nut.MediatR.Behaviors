@@ -25,7 +25,7 @@ namespace System
 
         internal static string Registry_AlreadyContainsPath(string path) => Format(GetResourceString(nameof(Registry_AlreadyContainsPath), "Already contains path: {0}"), path);
 
-        internal static string Argument_CanNotEventalize(string paramName) => Format(GetResourceString(nameof(Argument_CanNotEventalize), "{0} argument must be implemented as a closed generic type of INotification with AsEventAttribute."), paramName);
+        internal static string Argument_CanNotListenerize(string paramName) => Format(GetResourceString(nameof(Argument_CanNotListenerize), "{0} argument must be implemented as a closed generic type of INotification or IReuqest(<T>) with AsEventListenerAttribute."), paramName);
 
         internal static string Registry_AlreadyContainsKey(string key) => Format(GetResourceString(nameof(Registry_AlreadyContainsKey), "Already contains key: {0}"), key);
 
