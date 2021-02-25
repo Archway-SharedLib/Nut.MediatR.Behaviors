@@ -45,13 +45,15 @@ namespace Nut.MediatR.ServiceLike.DependencyInjection
                 var lisRegistry = provider.GetService<ListenerRegistry>();
                 var serviceFactory = provider.GetService<ServiceFactory>();
                 var scopedServiceFactoryFactory = new ScopedServiceFactoryFactory(provider);
+                var serviceLikeLogger = provider.GetService<IServiceLikeLogger>();
                 
                 // TODO: create logger
                 return new DefaultMediatorClient(
                     servRegistry, 
                     lisRegistry, 
                     serviceFactory,
-                    scopedServiceFactoryFactory, null!);
+                    scopedServiceFactoryFactory, 
+                    serviceLikeLogger);
             });
 
             return services;
