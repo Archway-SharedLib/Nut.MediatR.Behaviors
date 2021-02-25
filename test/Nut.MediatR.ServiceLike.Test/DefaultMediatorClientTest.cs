@@ -474,19 +474,32 @@ namespace Nut.MediatR.ServiceLike.Test
         
         private class TestLogger: IServiceLikeLogger
         {
-            public void Info(string message)
+            public void Info(string message, params object[] args)
             {
                 this.Infos.Add(message);
             }
 
-            public void Error(string message, Exception ex)
+            public void Error(Exception ex, string message, params object[] args)
             {
                 this.Errors.Add(message);
             }
 
+            public void Trace(string message, params object[] args)
+            {
+                this.Traces.Add(message);
+            }
+
+            public bool IsTraceEnabled() => true;
+
+            public bool IsInfoEnabled() => true;
+
+            public bool IsErrorEnabled() => true;
+
             public List<string> Errors { get; } = new();
             
             public List<string> Infos { get; } = new();
+
+            public List<string> Traces { get; } = new();
         }
     }
 }

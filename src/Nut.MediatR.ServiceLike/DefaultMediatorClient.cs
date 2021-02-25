@@ -5,6 +5,7 @@ using System.Diagnostics.CodeAnalysis;
 using System.Text.Json;
 using System.Threading.Tasks;
 using Nut.MediatR.ServiceLike.Internals;
+using System.Linq;
 
 namespace Nut.MediatR.ServiceLike
 {
@@ -15,7 +16,7 @@ namespace Nut.MediatR.ServiceLike
         private readonly ListenerRegistry listenerRegistry;
         private readonly ServiceFactory factory;
         private readonly IScopedServiceFactoryFactory scopedServiceFactoryFactory;
-        private readonly IServiceLikeLogger? logger = null;
+        private readonly ServiceLikeLoggerWrapper logger = null;
 
         [ExcludeFromCodeCoverage]
         [Obsolete("This constructor is not support the AsEvent feature. Therefore, it will be removed in v0.4.0. Please use ctor(RequestRegistry, EventRegistry, ServiceFactory, IScopedServiceFactoryFactory).")]
@@ -26,6 +27,7 @@ namespace Nut.MediatR.ServiceLike
             this.factory = factory ?? throw new ArgumentNullException(nameof(factory));
             this.listenerRegistry = new ListenerRegistry();
             this.scopedServiceFactoryFactory = new InternalScopedServiceFactoryFactory(factory);
+            this.logger = new ServiceLikeLoggerWrapper(null);
         }
 
         [ExcludeFromCodeCoverage]
@@ -37,6 +39,7 @@ namespace Nut.MediatR.ServiceLike
             this.factory = factory ?? throw new ArgumentNullException(nameof(factory));
             this.mediator = new ServiceLikeMediator(factory);
             this.scopedServiceFactoryFactory = new InternalScopedServiceFactoryFactory(factory);
+            this.logger = new ServiceLikeLoggerWrapper(null);
         }
         
         public DefaultMediatorClient(ServiceRegistry serviceRegistry, ListenerRegistry eventRegistry, 
@@ -47,7 +50,7 @@ namespace Nut.MediatR.ServiceLike
             this.serviceRegistry = serviceRegistry ?? throw new ArgumentNullException(nameof(serviceRegistry));
             this.listenerRegistry = eventRegistry ?? throw new ArgumentNullException(nameof(eventRegistry));
             this.scopedServiceFactoryFactory = scopedServiceFactoryFactory ?? throw new ArgumentNullException(nameof(scopedServiceFactoryFactory));
-            this.logger = logger;
+            this.logger = new ServiceLikeLoggerWrapper(logger);
             this.mediator = new Mediator(serviceFactory);
         }
 
@@ -120,23 +123,29 @@ namespace Nut.MediatR.ServiceLike
         {
             Task.Run(async () =>
             {
+                var listenersList = listeners.ToList();
+                logger.TraceStartPublishToListeners(listenersList);
+
                 using var scope = scopedServiceFactoryFactory.Create();
                 var publishTasks = new List<Task>();
                 var serviceLikeMediator = new ServiceLikeMediator(scope.ServiceFactory);
 
-                foreach (var listener in listeners)
+                foreach (var listener in listenersList)
                 {
                     try
                     {
                         var value = TranslateType(notification, listener.ListenerType);
+                        logger.TracePublishToListener(listener);
                         publishTasks.Add(FireEvent(listener, serviceLikeMediator, value!));
                     }
                     catch (Exception ex)
                     {
-                        logger?.Error(SR.Client_RaiseExWhenPublish(listener.ListenerType.Name), ex);
+                        logger.ErrorOnPublish(ex, listener);
                     }
                 }
                 await Task.WhenAll(publishTasks);
+
+                logger.TraceFinishPublishToListeners();
             });
         }
 
