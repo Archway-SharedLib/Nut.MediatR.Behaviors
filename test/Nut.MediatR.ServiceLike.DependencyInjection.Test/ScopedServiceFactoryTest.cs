@@ -6,12 +6,12 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace Nut.MediatR.ServiceLike.DependencyInjection.Test
 {
-    public class ServiceFactoryScopeTest
+    public class ScopedServiceFactoryTest
     {
         [Fact]
         public void ctor_パラメーターがない場合は例外が発生する()
         {
-            Action act = () => new ServiceFactoryScope(null!);
+            Action act = () => new ScopedServiceFactory(null!);
             act.Should().Throw<ArgumentNullException>();
         }
 
@@ -30,10 +30,10 @@ namespace Nut.MediatR.ServiceLike.DependencyInjection.Test
             Test innerTest1 = null;
             Test innerTest2 = null;
             
-            using (var scope = new ServiceFactoryScope(provider))
+            using (var scope = new ScopedServiceFactory(provider.GetService<IServiceScopeFactory>()))
             {
-                innerTest1 = scope.ServiceFactory.GetInstance<Test>();
-                innerTest2 = scope.ServiceFactory.GetInstance<Test>();
+                innerTest1 = scope.Instance.GetInstance<Test>();
+                innerTest2 = scope.Instance.GetInstance<Test>();
 
                 innerTest1.Should().Be(innerTest2);
                 innerTest1.Should().NotBe(outerTest1);

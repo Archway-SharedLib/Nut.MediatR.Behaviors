@@ -19,7 +19,7 @@ namespace Nut.MediatR.ServiceLike.DependencyInjection.Test
         {
             var services = new ServiceCollection();
             var provider = services.BuildServiceProvider();
-            var factory = new ScopedServiceFactoryFactory(provider);
+            var factory = new ScopedServiceFactoryFactory(provider.GetService<IServiceScopeFactory>());
             factory.Create().Should().NotBeNull();
         }
     }

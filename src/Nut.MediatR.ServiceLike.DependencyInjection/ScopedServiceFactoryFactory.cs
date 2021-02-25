@@ -1,18 +1,19 @@
-﻿using System;
+﻿using Microsoft.Extensions.DependencyInjection;
+using System;
 
 namespace Nut.MediatR.ServiceLike.DependencyInjection
 {
     internal class ScopedServiceFactoryFactory: IScopedServiceFactoryFactory
     {
-        private readonly IServiceProvider provider;
+        private readonly IServiceScopeFactory scopeFactory;
 
-        public ScopedServiceFactoryFactory(IServiceProvider provider)
+        public ScopedServiceFactoryFactory(IServiceScopeFactory scopeFactory)
         {
-            this.provider = provider ?? throw new ArgumentNullException(nameof(provider));
+            this.scopeFactory = scopeFactory ?? throw new ArgumentNullException(nameof(scopeFactory));
         }
-        public IServiceFactoryScope Create()
+        public IScoepedServiceFactory Create()
         {
-            return new ServiceFactoryScope(provider);
+            return new ScopedServiceFactory(scopeFactory);
         }
     }
 }

@@ -128,7 +128,7 @@ namespace Nut.MediatR.ServiceLike
 
                 using var scope = scopedServiceFactoryFactory.Create();
                 var publishTasks = new List<Task>();
-                var serviceLikeMediator = new ServiceLikeMediator(scope.ServiceFactory);
+                var serviceLikeMediator = new ServiceLikeMediator(scope.Instance);
 
                 foreach (var listener in listenersList)
                 {

@@ -2,6 +2,6 @@
 {
     public interface IScopedServiceFactoryFactory
     {
-        IServiceFactoryScope Create();
+        IScoepedServiceFactory Create();
     }
 }

@@ -12,6 +12,6 @@ namespace Nut.MediatR.ServiceLike.Internals
             this.serviceFactory = serviceFactory ?? throw new ArgumentNullException(nameof(serviceFactory));
         }
 
-        public IServiceFactoryScope Create() => new InternalServiceFactoryScope(serviceFactory);
+        public IScoepedServiceFactory Create() => new InternalScopedServiceFactory(serviceFactory);
     }
 }

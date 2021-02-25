@@ -10,7 +10,7 @@ namespace Nut.MediatR.ServiceLike.Test.Internals
         [Fact]
         public void ctor_引数にnullを設定すると例外が発生する()
         {
-            Action act = () => new InternalServiceFactoryScope(null!);
+            Action act = () => new InternalScopedServiceFactory(null!);
             act.Should().Throw<ArgumentNullException>();
         }
     }
