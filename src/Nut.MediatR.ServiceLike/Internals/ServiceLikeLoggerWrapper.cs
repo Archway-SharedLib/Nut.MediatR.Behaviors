@@ -42,7 +42,7 @@ namespace Nut.MediatR.ServiceLike.Internals
         {
             if (this.sourceLogger?.IsTraceEnabled() == true)
             {
-                this.sourceLogger.Trace(SR.Client_PublishToEachListeners(listener.ListenerType.Name, listener.Key, listener.MediateType));
+                this.sourceLogger.Trace(SR.Client_PublishToEachListeners(listener.Key, listener.ListenerType.Name, listener.MediateType));
             }
         }
 

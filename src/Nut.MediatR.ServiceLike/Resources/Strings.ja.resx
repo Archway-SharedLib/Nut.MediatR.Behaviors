@@ -145,7 +145,7 @@
     <value>{0}イベントをリスナーに発行します。(リスナー数: {1})</value>
   </data>
   <data name="Client_CompletePublishToListeners" xml:space="preserve">
-    <value>{0}イベント発行が完了しました。</value>
+    <value>{0}イベントの発行が完了しました。</value>
   </data>
   <data name="Client_PublishToEachListeners" xml:space="preserve">
     <value>{0}イベントを{1}に発行します。 (type: {2}).</value>
