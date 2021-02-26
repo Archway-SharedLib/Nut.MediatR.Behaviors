@@ -18,23 +18,23 @@ namespace Nut.MediatR.ServiceLike.Internals
         {
             if(this.sourceLogger?.IsErrorEnabled() == true)
             {
-                this.sourceLogger?.Error(ex, SR.Client_RaiseExWhenPublish(listener.ListenerType.Name) + $"(key: {listener.Key}, type: {listener.MediateType}).");
+                this.sourceLogger.Error(ex, SR.Client_RaiseExWhenEachListener(listener.Key, listener.ListenerType.Name, listener.MediateType));
             }
         }
 
-        internal void TraceStartPublishToListeners(IEnumerable<MediatorListenerDescription> listeners)
+        internal void TraceStartPublishToListeners(string key, IEnumerable<MediatorListenerDescription> listeners)
         {
             if (this.sourceLogger?.IsTraceEnabled() == true)
             {
-                this.sourceLogger?.Trace($"Publish mediator events to {listeners.Count()} listener(s).");
+                this.sourceLogger.Trace(SR.Client_BeforePublishToListeners(key, listeners.Count()));
             }
         }
 
-        internal void TraceFinishPublishToListeners()
+        internal void TraceFinishPublishToListeners(string key)
         {
             if (this.sourceLogger?.IsTraceEnabled() == true)
             {
-                this.sourceLogger?.Trace($"Published mediator events.");
+                this.sourceLogger.Trace(SR.Client_CompletePublishToListeners(key));
             }
         }
 
@@ -42,7 +42,15 @@ namespace Nut.MediatR.ServiceLike.Internals
         {
             if (this.sourceLogger?.IsTraceEnabled() == true)
             {
-                this.sourceLogger?.Trace($"Publishe mediator event to {listener.ListenerType.Name} (key: {listener.Key}, type: {listener.MediateType}).");
+                this.sourceLogger.Trace(SR.Client_PublishToEachListeners(listener.ListenerType.Name, listener.Key, listener.MediateType));
+            }
+        }
+
+        internal void ErrorOnPublishEvents(Exception ex, string key)
+        {
+            if (this.sourceLogger?.IsErrorEnabled() == true)
+            {
+                this.sourceLogger.Error(ex, SR.Client_RaizeExWhenPublish(key));
             }
         }
     }

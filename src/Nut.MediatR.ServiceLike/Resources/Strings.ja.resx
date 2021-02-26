@@ -135,10 +135,22 @@
   <data name="Registry_AlreadyContainsPath" xml:space="preserve">
     <value>指定されたパスはすでに設定されています。 {0}</value>
   </data>
-  <data name="Client_RaiseExWhenPublish" xml:space="preserve">
-    <value>イベントを発行したときに例外が発生しました。{0}</value>
+  <data name="Client_RaiseExWhenEachListener" xml:space="preserve">
+    <value>{0}イベントを発行したときに例外が発生しました。:{1} (type: {2})</value>
   </data>
   <data name="Argument_CanNotListenerize" xml:space="preserve">
     <value>'{0}' は クローズドジェネリックでINotificationまたはIRequest&lt;T&gt;を実装し、AsEventListenerAttributeが設定されていなければなりません。</value>
+  </data>
+  <data name="Client_BeforePublishToListeners" xml:space="preserve">
+    <value>{0}イベントをリスナーに発行します。(リスナー数: {1})</value>
+  </data>
+  <data name="Client_CompletePublishToListeners" xml:space="preserve">
+    <value>{0}イベント発行が完了しました。</value>
+  </data>
+  <data name="Client_PublishToEachListeners" xml:space="preserve">
+    <value>{0}イベントを{1}に発行します。 (type: {2}).</value>
+  </data>
+  <data name="Client_RaizeExWhenPublish" xml:space="preserve">
+    <value>{0}イベントを発行したときに例外が発生しました。</value>
   </data>
 </root>

@@ -138,7 +138,19 @@
   <data name="Registry_AlreadyContainsPath" xml:space="preserve">
     <value>Already contains path: {0}</value>
   </data>
-  <data name="Client_RaiseExWhenPublish" xml:space="preserve">
-    <value>Raise exception when publish: {0}.</value>
+  <data name="Client_RaiseExWhenEachListener" xml:space="preserve">
+    <value>Raise exception when publish {0} event: {1}. (type: {2})</value>
+  </data>
+  <data name="Client_BeforePublishToListeners" xml:space="preserve">
+    <value>Publish {0} event of mediator to {1} listener(s).</value>
+  </data>
+  <data name="Client_CompletePublishToListeners" xml:space="preserve">
+    <value>Published {0} event of mediator.</value>
+  </data>
+  <data name="Client_PublishToEachListeners" xml:space="preserve">
+    <value>Publishe {0} event of mediator to {1} (type: {2}).</value>
+  </data>
+  <data name="Client_RaizeExWhenPublish" xml:space="preserve">
+    <value>Raise exception when public {0} event.</value>
   </data>
 </root>

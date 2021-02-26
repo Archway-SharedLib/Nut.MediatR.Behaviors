@@ -352,6 +352,42 @@ namespace Nut.MediatR.ServiceLike.Test
             holder.Messages.Contains("notification").Should().BeTrue();
         }
 
+        [Fact]
+        public async Task PublishAsync_Listener実行前に例外が発生した場合はリスナーが実行されずにログが出力される()
+        {
+            var services = new ServiceCollection();
+            services.AddMediatR(typeof(MixedRequest).Assembly);
+            services.AddSingleton<MixedTaskHolder>();
+            var provider = services.BuildServiceProvider();
+
+            var serviceFactory = provider.GetService<ServiceFactory>();
+            var registry = new ListenerRegistry();
+            registry.Add(typeof(MixedRequest));
+            registry.Add(typeof(MixedNotification));
+
+            var holder = provider.GetService<MixedTaskHolder>();
+
+            var testLogger = new TestLogger();
+            var client = new DefaultMediatorClient(new ServiceRegistry(), registry,
+                serviceFactory!, new TestScopedServiceFactoryFactory(), testLogger);
+
+            await client.PublishAsync("mixed", new { });
+
+            // Fire and forgetのため一旦スリープ
+            Thread.Sleep(1000);
+
+            holder.Messages.Should().HaveCount(0);
+            testLogger.Errors.Should().HaveCount(1);
+        }
+
+        private class TestScopedServiceFactoryFactory : IScopedServiceFactoryFactory
+        {
+            public IScoepedServiceFactory Create()
+            {
+                throw new NotImplementedException();
+            }
+        }
+
         [AsEventListener("mixed")]
         public record MixedRequest : IRequest;
         

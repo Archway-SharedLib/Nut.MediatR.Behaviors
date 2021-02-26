@@ -16,7 +16,7 @@ namespace Nut.MediatR.ServiceLike
         private readonly ListenerRegistry listenerRegistry;
         private readonly ServiceFactory factory;
         private readonly IScopedServiceFactoryFactory scopedServiceFactoryFactory;
-        private readonly ServiceLikeLoggerWrapper logger = null;
+        private readonly ServiceLikeLoggerWrapper logger;
 
         [ExcludeFromCodeCoverage]
         [Obsolete("This constructor is not support the AsEvent feature. Therefore, it will be removed in v0.4.0. Please use ctor(RequestRegistry, EventRegistry, ServiceFactory, IScopedServiceFactoryFactory).")]
@@ -114,38 +114,45 @@ namespace Nut.MediatR.ServiceLike
             }
 
             var mediatorNotifications = listenerRegistry.GetListeners(key);
-            PublishAndForget(mediatorNotifications, eventData);
+            PublishAndForget(mediatorNotifications, eventData, key);
 
             return Task.CompletedTask;
         }
         
-        private void PublishAndForget(IEnumerable<MediatorListenerDescription> listeners, object notification)
+        private void PublishAndForget(IEnumerable<MediatorListenerDescription> listeners, object notification, string key)
         {
             Task.Run(async () =>
             {
-                var listenersList = listeners.ToList();
-                logger.TraceStartPublishToListeners(listenersList);
-
-                using var scope = scopedServiceFactoryFactory.Create();
-                var publishTasks = new List<Task>();
-                var serviceLikeMediator = new ServiceLikeMediator(scope.Instance);
-
-                foreach (var listener in listenersList)
+                try
                 {
-                    try
-                    {
-                        var value = TranslateType(notification, listener.ListenerType);
-                        logger.TracePublishToListener(listener);
-                        publishTasks.Add(FireEvent(listener, serviceLikeMediator, value!));
-                    }
-                    catch (Exception ex)
-                    {
-                        logger.ErrorOnPublish(ex, listener);
-                    }
-                }
-                await Task.WhenAll(publishTasks);
+                    var listenersList = listeners.ToList();
+                    logger.TraceStartPublishToListeners(key, listenersList);
 
-                logger.TraceFinishPublishToListeners();
+                    using var scope = scopedServiceFactoryFactory.Create();
+                    var publishTasks = new List<Task>();
+                    var serviceLikeMediator = new ServiceLikeMediator(scope.Instance);
+
+                    foreach (var listener in listenersList)
+                    {
+                        try
+                        {
+                            var value = TranslateType(notification, listener.ListenerType);
+                            logger.TracePublishToListener(listener);
+                            publishTasks.Add(FireEvent(listener, serviceLikeMediator, value!));
+                        }
+                        catch (Exception ex)
+                        {
+                            logger.ErrorOnPublish(ex, listener);
+                        }
+                    }
+                    await Task.WhenAll(publishTasks);
+
+                    logger.TraceFinishPublishToListeners(key);
+                }
+                catch (Exception e)
+                {
+                    logger.ErrorOnPublishEvents(e, key);
+                }
             });
         }
 

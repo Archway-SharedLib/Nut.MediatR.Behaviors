@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Nut.MediatR.ServiceLike;
+using System;
 using System.CodeDom.Compiler;
 using System.Collections.Generic;
 using System.Text;
@@ -29,7 +30,14 @@ namespace System
 
         internal static string Registry_AlreadyContainsKey(string key) => Format(GetResourceString(nameof(Registry_AlreadyContainsKey), "Already contains key: {0}"), key);
 
-        internal static string Client_RaiseExWhenPublish(string notificationType) => Format(GetResourceString(nameof(Client_RaiseExWhenPublish), "Raise exception when publish: {0}."), notificationType);
-   
+        internal static string Client_RaiseExWhenEachListener(string key, string notificationType, MediateType mediateType) => Format(GetResourceString(nameof(Client_RaiseExWhenEachListener), "Raise exception when publish {0} event: {1}. (type: {2})"), key, notificationType, mediateType);
+
+        internal static string Client_BeforePublishToListeners(string key, int count) => Format(GetResourceString(nameof(Client_BeforePublishToListeners), "Publish {0} event of mediator to {1} listener(s)."), key, count);
+
+        internal static string Client_CompletePublishToListeners(string key) => Format(GetResourceString(nameof(Client_CompletePublishToListeners), "Published {0} event of mediator."), key);
+
+        internal static string Client_PublishToEachListeners(string key, string notificationType, MediateType mediateType) => Format(GetResourceString(nameof(Client_PublishToEachListeners), "Publishe {0} event of mediator to {1} (type: {2})."), key, notificationType, mediateType);
+
+        internal static string Client_RaizeExWhenPublish(string key) => Format(GetResourceString(nameof(Client_RaizeExWhenPublish), "Raise exception when public {0} event."), key);
     }
 }
