@@ -319,7 +319,7 @@ namespace Nut.MediatR.ServiceLike.Test
             await client.PublishAsync(nameof(ExceptionPang), new { });
             
             // Fire and forgetのため一旦スリープ
-            Thread.Sleep(1000);
+            Thread.Sleep(2000);
             
             logger.Errors.Should().HaveCount(1);
         }
