@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Text;
+using SR = Nut.MediatR.ServiceLike.Resources.Strings;
 
 namespace Nut.MediatR.ServiceLike
 {

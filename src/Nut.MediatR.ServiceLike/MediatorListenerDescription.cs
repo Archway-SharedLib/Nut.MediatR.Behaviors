@@ -3,6 +3,8 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using SR = Nut.MediatR.ServiceLike.Resources.Strings;
+
 #pragma warning disable 618
 
 namespace Nut.MediatR.ServiceLike

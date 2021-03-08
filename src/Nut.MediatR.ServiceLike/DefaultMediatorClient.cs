@@ -6,6 +6,7 @@ using System.Text.Json;
 using System.Threading.Tasks;
 using Nut.MediatR.ServiceLike.Internals;
 using System.Linq;
+using SR = Nut.MediatR.ServiceLike.Resources.Strings;
 
 namespace Nut.MediatR.ServiceLike
 {
