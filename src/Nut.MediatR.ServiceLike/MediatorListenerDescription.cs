@@ -36,9 +36,7 @@ namespace Nut.MediatR.ServiceLike
             }
 
             var evListenerAttrs = listenerType.GetAttributes<AsEventListenerAttribute>(true).ToList();
-            var paths = evListenerAttrs.Any()
-                ? evListenerAttrs.Select(attr => attr.Path)
-                : listenerType.GetAttributes<AsEventAttribute>(true).Select(attr => attr.Path);
+            var paths = evListenerAttrs.Select(attr => attr.Path);
             
             return paths.Select(path => 
                 new MediatorListenerDescription(path, listenerType)
@@ -57,7 +55,6 @@ namespace Nut.MediatR.ServiceLike
                 && (listenerType.IsImplemented(typeof(INotification)) 
                     || listenerType.IsImplemented(typeof(IRequest)) 
                     || listenerType.IsImplemented(typeof(IRequest<>)))
-                && (listenerType.GetAttributes<AsEventListenerAttribute>().Any() 
-                    || listenerType.GetAttributes<AsEventAttribute>().Any());
+                && listenerType.GetAttributes<AsEventListenerAttribute>().Any();
     }
 }

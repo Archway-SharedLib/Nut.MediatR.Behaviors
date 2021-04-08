@@ -38,7 +38,9 @@ namespace Nut.MediatR.ServiceLike.DependencyInjection
             {
                 listenerRegistry.Add(listenerDescription);
             }
-            
+
+            services.TryAddSingleton<IServiceLikeContextAccessor, ServiceLikeContextAccessor>();
+
             services.TryAddTransient(typeof(IMediatorClient), provider =>
             {
                 var servRegistry = provider.GetService<ServiceRegistry>();
@@ -46,12 +48,12 @@ namespace Nut.MediatR.ServiceLike.DependencyInjection
                 var serviceFactory = provider.GetService<ServiceFactory>();
                 var scopedServiceFactoryFactory = new ScopedServiceFactoryFactory(provider.GetService<IServiceScopeFactory>());
                 var serviceLikeLogger = provider.GetService<IServiceLikeLogger>();
-                
+
                 return new DefaultMediatorClient(
-                    servRegistry, 
-                    lisRegistry, 
+                    servRegistry,
+                    lisRegistry,
                     serviceFactory,
-                    scopedServiceFactoryFactory, 
+                    scopedServiceFactoryFactory,
                     serviceLikeLogger);
             });
 

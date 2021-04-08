@@ -12,8 +12,9 @@ namespace Nut.MediatR.ServiceLike
         Task SendAsync(string path, object request);
 
         Task PublishAsync(string key, object @eventData);
-        
-        [Obsolete("This method will be removed in v0.4.0. It always raises no exceptions.")]
-        Task PublishAsync(string key, object @eventData, bool notifySendingError = false);
+
+        Task PublishAsync(string key, object @eventData, PublishOptions options);
+
+        Task PublishAsync(string key, object @eventData, Action<PublishOptions> options);
     }
 }

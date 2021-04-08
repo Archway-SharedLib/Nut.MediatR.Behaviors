@@ -57,16 +57,6 @@ namespace Nut.MediatR.ServiceLike.Test
         }
         
         [Fact]
-        public void Create_引数の型にINotificationを実装したクローズドでAsEventが付加されている場合はMediatorListenerが返される()
-        {
-            var listeners = MediatorListenerDescription.Create(typeof(ObsoletePang));
-            listeners.Should().HaveCount(1);
-            var listener = listeners.First();
-            listener.Key.Should().Be("pang");
-            listener.ListenerType.Should().Be(typeof(ObsoletePang));
-        }
-        
-        [Fact]
         public void Create_引数の型にINotificationを実装している場合はMediateTypeがNotificationのMediatorListenerが返される()
         {
             var listeners = MediatorListenerDescription.Create(typeof(Pang));

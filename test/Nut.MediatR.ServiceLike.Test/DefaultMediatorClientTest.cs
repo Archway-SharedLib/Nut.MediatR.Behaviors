@@ -380,6 +380,7 @@ namespace Nut.MediatR.ServiceLike.Test
             testLogger.Errors.Should().HaveCount(1);
         }
 
+
         private class TestScopedServiceFactoryFactory : IScopedServiceFactoryFactory
         {
             public IScoepedServiceFactory Create()

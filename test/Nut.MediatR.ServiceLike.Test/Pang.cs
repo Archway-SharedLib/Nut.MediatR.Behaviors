@@ -13,13 +13,6 @@ namespace Nut.MediatR.ServiceLike.Test
     }
     
 #pragma warning disable 618
-    [AsEvent("pang")]
-#pragma warning restore 618
-    public record ObsoletePang: INotification
-    {
-    }
-
-
     [AsEventListener("pang")]
     public record Pang2 : INotification
     {

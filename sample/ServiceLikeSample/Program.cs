@@ -51,9 +51,15 @@ namespace ServiceLikeSample
             var result5 = await client.SendAsync<Output>("/filter", new { Id = "345" });
             logger.LogInformation(result5.Name);
 
-            // Eventを使う
-            await client.PublishAsync("Mediator.SampleEvent", new { Id = "123", Name = "Bob", Age = 23 });
-            logger.LogInformation("Complete Event Publish");
+            await client.PublishAsync("Mediator.SampleEvent", new { Id = "123", Name = "Bob", Age = 23 }, (opts) =>
+            {
+                opts.Header.Add("key1", "abcde");
+                opts.CompleteHandler = (_, __) =>
+                {
+                    logger.LogInformation("Complete Events");
+                };
+            });
+            logger.LogInformation("Event Published");
             
             Thread.Sleep(1000);
         }

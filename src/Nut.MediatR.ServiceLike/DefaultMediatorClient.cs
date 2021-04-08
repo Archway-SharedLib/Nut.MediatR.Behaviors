@@ -1,7 +1,6 @@
 ﻿using MediatR;
 using System;
 using System.Collections.Generic;
-using System.Diagnostics.CodeAnalysis;
 using System.Text.Json;
 using System.Threading.Tasks;
 using Nut.MediatR.ServiceLike.Internals;
@@ -19,30 +18,6 @@ namespace Nut.MediatR.ServiceLike
         private readonly IScopedServiceFactoryFactory scopedServiceFactoryFactory;
         private readonly ServiceLikeLoggerWrapper logger;
 
-        [ExcludeFromCodeCoverage]
-        [Obsolete("This constructor is not support the AsEvent feature. Therefore, it will be removed in v0.4.0. Please use ctor(RequestRegistry, EventRegistry, ServiceFactory, IScopedServiceFactoryFactory).")]
-        public DefaultMediatorClient(IMediator mediator, ServiceRegistry registry, ServiceFactory factory)
-        {
-            this.mediator = mediator ?? throw new ArgumentNullException(nameof(mediator));
-            this.serviceRegistry = registry ?? throw new ArgumentNullException(nameof(registry));
-            this.factory = factory ?? throw new ArgumentNullException(nameof(factory));
-            this.listenerRegistry = new ListenerRegistry();
-            this.scopedServiceFactoryFactory = new InternalScopedServiceFactoryFactory(factory);
-            this.logger = new ServiceLikeLoggerWrapper(null);
-        }
-
-        [ExcludeFromCodeCoverage]
-        [Obsolete("This constructor is not support the AsEvent feature. Therefore, it will be removed in v0.4.0. Please use ctor(RequestRegistry, EventRegistry, ServiceFactory, IScopedServiceFactoryFactory).")]
-        public DefaultMediatorClient(ServiceRegistry serviceRegistry, ListenerRegistry eventRegistry, ServiceFactory factory)
-        {
-            this.serviceRegistry = serviceRegistry ?? throw new ArgumentNullException(nameof(serviceRegistry));
-            this.listenerRegistry = eventRegistry ?? throw new ArgumentNullException(nameof(eventRegistry));
-            this.factory = factory ?? throw new ArgumentNullException(nameof(factory));
-            this.mediator = new ServiceLikeMediator(factory);
-            this.scopedServiceFactoryFactory = new InternalScopedServiceFactoryFactory(factory);
-            this.logger = new ServiceLikeLoggerWrapper(null);
-        }
-        
         public DefaultMediatorClient(ServiceRegistry serviceRegistry, ListenerRegistry eventRegistry, 
             ServiceFactory serviceFactory, IScopedServiceFactoryFactory scopedServiceFactoryFactory,
             IServiceLikeLogger logger)
@@ -102,12 +77,21 @@ namespace Nut.MediatR.ServiceLike
             return await mediator.Send(parameter!).ConfigureAwait(false);
         }
 
-        [ExcludeFromCodeCoverage]
-        [Obsolete("This method will be removed in the v0.4.0. It always raises no exceptions.")]
-        public Task PublishAsync(string key, object eventData, bool notifySendingError = false)
-            => PublishAsync(key, eventData);
-        
         public Task PublishAsync(string key, object eventData)
+            => PublishAsync(key, eventData, new PublishOptions());
+
+        public Task PublishAsync(string key, object @eventData, Action<PublishOptions> optionsAction)
+        {
+            if (optionsAction is null)
+            {
+                throw new ArgumentNullException(nameof(optionsAction));
+            }
+            var options = new PublishOptions();
+            optionsAction(options);
+            return PublishAsync(key, eventData, options);
+        }
+
+        public Task PublishAsync(string key, object eventData, PublishOptions options)
         {
             if (eventData is null)
             {
@@ -115,21 +99,32 @@ namespace Nut.MediatR.ServiceLike
             }
 
             var mediatorNotifications = listenerRegistry.GetListeners(key);
-            PublishAndForget(mediatorNotifications, eventData, key);
+            PublishAndForget(mediatorNotifications, eventData, key, options);
 
             return Task.CompletedTask;
         }
+
         
-        private void PublishAndForget(IEnumerable<MediatorListenerDescription> listeners, object notification, string key)
+
+        private void PublishAndForget(IEnumerable<MediatorListenerDescription> listeners, object notification, string key, PublishOptions options)
         {
             Task.Run(async () =>
             {
+                var context = new ServiceLikeContext(key, options.Header);
+                
                 try
                 {
                     var listenersList = listeners.ToList();
                     logger.TraceStartPublishToListeners(key, listenersList);
 
                     using var scope = scopedServiceFactoryFactory.Create();
+
+                    var contextAccessor = scope.Instance.GetInstance<IServiceLikeContextAccessor>();
+                    if(contextAccessor is not null)
+                    {
+                        contextAccessor.Context = context;
+                    }
+
                     var publishTasks = new List<Task>();
                     var serviceLikeMediator = new ServiceLikeMediator(scope.Instance);
 
@@ -146,12 +141,15 @@ namespace Nut.MediatR.ServiceLike
                             logger.ErrorOnPublish(ex, listener);
                         }
                     }
-                    await Task.WhenAll(publishTasks);
-
+                    // すべて投げたまでで完了とする。
+                    options.CompleteHandler?.Invoke(notification, context);
                     logger.TraceFinishPublishToListeners(key);
+
+                    await Task.WhenAll(publishTasks);
                 }
                 catch (Exception e)
                 {
+                    options.ErrorHandler?.Invoke(e, notification, context);
                     logger.ErrorOnPublishEvents(e, key);
                 }
             });
