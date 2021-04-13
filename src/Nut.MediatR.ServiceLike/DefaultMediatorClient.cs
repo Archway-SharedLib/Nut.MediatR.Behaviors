@@ -128,6 +128,7 @@ namespace Nut.MediatR.ServiceLike
                     var publishTasks = new List<Task>();
                     var serviceLikeMediator = new ServiceLikeMediator(scope.Instance);
 
+                    options.BeforePublishHandler?.Invoke(notification, context);
                     foreach (var listener in listenersList)
                     {
                         try
