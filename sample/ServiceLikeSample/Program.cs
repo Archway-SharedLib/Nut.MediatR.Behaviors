@@ -54,9 +54,15 @@ namespace ServiceLikeSample
             await client.PublishAsync("Mediator.SampleEvent", new { Id = "123", Name = "Bob", Age = 23 }, (opts) =>
             {
                 opts.Header.Add("key1", "abcde");
-                opts.CompleteHandler = (_, __) =>
+                opts.BeforePublishAsyncHandler = (_, context) =>
                 {
-                    logger.LogInformation("Complete Events");
+                    logger.LogInformation($"Before Events {context.Key}");
+                    return Task.CompletedTask;
+                };
+                opts.CompleteAsyncHandler = (_, context) =>
+                {
+                    logger.LogInformation($"Complete Events {context.Key}");
+                    return Task.CompletedTask;
                 };
             });
             logger.LogInformation("Event Published");

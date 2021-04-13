@@ -104,8 +104,6 @@ namespace Nut.MediatR.ServiceLike
             return Task.CompletedTask;
         }
 
-        
-
         private void PublishAndForget(IEnumerable<MediatorListenerDescription> listeners, object notification, string key, PublishOptions options)
         {
             Task.Run(async () =>
@@ -128,7 +126,11 @@ namespace Nut.MediatR.ServiceLike
                     var publishTasks = new List<Task>();
                     var serviceLikeMediator = new ServiceLikeMediator(scope.Instance);
 
-                    options.BeforePublishHandler?.Invoke(notification, context);
+                    if(options.BeforePublishAsyncHandler is not null)
+                    {
+                        await options.BeforePublishAsyncHandler.Invoke(notification, context).ConfigureAwait(false);
+                    }
+                     
                     foreach (var listener in listenersList)
                     {
                         try
@@ -143,14 +145,20 @@ namespace Nut.MediatR.ServiceLike
                         }
                     }
                     // すべて投げたまでで完了とする。
-                    options.CompleteHandler?.Invoke(notification, context);
+                    if (options.CompleteAsyncHandler is not null)
+                    {
+                        await options.CompleteAsyncHandler.Invoke(notification, context).ConfigureAwait(false);
+                    }
                     logger.TraceFinishPublishToListeners(key);
 
                     await Task.WhenAll(publishTasks);
                 }
                 catch (Exception e)
                 {
-                    options.ErrorHandler?.Invoke(e, notification, context);
+                    if (options.ErrorAsyncHandler is not null)
+                    {
+                        await options.ErrorAsyncHandler.Invoke(e, notification, context).ConfigureAwait(false);
+                    }
                     logger.ErrorOnPublishEvents(e, key);
                 }
             });
