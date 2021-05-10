@@ -105,7 +105,7 @@ namespace Nut.MediatR.Behaviors.FluentValidation.Test
                     return Task.FromResult(new TestBehaviorResponse());
                 });
 
-            act.Should().Throw<ValidationException>().And.Errors.Should().HaveCount(2);
+            var errors = act.Should().Throw<ValidationException>().And.Errors.Should().HaveCount(2);
             executed.Should().BeFalse();
         }
     }
