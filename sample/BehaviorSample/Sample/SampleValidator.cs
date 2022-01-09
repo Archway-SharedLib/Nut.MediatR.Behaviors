@@ -1,15 +1,11 @@
-using System;
-using System.Collections.Generic;
-using System.Text;
-using FluentValidation;
+﻿using FluentValidation;
 
-namespace BehaviorSample.Sample
+namespace BehaviorSample.Sample;
+
+public class SampleValidator : AbstractValidator<SampleRequest>
 {
-    public class SampleValidator : AbstractValidator<SampleRequest>
+    public SampleValidator()
     {
-        public SampleValidator()
-        {
-            RuleFor(v => v.Value).MaximumLength(20);
-        }
+        RuleFor(v => v.Value).MaximumLength(20);
     }
 }

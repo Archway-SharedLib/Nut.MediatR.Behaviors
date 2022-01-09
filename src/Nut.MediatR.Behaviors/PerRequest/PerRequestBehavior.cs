@@ -8,7 +8,7 @@ using MediatR;
 
 namespace Nut.MediatR;
 
-public class PerRequestBehavior<TRequest, TResponse> : IPipelineBehavior<TRequest, TResponse> where TRequest : notnull
+public class PerRequestBehavior<TRequest, TResponse> : IPipelineBehavior<TRequest, TResponse> where TRequest : IRequest<TResponse>
 {
     private readonly ServiceFactory factory;
 

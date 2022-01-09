@@ -1,6 +1,5 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
-using System.Text;
 using SR = Nut.MediatR.ServiceLike.Resources.Strings;
 
 namespace Nut.MediatR.ServiceLike;

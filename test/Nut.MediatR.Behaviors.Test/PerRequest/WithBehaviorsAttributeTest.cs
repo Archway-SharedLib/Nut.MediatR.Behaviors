@@ -1,8 +1,5 @@
-using System;
-using System.Threading;
-using System.Threading.Tasks;
+﻿using System;
 using FluentAssertions;
-using MediatR;
 using Xunit;
 
 namespace Nut.MediatR.Test.PerRequest;

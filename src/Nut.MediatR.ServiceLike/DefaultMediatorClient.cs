@@ -117,10 +117,10 @@ public class DefaultMediatorClient : IMediatorClient
 
                 using var scope = scopedServiceFactoryFactory.Create();
 
-                var contextAccessor = scope.Instance.GetInstance<IServiceLikeContextAccessor>();
-                if (contextAccessor is not null)
+                var contextAccessors = scope.Instance.GetInstances<IServiceLikeContextAccessor>();
+                if (contextAccessors.Any())
                 {
-                    contextAccessor.Context = context;
+                    contextAccessors.First().Context = context;
                 }
 
                 var publishTasks = new List<Task>();
@@ -144,8 +144,8 @@ public class DefaultMediatorClient : IMediatorClient
                         logger.ErrorOnPublish(ex, listener);
                     }
                 }
-                    // すべて投げたまでで完了とする。
-                    if (options.CompleteAsyncHandler is not null)
+                // すべて投げたまでで完了とする。
+                if (options.CompleteAsyncHandler is not null)
                 {
                     await options.CompleteAsyncHandler.Invoke(notification, context).ConfigureAwait(false);
                 }

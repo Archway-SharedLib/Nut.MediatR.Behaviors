@@ -1,26 +1,23 @@
-using System;
-using System.Collections.Generic;
-using System.Text;
+﻿using System;
 using System.Threading;
 using System.Threading.Tasks;
 using MediatR;
 using Microsoft.Extensions.Logging;
 
-namespace ServiceLikeSample.Sample.Void
+namespace ServiceLikeSample.Sample.Void;
+
+public class VoidHandler : IRequestHandler<VoidRequest, Unit>
 {
-    public class VoidHandler : IRequestHandler<VoidRequest, Unit>
+    private readonly ILogger<VoidHandler> logger;
+
+    public VoidHandler(ILogger<VoidHandler> logger)
     {
-        private readonly ILogger<VoidHandler> logger;
+        this.logger = logger ?? throw new ArgumentNullException(nameof(logger));
+    }
 
-        public VoidHandler(ILogger<VoidHandler> logger)
-        {
-            this.logger = logger ?? throw new ArgumentNullException(nameof(logger));
-        }
-
-        public Task<Unit> Handle(VoidRequest request, CancellationToken cancellationToken)
-        {
-            logger.LogInformation(request.Id);
-            return Task.FromResult(Unit.Value);
-        }
+    public Task<Unit> Handle(VoidRequest request, CancellationToken cancellationToken)
+    {
+        logger.LogInformation(request.Id);
+        return Task.FromResult(Unit.Value);
     }
 }

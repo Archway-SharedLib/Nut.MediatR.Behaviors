@@ -1,7 +1,6 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using FluentAssertions;
@@ -131,7 +130,7 @@ public class AuthorizationBehaviorTest
     }
 }
 
-public class NullAuthorizationBehavior<TRequest, TResponse> : AuthorizationBehavior<TRequest, TResponse>
+public class NullAuthorizationBehavior<TRequest, TResponse> : AuthorizationBehavior<TRequest, TResponse> where TRequest : IRequest<TResponse>
 {
     public NullAuthorizationBehavior(ServiceFactory serviceFactory) : base(serviceFactory)
     {

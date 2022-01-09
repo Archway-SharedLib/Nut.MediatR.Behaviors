@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+using System;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -7,9 +6,7 @@ using FluentAssertions;
 using MediatR;
 using Microsoft.Extensions.Logging;
 using NSubstitute;
-using Nut.MediatR.Logging;
 using Xunit;
-using Xunit.Sdk;
 
 namespace Nut.MediatR.Test.Logging;
 

@@ -1,23 +1,18 @@
-using System;
-using System.Collections.Generic;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using Nut.MediatR;
-using Nut.MediatR.Logging;
 
-namespace BehaviorSample.Sample
+namespace BehaviorSample.Sample;
+
+public class SampleLoggingInOutValueCollector : ILoggingInOutValueCollector<SampleRequest, SampleResponse>
 {
-    public class SampleLoggingInOutValueCollector : ILoggingInOutValueCollector<SampleRequest, SampleResponse>
+    public Task<InOutValueResult> CollectInValueAsync(SampleRequest request, CancellationToken cancellationToken)
     {
-        public Task<InOutValueResult> CollectInValueAsync(SampleRequest request, CancellationToken cancellationToken)
-        {
-            return Task.FromResult(InOutValueResult.WithValue(request.Value));
-        }
+        return Task.FromResult(InOutValueResult.WithValue(request.Value));
+    }
 
-        public Task<InOutValueResult> CollectOutValueAsync(SampleResponse response, CancellationToken cancellationToken)
-        {
-            return Task.FromResult(InOutValueResult.WithValue(response.Value));
-        }
+    public Task<InOutValueResult> CollectOutValueAsync(SampleResponse response, CancellationToken cancellationToken)
+    {
+        return Task.FromResult(InOutValueResult.WithValue(response.Value));
     }
 }

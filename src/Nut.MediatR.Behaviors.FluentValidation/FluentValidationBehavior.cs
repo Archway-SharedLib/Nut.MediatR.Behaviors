@@ -7,7 +7,7 @@ using MediatR;
 
 namespace Nut.MediatR;
 
-public class FluentValidationBehavior<TRequest, TResponse> : IPipelineBehavior<TRequest, TResponse> where TRequest : notnull
+public class FluentValidationBehavior<TRequest, TResponse> : IPipelineBehavior<TRequest, TResponse> where TRequest : IRequest<TResponse>
 {
     private readonly ServiceFactory serviceFactory;
 

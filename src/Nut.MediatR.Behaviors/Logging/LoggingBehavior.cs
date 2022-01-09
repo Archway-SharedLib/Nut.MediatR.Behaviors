@@ -7,7 +7,7 @@ using Microsoft.Extensions.Logging;
 
 namespace Nut.MediatR;
 
-public class LoggingBehavior<TRequest, TResponse> : IPipelineBehavior<TRequest, TResponse> where TRequest : notnull, IRequest<TResponse>
+public class LoggingBehavior<TRequest, TResponse> : IPipelineBehavior<TRequest, TResponse> where TRequest : IRequest<TResponse>
 {
     protected ServiceFactory ServiceFactory { get; }
 

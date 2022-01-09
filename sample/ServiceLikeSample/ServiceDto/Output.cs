@@ -1,16 +1,11 @@
-using System;
-using System.Collections.Generic;
-using System.Text;
+﻿namespace ServiceLikeSample.ServiceDto;
 
-namespace ServiceLikeSample.ServiceDto
+public class Output
 {
-    public class Output
+    public Output(string name)
     {
-        public Output(string name)
-        {
-            Name = name;
-        }
-
-        public string Name { get; }
+        Name = name;
     }
+
+    public string Name { get; }
 }

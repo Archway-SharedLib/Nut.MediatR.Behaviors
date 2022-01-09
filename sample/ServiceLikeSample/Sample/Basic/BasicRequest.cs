@@ -1,14 +1,10 @@
-using System;
-using System.Collections.Generic;
-using System.Text;
-using MediatR;
+﻿using MediatR;
 using Nut.MediatR.ServiceLike;
 
-namespace ServiceLikeSample.Sample.Basic
+namespace ServiceLikeSample.Sample.Basic;
+
+[AsService("/basic")]
+public class BasicRequest : IRequest<BasicResult>
 {
-    [AsService("/basic")]
-    public class BasicRequest : IRequest<BasicResult>
-    {
-        public string Id { get; set; }
-    }
+    public string Id { get; set; }
 }

@@ -1,7 +1,5 @@
-using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using MediatR;
@@ -18,7 +16,7 @@ public static class TestBehaviorMessages
     public const string EndMessage3 = "TestBehavior3 End";
 }
 
-public class TestBehavior1<TRequest, TResponse> : IPipelineBehavior<TRequest, TResponse> where TRequest : notnull
+public class TestBehavior1<TRequest, TResponse> : IPipelineBehavior<TRequest, TResponse> where TRequest : IRequest<TResponse>
 {
     private readonly List<string> execHistory;
 
@@ -37,7 +35,7 @@ public class TestBehavior1<TRequest, TResponse> : IPipelineBehavior<TRequest, TR
     }
 }
 
-public class TestBehavior2<TRequest, TResponse> : IPipelineBehavior<TRequest, TResponse> where TRequest : notnull
+public class TestBehavior2<TRequest, TResponse> : IPipelineBehavior<TRequest, TResponse> where TRequest : IRequest<TResponse>
 {
     private readonly List<string> execHistory;
 
@@ -55,7 +53,7 @@ public class TestBehavior2<TRequest, TResponse> : IPipelineBehavior<TRequest, TR
     }
 }
 
-public class TestBehavior3<TRequest, TResponse> : IPipelineBehavior<TRequest, TResponse> where TRequest : notnull
+public class TestBehavior3<TRequest, TResponse> : IPipelineBehavior<TRequest, TResponse> where TRequest : IRequest<TResponse>
 {
     private readonly List<string> execHistory;
 

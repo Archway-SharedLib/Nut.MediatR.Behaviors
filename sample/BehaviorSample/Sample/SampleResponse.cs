@@ -1,11 +1,6 @@
-using System;
-using System.Collections.Generic;
-using System.Text;
+﻿namespace BehaviorSample.Sample;
 
-namespace BehaviorSample.Sample
+public class SampleResponse
 {
-    public class SampleResponse
-    {
-        public string Value { get; set; }
-    }
+    public string Value { get; set; }
 }
