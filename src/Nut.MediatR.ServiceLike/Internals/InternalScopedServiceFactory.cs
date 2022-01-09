@@ -1,19 +1,18 @@
-﻿using System;
+using System;
 using MediatR;
 
-namespace Nut.MediatR.ServiceLike.Internals
+namespace Nut.MediatR.ServiceLike.Internals;
+
+internal class InternalScopedServiceFactory : IScoepedServiceFactory
 {
-    internal class InternalScopedServiceFactory: IScoepedServiceFactory
+    public InternalScopedServiceFactory(ServiceFactory serviceFactory)
     {
-        public InternalScopedServiceFactory(ServiceFactory serviceFactory)
-        {
-            this.Instance = serviceFactory ?? throw new ArgumentNullException(nameof(serviceFactory));
-        }
-
-        public void Dispose()
-        {
-        }
-
-        public ServiceFactory Instance { get; }
+        Instance = serviceFactory ?? throw new ArgumentNullException(nameof(serviceFactory));
     }
+
+    public void Dispose()
+    {
+    }
+
+    public ServiceFactory Instance { get; }
 }

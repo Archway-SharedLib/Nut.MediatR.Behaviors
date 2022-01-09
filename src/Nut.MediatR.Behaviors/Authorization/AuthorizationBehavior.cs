@@ -7,45 +7,44 @@ using System.Threading.Tasks;
 using MediatR;
 using SR = Nut.MediatR.Resources.Strings;
 
-namespace Nut.MediatR
+namespace Nut.MediatR;
+
+public class AuthorizationBehavior<TRequest, TResponse> : IPipelineBehavior<TRequest, TResponse> where TRequest : notnull
 {
-    public class AuthorizationBehavior<TRequest, TResponse> : IPipelineBehavior<TRequest, TResponse> where TRequest : notnull
+    protected ServiceFactory ServiceFactory { get; }
+
+    public AuthorizationBehavior(ServiceFactory serviceFactory)
     {
-        protected ServiceFactory ServiceFactory { get; }
+        ServiceFactory = serviceFactory ?? throw new ArgumentNullException(nameof(serviceFactory));
+    }
 
-        public AuthorizationBehavior(ServiceFactory serviceFactory)
+    public async Task<TResponse> Handle(TRequest request, CancellationToken cancellationToken, RequestHandlerDelegate<TResponse> next)
+    {
+        var authorizers = GetAuthorizers()?.ToList();
+        if (authorizers?.Any() == true)
         {
-            this.ServiceFactory = serviceFactory ?? throw new ArgumentNullException(nameof(serviceFactory));
-        }
-
-        public async Task<TResponse> Handle(TRequest request, CancellationToken cancellationToken, RequestHandlerDelegate<TResponse> next)
-        {
-            var authorizers = this.GetAuthorizers()?.ToList();
-            if (authorizers?.Any() == true)
+            foreach (var authorizer in authorizers)
             {
-                foreach(var authorizer in authorizers)
-                {
-                    var result = await authorizer.AuthorizeAsync(request, cancellationToken).ConfigureAwait(false);
-                    if (!result.Succeeded) throw new UnauthorizedException(
-                        string.IsNullOrEmpty(result.FailurMessage) ? SR.Authorization_NotAuthorized : result.FailurMessage);
-                }
+                var result = await authorizer.AuthorizeAsync(request, cancellationToken).ConfigureAwait(false);
+                if (!result.Succeeded) throw new UnauthorizedException(
+                    string.IsNullOrEmpty(result.FailurMessage) ? SR.Authorization_NotAuthorized : result.FailurMessage);
             }
-            
-            return await next().ConfigureAwait(false);
         }
 
-        protected virtual IEnumerable<IAuthorizer<TRequest>> GetAuthorizers()
-        {
-            return this.GetRegisterdAuthorizers();
-        }
+        return await next().ConfigureAwait(false);
+    }
 
-        /// <summary>
-        /// Get regsiterd authorizers from <see cref="ServiceFactory"/>
-        /// </summary>
-        /// <returns>Regsiterd authorizers</returns>
-        protected IEnumerable<IAuthorizer<TRequest>> GetRegisterdAuthorizers()
-        {
-            return ServiceFactory.GetInstances<IAuthorizer<TRequest>>() ?? Enumerable.Empty<IAuthorizer<TRequest>>();
-        }
+    protected virtual IEnumerable<IAuthorizer<TRequest>> GetAuthorizers()
+    {
+        return GetRegisterdAuthorizers();
+    }
+
+    /// <summary>
+    /// Get regsiterd authorizers from <see cref="ServiceFactory"/>
+    /// </summary>
+    /// <returns>Regsiterd authorizers</returns>
+    protected IEnumerable<IAuthorizer<TRequest>> GetRegisterdAuthorizers()
+    {
+        return ServiceFactory.GetInstances<IAuthorizer<TRequest>>() ?? Enumerable.Empty<IAuthorizer<TRequest>>();
     }
 }

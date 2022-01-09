@@ -1,11 +1,11 @@
-﻿using BehaviorSample.Sample;
+using System;
+using System.Threading.Tasks;
+using BehaviorSample.Sample;
 using FluentValidation;
 using MediatR;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Nut.MediatR;
-using System;
-using System.Threading.Tasks;
 
 namespace BehaviorSample
 {
@@ -30,7 +30,7 @@ namespace BehaviorSample
                 // IAuthorizerやILoggingInOutValueCollectorはアセンブリをスキャンして登録すると便利
                 .Scan(scan => scan
                     .FromAssemblyOf<Program>()
-                    .AddClasses(cls => 
+                    .AddClasses(cls =>
                         cls.AssignableTo(typeof(IAuthorizer<>))
                         .Where(type => !type.IsGenericType))
                     .AsImplementedInterfaces()

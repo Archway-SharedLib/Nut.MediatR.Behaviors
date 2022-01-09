@@ -1,7 +1,6 @@
-﻿namespace Nut.MediatR.ServiceLike
+namespace Nut.MediatR.ServiceLike;
+
+public interface IScopedServiceFactoryFactory
 {
-    public interface IScopedServiceFactoryFactory
-    {
-        IScoepedServiceFactory Create();
-    }
+    IScoepedServiceFactory Create();
 }

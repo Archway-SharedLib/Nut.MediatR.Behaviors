@@ -1,19 +1,18 @@
-﻿using System;
+using System;
 
-namespace Nut.MediatR.ServiceLike
+namespace Nut.MediatR.ServiceLike;
+
+public interface IServiceLikeLogger
 {
-    public interface IServiceLikeLogger
-    {
-        void Info(string message, params object[] args);
+    void Info(string message, params object[] args);
 
-        void Error(Exception ex, string message, params object[] args);
+    void Error(Exception ex, string message, params object[] args);
 
-        void Trace(string message, params object[] args);
+    void Trace(string message, params object[] args);
 
-        bool IsTraceEnabled();
+    bool IsTraceEnabled();
 
-        bool IsInfoEnabled();
+    bool IsInfoEnabled();
 
-        bool IsErrorEnabled();
-    }
+    bool IsErrorEnabled();
 }

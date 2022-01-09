@@ -1,4 +1,4 @@
-﻿//using Nut.MediatR.ServiceLike;
+//using Nut.MediatR.ServiceLike;
 //using System;
 //using System.CodeDom.Compiler;
 //using System.Collections.Generic;

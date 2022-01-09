@@ -1,10 +1,10 @@
-﻿using MediatR;
-using Microsoft.Extensions.Logging;
-using Nut.MediatR.ServiceLike;
 using System;
 using System.Collections.Generic;
 using System.Text;
 using System.Threading.Tasks;
+using MediatR;
+using Microsoft.Extensions.Logging;
+using Nut.MediatR.ServiceLike;
 
 namespace ServiceLikeSample.Sample.Filter
 {
@@ -16,7 +16,7 @@ namespace ServiceLikeSample.Sample.Filter
             {
                 return await next(parameter);
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 var logger = context.ServiceFactory.GetInstance<ILogger<ExceptionFilter>>();
                 logger.LogError(ex, "Error");

@@ -1,8 +1,8 @@
-﻿using MediatR;
-using Nut.MediatR.ServiceLike;
 using System;
 using System.Collections.Generic;
 using System.Text;
+using MediatR;
+using Nut.MediatR.ServiceLike;
 
 namespace ServiceLikeSample.Sample.Void
 {

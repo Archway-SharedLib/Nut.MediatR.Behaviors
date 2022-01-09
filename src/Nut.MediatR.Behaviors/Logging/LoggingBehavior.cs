@@ -5,76 +5,75 @@ using System.Threading.Tasks;
 using MediatR;
 using Microsoft.Extensions.Logging;
 
-namespace Nut.MediatR
+namespace Nut.MediatR;
+
+public class LoggingBehavior<TRequest, TResponse> : IPipelineBehavior<TRequest, TResponse> where TRequest : notnull, IRequest<TResponse>
 {
-    public class LoggingBehavior<TRequest, TResponse> : IPipelineBehavior<TRequest, TResponse> where TRequest : notnull, IRequest<TResponse>
+    protected ServiceFactory ServiceFactory { get; }
+
+    public LoggingBehavior(ServiceFactory serviceFactory)
     {
-        protected ServiceFactory ServiceFactory { get; }
-        
-        public LoggingBehavior(ServiceFactory serviceFactory)
+        ServiceFactory = serviceFactory ?? throw new ArgumentNullException(nameof(serviceFactory));
+    }
+
+    protected virtual ILoggingInOutValueCollector<TRequest, TResponse>? GetDefaultCollector() => null;
+
+    public async Task<TResponse> Handle(TRequest request, CancellationToken cancellationToken, RequestHandlerDelegate<TResponse> next)
+    {
+        var logger = ServiceFactory.GetInstance<ILogger<LoggingBehavior<TRequest, TResponse>>>();
+        if (logger is null)
         {
-            this.ServiceFactory = serviceFactory ?? throw new ArgumentNullException(nameof(serviceFactory));
+            return await next().ConfigureAwait(false);
         }
 
-        protected virtual ILoggingInOutValueCollector<TRequest, TResponse>? GetDefaultCollector() => null;
+        var collector = ServiceFactory.GetInstance<ILoggingInOutValueCollector<TRequest, TResponse>>()
+            ?? GetDefaultCollector();
 
-        public async Task<TResponse> Handle(TRequest request, CancellationToken cancellationToken, RequestHandlerDelegate<TResponse> next)
+        var inValue = collector is not null ?
+            await collector.CollectInValueAsync(request, cancellationToken).ConfigureAwait(false) :
+            null;
+
+        if (inValue?.HasValue == true)
         {
-            var logger = ServiceFactory.GetInstance<ILogger<LoggingBehavior<TRequest, TResponse>>>();
-            if(logger is null)
-            {
-                return await next().ConfigureAwait(false);
-            }
+            logger.Log(LogLevel.Information, "Start {Request}. {Input}", typeof(TRequest).Name, inValue.Get());
+        }
+        else
+        {
+            logger.Log(LogLevel.Information, "Start {Request}.", typeof(TRequest).Name);
+        }
 
-            var collector = ServiceFactory.GetInstance<ILoggingInOutValueCollector<TRequest, TResponse>>() 
-                ?? this.GetDefaultCollector();
-            
-            var inValue = collector is not null ? 
-                await collector.CollectInValueAsync(request, cancellationToken).ConfigureAwait(false) :
+        var watch = new Stopwatch();
+        watch.Start();
+        try
+        {
+            var result = await next().ConfigureAwait(false);
+            watch.Stop();
+
+            var outValue = collector is not null ?
+                await collector.CollectOutValueAsync(result, cancellationToken).ConfigureAwait(false) :
                 null;
-            
-            if (inValue?.HasValue == true)
+
+            if (outValue?.HasValue == true)
             {
-                logger.Log(LogLevel.Information, "Start {Request}. {Input}", typeof(TRequest).Name, inValue.Get());
+                logger.Log(LogLevel.Information, "Complete {Request} in {Elapsed}ms. {Output}",
+                    typeof(TRequest).Name,
+                    watch.ElapsedMilliseconds,
+                    outValue.Get());
             }
             else
             {
-                logger.Log(LogLevel.Information, "Start {Request}.", typeof(TRequest).Name);
+                logger.Log(LogLevel.Information, "Complete {Request} in {Elapsed}ms.",
+                    typeof(TRequest).Name,
+                    watch.ElapsedMilliseconds);
             }
-            
-            var watch = new Stopwatch();
-            watch.Start();
-            try
-            {
-                var result = await next().ConfigureAwait(false);
-                watch.Stop();
 
-                var outValue = collector is not null ?
-                    await collector.CollectOutValueAsync(result, cancellationToken).ConfigureAwait(false) :
-                    null;
-
-                if (outValue?.HasValue == true)
-                {
-                    logger.Log(LogLevel.Information, "Complete {Request} in {Elapsed}ms. {Output}", 
-                        typeof(TRequest).Name, 
-                        watch.ElapsedMilliseconds, 
-                        outValue.Get());
-                }
-                else
-                {
-                    logger.Log(LogLevel.Information, "Complete {Request} in {Elapsed}ms.", 
-                        typeof(TRequest).Name, 
-                        watch.ElapsedMilliseconds);
-                }
-                
-                return result;
-            }
-            catch(Exception e)
-            {
-                watch.Stop();
-                logger.Log(LogLevel.Error, e, "Exception {Request} in {Elapsed}ms.", typeof(TRequest).Name, watch.ElapsedMilliseconds, e.Message);
-                throw;
-            }
+            return result;
+        }
+        catch (Exception e)
+        {
+            watch.Stop();
+            logger.Log(LogLevel.Error, e, "Exception {Request} in {Elapsed}ms.", typeof(TRequest).Name, watch.ElapsedMilliseconds, e.Message);
+            throw;
         }
     }
 }

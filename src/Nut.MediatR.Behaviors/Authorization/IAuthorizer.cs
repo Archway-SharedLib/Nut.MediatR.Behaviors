@@ -1,10 +1,9 @@
-﻿using System.Threading;
+using System.Threading;
 using System.Threading.Tasks;
 
-namespace Nut.MediatR
+namespace Nut.MediatR;
+
+public interface IAuthorizer<TRequest>
 {
-    public interface IAuthorizer<TRequest>
-    {
-        public Task<AuthorizationResult> AuthorizeAsync(TRequest request, CancellationToken cancellationToken);
-    }
+    public Task<AuthorizationResult> AuthorizeAsync(TRequest request, CancellationToken cancellationToken);
 }

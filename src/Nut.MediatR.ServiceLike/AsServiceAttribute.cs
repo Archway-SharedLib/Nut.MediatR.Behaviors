@@ -1,34 +1,33 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Text;
 using SR = Nut.MediatR.ServiceLike.Resources.Strings;
 
-namespace Nut.MediatR.ServiceLike
+namespace Nut.MediatR.ServiceLike;
+
+[AttributeUsage(AttributeTargets.Class, AllowMultiple = true, Inherited = true)]
+public class AsServiceAttribute : Attribute
 {
-    [AttributeUsage(AttributeTargets.Class, AllowMultiple = true, Inherited = true)]
-    public class AsServiceAttribute: Attribute
+    public AsServiceAttribute(string path, params Type[] filterTypes)
     {
-        public AsServiceAttribute(string path, params Type[] filterTypes)
+        if (string.IsNullOrWhiteSpace(path))
         {
-            if (string.IsNullOrWhiteSpace(path))
-            {
-                throw new ArgumentException(SR.Argument_CanNotNullOrWhitespace(nameof(path)));
-            }
-
-            this.Path = path;
-
-            if (filterTypes is null) throw new ArgumentNullException(nameof(filterTypes));
-            FilterSupport.ThrowIfInvalidFilterTypeAllWith(filterTypes);
-            
-            FilterTypes = new ReadOnlyCollection<Type>(filterTypes);
+            throw new ArgumentException(SR.Argument_CanNotNullOrWhitespace(nameof(path)));
         }
 
-        
+        Path = path;
 
-        public string Path { get; }
+        if (filterTypes is null) throw new ArgumentNullException(nameof(filterTypes));
+        FilterSupport.ThrowIfInvalidFilterTypeAllWith(filterTypes);
 
-        public IList<Type> FilterTypes { get; }
+        FilterTypes = new ReadOnlyCollection<Type>(filterTypes);
     }
+
+
+
+    public string Path { get; }
+
+    public IList<Type> FilterTypes { get; }
 }

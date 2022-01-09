@@ -1,8 +1,8 @@
-﻿using MediatR;
-using Nut.MediatR.ServiceLike;
 using System;
 using System.Collections.Generic;
 using System.Text;
+using MediatR;
+using Nut.MediatR.ServiceLike;
 
 namespace ServiceLikeSample.Sample.Notification
 {
@@ -15,7 +15,7 @@ namespace ServiceLikeSample.Sample.Notification
             Name = name;
             Age = age;
         }
-        
+
         public string Id { get; }
 
         public string Name { get; }

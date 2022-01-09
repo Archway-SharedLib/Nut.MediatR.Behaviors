@@ -1,11 +1,11 @@
-﻿using MediatR;
-using Microsoft.Extensions.Logging;
-using Nut.MediatR.ServiceLike;
 using System;
 using System.Collections.Generic;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using MediatR;
+using Microsoft.Extensions.Logging;
+using Nut.MediatR.ServiceLike;
 
 namespace ServiceLikeSample.Sample.Notification
 {

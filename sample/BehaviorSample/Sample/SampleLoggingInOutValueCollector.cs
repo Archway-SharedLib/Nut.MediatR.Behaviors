@@ -1,10 +1,10 @@
-﻿using Nut.MediatR;
-using Nut.MediatR.Logging;
 using System;
 using System.Collections.Generic;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using Nut.MediatR;
+using Nut.MediatR.Logging;
 
 namespace BehaviorSample.Sample
 {

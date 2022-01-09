@@ -1,7 +1,6 @@
-﻿namespace Nut.MediatR.ServiceLike
+namespace Nut.MediatR.ServiceLike;
+
+public interface IServiceLikeContextAccessor
 {
-    public interface IServiceLikeContextAccessor
-    {
-        IServiceLikeContext? Context { get; set; }
-    }
+    IServiceLikeContext? Context { get; set; }
 }

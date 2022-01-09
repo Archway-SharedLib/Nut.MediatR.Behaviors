@@ -1,16 +1,16 @@
-﻿using MediatR;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Logging;
 using System;
-using Nut.MediatR.ServiceLike.DependencyInjection;
-using Nut.MediatR.ServiceLike;
-using System.Threading.Tasks;
-using ServiceLikeSample.Sample.Basic;
 using System.Collections.Generic;
 using System.Threading;
+using System.Threading.Tasks;
+using MediatR;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
+using Nut.MediatR.ServiceLike;
+using Nut.MediatR.ServiceLike.DependencyInjection;
 using ServiceLikeSample.Sample;
-using ServiceLikeSample.ServiceDto;
+using ServiceLikeSample.Sample.Basic;
 using ServiceLikeSample.Sample.Filter;
+using ServiceLikeSample.ServiceDto;
 
 namespace ServiceLikeSample
 {
@@ -66,7 +66,7 @@ namespace ServiceLikeSample
                 };
             });
             logger.LogInformation("Event Published");
-            
+
             Thread.Sleep(1000);
         }
     }

@@ -1,31 +1,30 @@
-﻿using FluentValidation;
-using MediatR;
 using System;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using FluentValidation;
+using MediatR;
 
-namespace Nut.MediatR
+namespace Nut.MediatR;
+
+public class FluentValidationBehavior<TRequest, TResponse> : IPipelineBehavior<TRequest, TResponse> where TRequest : notnull
 {
-    public class FluentValidationBehavior<TRequest, TResponse> : IPipelineBehavior<TRequest, TResponse> where TRequest : notnull
+    private readonly ServiceFactory serviceFactory;
+
+    public FluentValidationBehavior(ServiceFactory serviceFactory)
     {
-        private readonly ServiceFactory serviceFactory;
+        this.serviceFactory = serviceFactory ?? throw new ArgumentNullException(nameof(serviceFactory));
+    }
 
-        public FluentValidationBehavior(ServiceFactory serviceFactory)
+    public async Task<TResponse> Handle(TRequest request, CancellationToken cancellationToken, RequestHandlerDelegate<TResponse> next)
+    {
+        var validators = serviceFactory.GetInstances<IValidator<TRequest>>();
+        if (validators?.Any() == true)
         {
-            this.serviceFactory = serviceFactory ?? throw new ArgumentNullException(nameof(serviceFactory));
+            var validationResults = await Task.WhenAll(validators.Select(v => v.ValidateAsync(new ValidationContext<TRequest>(request), cancellationToken))).ConfigureAwait(false);
+            var failures = validationResults.SelectMany(r => r.Errors).Where(f => f is not null).ToList();
+            if (failures.Any()) throw new ValidationException(failures);
         }
-
-        public async Task<TResponse> Handle(TRequest request, CancellationToken cancellationToken, RequestHandlerDelegate<TResponse> next)
-        {
-            var validators = serviceFactory.GetInstances<IValidator<TRequest>>();
-            if (validators?.Any() == true)
-            {
-                var validationResults = await Task.WhenAll(validators.Select(v => v.ValidateAsync(new ValidationContext<TRequest>(request), cancellationToken))).ConfigureAwait(false);
-                var failures = validationResults.SelectMany(r => r.Errors).Where(f => f is not null).ToList();
-                if (failures.Any()) throw new ValidationException(failures);
-            }
-            return await next().ConfigureAwait(false);
-        }
+        return await next().ConfigureAwait(false);
     }
 }

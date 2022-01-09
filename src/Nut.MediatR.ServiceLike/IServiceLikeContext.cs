@@ -1,14 +1,14 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 
-namespace Nut.MediatR.ServiceLike
+namespace Nut.MediatR.ServiceLike;
+
+public interface IServiceLikeContext
 {
-    public interface IServiceLikeContext {
-        string Id{ get; }
+    string Id { get; }
 
-        string Key { get; }
+    string Key { get; }
 
-        IDictionary<string, object> Header { get; }
+    IDictionary<string, object> Header { get; }
 
-        long Timestamp { get; }
-    }
+    long Timestamp { get; }
 }

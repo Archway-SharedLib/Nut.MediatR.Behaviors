@@ -1,8 +1,7 @@
-﻿namespace Nut.MediatR.ServiceLike
+namespace Nut.MediatR.ServiceLike;
+
+public enum MediateType
 {
-    public enum MediateType
-    {
-        Request,
-        Notification
-    }
+    Request,
+    Notification
 }
