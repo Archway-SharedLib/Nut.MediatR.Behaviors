@@ -1,4 +1,7 @@
 # dotnet tool install -g dotnet-reportgenerator-globaltool
+
+Param([switch]$noReport = $false)
+
 dotnet test ./test/Nut.MediatR.Behaviors.Test/Nut.MediatR.Behaviors.Test.csproj `
     /p:CollectCoverage=true `
     /p:CoverletOutputFormat=cobertura `
@@ -24,6 +27,8 @@ dotnet test ./test/Nut.MediatR.ServiceLike.DependencyInjection.Test/Nut.MediatR.
     /p:Include="[Nut.MediatR.ServiceLike.DependencyInjection*]*" `
     /p:ExcludeByAttribute=CompilerGenerated
 
-reportgenerator "-reports:.\*.coverage.xml" `
-    -targetdir:coveragereport `
-    -reporttypes:Html
+if(!$noReport) {
+    reportgenerator "-reports:.\*.coverage.xml" `
+        -targetdir:coveragereport `
+        -reporttypes:Html
+}

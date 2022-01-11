@@ -23,7 +23,7 @@ jobs:
       run: dotnet build --configuration Release --no-restore
     - name: Test
       run: |
-        ./test.ps1
+        ./test.ps1 -noReport
       shell: pwsh
     - name: Codecov
       uses: codecov/codecov-action@v1.0.14
