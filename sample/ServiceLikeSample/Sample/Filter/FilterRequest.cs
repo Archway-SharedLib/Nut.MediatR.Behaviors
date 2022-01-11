@@ -1,4 +1,4 @@
-﻿using MediatR;
+using MediatR;
 using Nut.MediatR.ServiceLike;
 
 namespace ServiceLikeSample.Sample.Filter;

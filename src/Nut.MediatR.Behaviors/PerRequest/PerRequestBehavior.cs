@@ -8,15 +8,31 @@ using MediatR;
 
 namespace Nut.MediatR;
 
+/// <summary>
+/// <see cref="IRequest"/> / <see cref="IRequest{TResponse}"/> ごとに指定された <see cref="IPipelineBehavior{TRequest, TResponse}"/> を実行します。
+/// </summary>
+/// <typeparam name="TRequest">リクエストの型</typeparam>
+/// <typeparam name="TResponse">レスポンスの型</typeparam>
 public class PerRequestBehavior<TRequest, TResponse> : IPipelineBehavior<TRequest, TResponse> where TRequest : IRequest<TResponse>
 {
-    private readonly ServiceFactory factory;
+    private readonly ServiceFactory _factory;
 
+    /// <summary>
+    /// <see cref="ServiceFactory"/> を指定してインスタンスを初期化します。
+    /// </summary>
+    /// <param name="factory">サービスを取得する <see cref="ServiceFactory"/></param>
     public PerRequestBehavior(ServiceFactory factory)
     {
-        this.factory = factory ?? throw new ArgumentNullException(nameof(factory));
+        _factory = factory ?? throw new ArgumentNullException(nameof(factory));
     }
 
+    /// <summary>
+    /// <see cref="IRequest"/> / <see cref="IRequest{TResponse}"/> ごとに指定された <see cref="IPipelineBehavior{TRequest, TResponse}"/> を実行して、処理を実行します。
+    /// </summary>
+    /// <param name="request">リクエスト</param>
+    /// <param name="cancellationToken"><see cref="CancellationToken"/></param>
+    /// <param name="next">次の処理</param>
+    /// <returns>処理結果</returns>
     public async Task<TResponse> Handle(TRequest request, CancellationToken cancellationToken, RequestHandlerDelegate<TResponse> next)
     {
         var types = Cache<TRequest, TResponse>.Types.ToList();
@@ -28,7 +44,7 @@ public class PerRequestBehavior<TRequest, TResponse> : IPipelineBehavior<TReques
         if (!types.Any()) return await next.Invoke().ConfigureAwait(false);
         var type = types[0];
         types.RemoveAt(0);
-        if (!(factory(type) is IPipelineBehavior<TRequest, TResponse> service))
+        if (_factory(type) is not IPipelineBehavior<TRequest, TResponse> service)
         {
             return await ExecuteBehaviors(types, request, cancellationToken, next).ConfigureAwait(false);
         }

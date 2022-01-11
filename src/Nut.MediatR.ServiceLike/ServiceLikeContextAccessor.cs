@@ -4,14 +4,14 @@ namespace Nut.MediatR.ServiceLike;
 
 public class ServiceLikeContextAccessor : IServiceLikeContextAccessor
 {
-    private static readonly AsyncLocal<ServiceLikeContextHolder> asyncLocalHolder = new();
+    private static readonly AsyncLocal<ServiceLikeContextHolder> s_asyncLocalHolder = new();
 
     public IServiceLikeContext? Context
     {
-        get => asyncLocalHolder.Value?.Context;
+        get => s_asyncLocalHolder.Value?.Context;
         set
         {
-            var holder = asyncLocalHolder.Value;
+            var holder = s_asyncLocalHolder.Value;
             if (holder != null)
             {
                 // Clear current HttpContext trapped in the AsyncLocals, as its done.
@@ -20,7 +20,7 @@ public class ServiceLikeContextAccessor : IServiceLikeContextAccessor
 
             if (value != null)
             {
-                asyncLocalHolder.Value = new ServiceLikeContextHolder { Context = value };
+                s_asyncLocalHolder.Value = new ServiceLikeContextHolder { Context = value };
             }
         }
     }

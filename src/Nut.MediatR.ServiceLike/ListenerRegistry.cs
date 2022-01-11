@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
@@ -7,7 +7,7 @@ namespace Nut.MediatR.ServiceLike;
 
 public class ListenerRegistry
 {
-    private readonly ConcurrentDictionary<string, ConcurrentBag<MediatorListenerDescription>> listenerPool = new();
+    private readonly ConcurrentDictionary<string, ConcurrentBag<MediatorListenerDescription>> _listenerPool = new();
 
     public void Add(Type type)
     {
@@ -19,13 +19,13 @@ public class ListenerRegistry
         var listeners = MediatorListenerDescription.Create(type);
         foreach (var listener in listeners)
         {
-            var bag = listenerPool.GetOrAdd(listener.Key, key => new ConcurrentBag<MediatorListenerDescription>());
+            var bag = _listenerPool.GetOrAdd(listener.Key, key => new ConcurrentBag<MediatorListenerDescription>());
             bag.Add(listener);
         }
     }
 
-    public IEnumerable<string> GetKeys() => listenerPool.Keys;
+    public IEnumerable<string> GetKeys() => _listenerPool.Keys;
 
     public IEnumerable<MediatorListenerDescription> GetListeners(string key)
-        => listenerPool.TryGetValue(key, out var value) ? value : Enumerable.Empty<MediatorListenerDescription>();
+        => _listenerPool.TryGetValue(key, out var value) ? value : Enumerable.Empty<MediatorListenerDescription>();
 }

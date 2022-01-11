@@ -1,4 +1,4 @@
-﻿namespace ServiceLikeSample.ServiceDto;
+namespace ServiceLikeSample.ServiceDto;
 
 public class Output
 {

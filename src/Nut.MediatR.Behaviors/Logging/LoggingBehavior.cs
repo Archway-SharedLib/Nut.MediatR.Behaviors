@@ -7,17 +7,40 @@ using Microsoft.Extensions.Logging;
 
 namespace Nut.MediatR;
 
+/// <summary>
+/// 処理の実装前後でログを出力します。
+/// </summary>
+/// <typeparam name="TRequest">リクエストの型</typeparam>
+/// <typeparam name="TResponse">レスポンスの型</typeparam>
 public class LoggingBehavior<TRequest, TResponse> : IPipelineBehavior<TRequest, TResponse> where TRequest : IRequest<TResponse>
 {
+    /// <summary>
+    /// <see cref="ServiceFactory"/> を取得します。
+    /// </summary>
     protected ServiceFactory ServiceFactory { get; }
 
+    /// <summary>
+    /// インスタンスを初期化します。
+    /// </summary>
+    /// <param name="serviceFactory">サービスを取得する <see cref="ServiceFactory"/></param>
     public LoggingBehavior(ServiceFactory serviceFactory)
     {
         ServiceFactory = serviceFactory ?? throw new ArgumentNullException(nameof(serviceFactory));
     }
 
+    /// <summary>
+    /// ログに出力する追加の値を取得するための <see cref="ILoggingInOutValueCollector{TRequest, TResponse}"/> の実装を取得します。
+    /// </summary>
+    /// <returns>ログに出力する追加の値を取得するための <see cref="ILoggingInOutValueCollector{TRequest, TResponse}"/> の実装</returns>
     protected virtual ILoggingInOutValueCollector<TRequest, TResponse>? GetDefaultCollector() => null;
 
+    /// <summary>
+    /// ログを出力します。
+    /// </summary>
+    /// <param name="request">リクエスト</param>
+    /// <param name="cancellationToken"><see cref="CancellationToken"/></param>
+    /// <param name="next">次の処理</param>
+    /// <returns>処理結果</returns>
     public async Task<TResponse> Handle(TRequest request, CancellationToken cancellationToken, RequestHandlerDelegate<TResponse> next)
     {
         var logger = ServiceFactory.GetInstance<ILogger<LoggingBehavior<TRequest, TResponse>>>();

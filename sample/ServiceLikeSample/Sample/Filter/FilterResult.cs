@@ -1,4 +1,4 @@
-﻿namespace ServiceLikeSample.Sample.Filter;
+namespace ServiceLikeSample.Sample.Filter;
 
 public class FilterResult
 {

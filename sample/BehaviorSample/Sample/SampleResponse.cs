@@ -1,4 +1,4 @@
-﻿namespace BehaviorSample.Sample;
+namespace BehaviorSample.Sample;
 
 public class SampleResponse
 {

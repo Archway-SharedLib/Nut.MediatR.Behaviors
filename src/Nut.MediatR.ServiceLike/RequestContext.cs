@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using MediatR;
 using SR = Nut.MediatR.ServiceLike.Resources.Strings;
 

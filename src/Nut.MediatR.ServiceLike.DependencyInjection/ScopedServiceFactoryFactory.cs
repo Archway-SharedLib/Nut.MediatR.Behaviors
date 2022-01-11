@@ -5,14 +5,14 @@ namespace Nut.MediatR.ServiceLike.DependencyInjection;
 
 internal class ScopedServiceFactoryFactory : IScopedServiceFactoryFactory
 {
-    private readonly IServiceScopeFactory scopeFactory;
+    private readonly IServiceScopeFactory _scopeFactory;
 
     public ScopedServiceFactoryFactory(IServiceScopeFactory scopeFactory)
     {
-        this.scopeFactory = scopeFactory ?? throw new ArgumentNullException(nameof(scopeFactory));
+        _scopeFactory = scopeFactory ?? throw new ArgumentNullException(nameof(scopeFactory));
     }
     public IScoepedServiceFactory Create()
     {
-        return new ScopedServiceFactory(scopeFactory);
+        return new ScopedServiceFactory(_scopeFactory);
     }
 }

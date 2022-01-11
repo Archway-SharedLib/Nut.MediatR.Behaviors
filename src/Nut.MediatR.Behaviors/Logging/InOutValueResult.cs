@@ -1,15 +1,15 @@
-﻿using System;
+using System;
 
 namespace Nut.MediatR;
 
 public class InOutValueResult
 {
-    private readonly object? value;
+    private readonly object? _value;
 
     private InOutValueResult(bool hasValue, object? value)
     {
         HasValue = hasValue;
-        this.value = value;
+        _value = value;
     }
 
     public bool HasValue { get; }
@@ -17,7 +17,7 @@ public class InOutValueResult
     public object? Get()
     {
         if (!HasValue) throw new InvalidOperationException();
-        return value;
+        return _value;
     }
 
     public static InOutValueResult Empty()

@@ -8,15 +8,35 @@ using SR = Nut.MediatR.Resources.Strings;
 
 namespace Nut.MediatR;
 
+/// <summary>
+/// 認可を行う <see cref="IPipelineBehavior{TRequest, TResponse}"/> の実装を定義します。
+/// </summary>
+/// <typeparam name="TRequest">リクエストの型</typeparam>
+/// <typeparam name="TResponse">レスポンスの型</typeparam>
 public class AuthorizationBehavior<TRequest, TResponse> : IPipelineBehavior<TRequest, TResponse> where TRequest : IRequest<TResponse>
 {
+    /// <summary>
+    /// <see cref="ServiceFactory"/> を取得します。
+    /// </summary>
     protected ServiceFactory ServiceFactory { get; }
 
+    /// <summary>
+    /// インスタンスを初期化します。
+    /// </summary>
+    /// <param name="serviceFactory">サービスを取得する <see cref="ServiceFactory"/></param>
     public AuthorizationBehavior(ServiceFactory serviceFactory)
     {
         ServiceFactory = serviceFactory ?? throw new ArgumentNullException(nameof(serviceFactory));
     }
 
+    /// <summary>
+    /// <see cref="IAuthorizer{TRequest}"/> の実装を取得して実行します。
+    /// </summary>
+    /// <param name="request">リクエスト</param>
+    /// <param name="cancellationToken"><see cref="CancellationToken"/></param>
+    /// <param name="next">次の処理</param>
+    /// <returns>処理結果</returns>
+    /// <exception cref="UnauthorizedException">認可処理が失敗した場合に発生します。</exception>
     public async Task<TResponse> Handle(TRequest request, CancellationToken cancellationToken, RequestHandlerDelegate<TResponse> next)
     {
         var authorizers = GetAuthorizers()?.ToList();
@@ -33,16 +53,16 @@ public class AuthorizationBehavior<TRequest, TResponse> : IPipelineBehavior<TReq
         return await next().ConfigureAwait(false);
     }
 
+    /// <summary>
+    /// 実行する <see cref="IAuthorizer{TRequest}"/> を取得します。
+    /// </summary>
+    /// <returns>サービスとして登録されている<see cref="IAuthorizer{TRequest}"/></returns>
     protected virtual IEnumerable<IAuthorizer<TRequest>> GetAuthorizers()
     {
         return GetRegisterdAuthorizers();
     }
 
-    /// <summary>
-    /// Get regsiterd authorizers from <see cref="ServiceFactory"/>
-    /// </summary>
-    /// <returns>Regsiterd authorizers</returns>
-    protected IEnumerable<IAuthorizer<TRequest>> GetRegisterdAuthorizers()
+    private IEnumerable<IAuthorizer<TRequest>> GetRegisterdAuthorizers()
     {
         return ServiceFactory.GetInstances<IAuthorizer<TRequest>>() ?? Enumerable.Empty<IAuthorizer<TRequest>>();
     }

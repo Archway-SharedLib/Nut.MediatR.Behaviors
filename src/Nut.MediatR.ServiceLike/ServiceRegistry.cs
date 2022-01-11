@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using SR = Nut.MediatR.ServiceLike.Resources.Strings;
@@ -7,7 +7,7 @@ namespace Nut.MediatR.ServiceLike;
 
 public class ServiceRegistry
 {
-    private readonly ConcurrentDictionary<string, MediatorServiceDescription> servicePool = new();
+    private readonly ConcurrentDictionary<string, MediatorServiceDescription> _servicePool = new();
 
     public void Add(Type type, params Type[] filterTypes)
     {
@@ -25,7 +25,7 @@ public class ServiceRegistry
         var services = MediatorServiceDescription.Create(type, filterTypes);
         foreach (var service in services)
         {
-            if (!servicePool.TryAdd(service.Path, service))
+            if (!_servicePool.TryAdd(service.Path, service))
             {
                 if (!ignoreDuplication)
                 {
@@ -35,8 +35,8 @@ public class ServiceRegistry
         }
     }
 
-    public IEnumerable<string> GetEndpoints() => servicePool.Keys;
+    public IEnumerable<string> GetEndpoints() => _servicePool.Keys;
 
     public MediatorServiceDescription? GetService(string path)
-        => servicePool.TryGetValue(path, out var value) ? value : null;
+        => _servicePool.TryGetValue(path, out var value) ? value : null;
 }

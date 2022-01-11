@@ -1,4 +1,4 @@
-﻿namespace ServiceLikeSample.Sample.Basic;
+namespace ServiceLikeSample.Sample.Basic;
 
 public class BasicResult
 {

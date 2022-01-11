@@ -6,17 +6,18 @@ namespace Nut.MediatR.ServiceLike.DependencyInjection;
 
 internal class ScopedServiceFactory : IScoepedServiceFactory
 {
-    private readonly IServiceScope scope;
+    private readonly IServiceScope _scope;
+
     public ScopedServiceFactory(IServiceScopeFactory scopeFactory)
     {
         if (scopeFactory is null) throw new ArgumentNullException(nameof(scopeFactory));
-        scope = scopeFactory.CreateScope();
-        Instance = scope.ServiceProvider.GetService;
+        _scope = scopeFactory.CreateScope();
+        Instance = _scope.ServiceProvider.GetService;
     }
 
     public void Dispose()
     {
-        if (!(scope is null)) scope.Dispose();
+        if (_scope is not null) _scope.Dispose();
     }
 
     public ServiceFactory Instance { get; }
