@@ -161,7 +161,7 @@ public class DefaultMediatorClient : IMediatorClient
                 }
                 logger.ErrorOnPublishEvents(e, key);
             }
-        });
+        }).ConfigureAwait(false);
     }
 
     private Task FireEvent(MediatorListenerDescription description, ServiceLikeMediator serviceLikeMediator,
