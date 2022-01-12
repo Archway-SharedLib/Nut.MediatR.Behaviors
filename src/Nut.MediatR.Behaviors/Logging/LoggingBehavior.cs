@@ -43,13 +43,13 @@ public class LoggingBehavior<TRequest, TResponse> : IPipelineBehavior<TRequest, 
     /// <returns>処理結果</returns>
     public async Task<TResponse> Handle(TRequest request, CancellationToken cancellationToken, RequestHandlerDelegate<TResponse> next)
     {
-        var logger = ServiceFactory.GetInstance<ILogger<LoggingBehavior<TRequest, TResponse>>>();
+        var logger = ServiceFactory.GetInstanceOrDefault<ILogger<LoggingBehavior<TRequest, TResponse>>>();
         if (logger is null)
         {
             return await next().ConfigureAwait(false);
         }
 
-        var collector = ServiceFactory.GetInstance<ILoggingInOutValueCollector<TRequest, TResponse>>()
+        var collector = ServiceFactory.GetInstanceOrDefault<ILoggingInOutValueCollector<TRequest, TResponse>>()
             ?? GetDefaultCollector();
 
         var inValue = collector is not null ?

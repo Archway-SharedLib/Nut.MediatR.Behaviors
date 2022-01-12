@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -42,7 +43,12 @@ public class LoggingBehaviorTest
 
         var logging = new LoggingBehavior<TestBehaviorRequest, TestBehaviorResponse>(new ServiceFactory(type =>
         {
-            return type.GetGenericTypeDefinition() == typeof(ILogger<>) ? logger : null;
+            return type.GenericTypeArguments[0].GetGenericTypeDefinition() == typeof(ILogger<>) ?
+                     new List<ILogger<LoggingBehavior<TestBehaviorRequest, TestBehaviorResponse>>>()
+                     {
+                        (ILogger<LoggingBehavior<TestBehaviorRequest, TestBehaviorResponse>>)logger
+                     } :
+                     new List<ILoggingInOutValueCollector<TestBehaviorRequest, TestBehaviorResponse>>();
         }));
         await logging.Handle(new TestBehaviorRequest(), new CancellationToken(), () =>
         {
@@ -69,8 +75,14 @@ public class LoggingBehaviorTest
         var logging = new LoggingBehavior<TestBehaviorRequest, TestBehaviorResponse>(
             new ServiceFactory(type =>
             {
-                return type.GetGenericTypeDefinition() == typeof(ILogger<>) ? (object)logger : (object)(new TestLoggingInOutValueCollector1());
+                return type.GenericTypeArguments[0].GetGenericTypeDefinition() == typeof(ILogger<>) ?
+                     new List<ILogger<LoggingBehavior<TestBehaviorRequest, TestBehaviorResponse>>>()
+                     {
+                        (ILogger<LoggingBehavior<TestBehaviorRequest, TestBehaviorResponse>>)logger
+                     } :
+                     new List<ILoggingInOutValueCollector<TestBehaviorRequest, TestBehaviorResponse>>() { new TestLoggingInOutValueCollector1() };
             }));
+
         await logging.Handle(new TestBehaviorRequest() { Value = "A" }, new CancellationToken(), () =>
          {
              logger.Logs.Should().HaveCount(1);
@@ -93,7 +105,12 @@ public class LoggingBehaviorTest
         var logging = new LoggingBehavior<TestBehaviorRequest, TestBehaviorResponse>(
             new ServiceFactory(type =>
             {
-                return type.GetGenericTypeDefinition() == typeof(ILogger<>) ? (object)logger : (object)(new TestLoggingInOutValueCollector2());
+               return type.GenericTypeArguments[0].GetGenericTypeDefinition() == typeof(ILogger<>) ?
+                    new List<ILogger<LoggingBehavior<TestBehaviorRequest, TestBehaviorResponse>>>()
+                    {
+                        (ILogger<LoggingBehavior<TestBehaviorRequest, TestBehaviorResponse>>)logger
+                    } :
+                    new List<ILoggingInOutValueCollector<TestBehaviorRequest, TestBehaviorResponse>>() { new TestLoggingInOutValueCollector2() };
             }));
         await logging.Handle(new TestBehaviorRequest() { Value = "A" }, new CancellationToken(), () =>
         {
@@ -117,7 +134,12 @@ public class LoggingBehaviorTest
         var logging = new LoggingBehavior<TestBehaviorRequest, TestBehaviorResponse>(
             new ServiceFactory(type =>
             {
-                return type.GetGenericTypeDefinition() == typeof(ILogger<>) ? (object)logger : (object)(new TestLoggingInOutValueCollector3());
+                return type.GenericTypeArguments[0].GetGenericTypeDefinition() == typeof(ILogger<>) ?
+                     new List<ILogger<LoggingBehavior<TestBehaviorRequest, TestBehaviorResponse>>>()
+                     {
+                        (ILogger<LoggingBehavior<TestBehaviorRequest, TestBehaviorResponse>>)logger
+                     } :
+                     new List<ILoggingInOutValueCollector<TestBehaviorRequest, TestBehaviorResponse>>() { new TestLoggingInOutValueCollector3() };
             }));
         await logging.Handle(new TestBehaviorRequest() { Value = "A" }, new CancellationToken(), () =>
         {
@@ -140,7 +162,12 @@ public class LoggingBehaviorTest
 
         var logging = new LoggingBehavior<TestBehaviorRequest, TestBehaviorResponse>(new ServiceFactory(type =>
         {
-            return type.GetGenericTypeDefinition() == typeof(ILogger<>) ? logger : null;
+            return type.GenericTypeArguments[0].GetGenericTypeDefinition() == typeof(ILogger<>) ?
+                     new List<ILogger<LoggingBehavior<TestBehaviorRequest, TestBehaviorResponse>>>()
+                     {
+                        logger
+                     } :
+                     null;
         }));
         Func<Task> act = () => logging.Handle(new TestBehaviorRequest() { Value = "A" }, new CancellationToken(), () =>
         {
@@ -165,7 +192,12 @@ public class LoggingBehaviorTest
 
         var logging = new TestLoggingBehavior<TestBehaviorRequest, TestBehaviorResponse>(new ServiceFactory(type =>
         {
-            return type.GetGenericTypeDefinition() == typeof(ILogger<>) ? logger : null;
+            return type.GenericTypeArguments[0].GetGenericTypeDefinition() == typeof(ILogger<>) ?
+                     new List<ILogger<LoggingBehavior<TestBehaviorRequest, TestBehaviorResponse>>>()
+                     {
+                        (ILogger<LoggingBehavior<TestBehaviorRequest, TestBehaviorResponse>>)logger
+                     } :
+                     null;
         }));
 
         logging.Collector.ExecutedInValueAsync.Should().BeFalse();
