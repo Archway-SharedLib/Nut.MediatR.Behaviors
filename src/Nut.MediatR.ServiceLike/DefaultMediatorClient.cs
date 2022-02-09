@@ -49,7 +49,7 @@ public class DefaultMediatorClient : IMediatorClient
         var mediatorRequest = _serviceRegistry.GetService(path);
         if (mediatorRequest is null)
         {
-            throw new InvalidOperationException(SR.MediatorRequestNotFound(path));
+            throw new RequestNotFoundException(path);
         }
         var value = TranslateType(request, mediatorRequest.ServiceType);
 

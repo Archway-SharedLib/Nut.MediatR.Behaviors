@@ -68,7 +68,8 @@ public class DefaultMediatorClientTest
             serviceFactory, new InternalScopedServiceFactoryFactory(serviceFactory), new TestLogger());
 
         Func<Task> act = () => client.SendAsync<Pong>("/path", new ServicePing());
-        await act.Should().ThrowAsync<InvalidOperationException>();
+        var res = await act.Should().ThrowAsync<RequestNotFoundException>();
+        res.And.RequestPath.Should().Be("/path");
     }
 
     [Fact]
