@@ -49,7 +49,7 @@ public class DefaultMediatorClient : IMediatorClient
         var mediatorRequest = _serviceRegistry.GetService(path);
         if (mediatorRequest is null)
         {
-            throw new RequestNotFoundException(path);
+            throw new ReceiverNotFoundException(path);
         }
         var value = TranslateType(request, mediatorRequest.ServiceType);
 
@@ -58,11 +58,20 @@ public class DefaultMediatorClient : IMediatorClient
         return await ExecuteAsync(new Queue<Type>(mediatorRequest.Filters), value, context).ConfigureAwait(false);
     }
 
-    private object? TranslateType(object? value, Type type)
+    private object? TranslateType(object? value, Type toType)
     {
         if (value is null or Unit) return null;
-        var json = JsonSerializer.Serialize(value, value.GetType(), new JsonSerializerOptions());
-        return JsonSerializer.Deserialize(json, type);
+        var fromType = value.GetType();
+        try
+        {
+            var json = JsonSerializer.Serialize(value, fromType, new JsonSerializerOptions());
+            return JsonSerializer.Deserialize(json, toType);
+        }
+        catch (JsonException je)
+        {
+            _logger.HandleException(je);
+            throw new TypeTranslationException(fromType, toType);
+        }
     }
 
     private async Task<object?> ExecuteAsync(Queue<Type> filterTypes, object? parameter, RequestContext context)

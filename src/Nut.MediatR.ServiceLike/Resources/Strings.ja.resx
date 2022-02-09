@@ -153,4 +153,10 @@
   <data name="Client_RaizeExWhenPublish" xml:space="preserve">
     <value>{0}イベントを発行したときに例外が発生しました。</value>
   </data>
+  <data name="CannotTypeTranslation" xml:space="preserve">
+    <value>{0} から {1} に変換できません。</value>
+  </data>
+  <data name="ExceptionHandleMessage" xml:space="preserve">
+    <value>MediatR ServiceLikeで例外が発生しました。</value>
+  </data>
 </root>

@@ -53,4 +53,12 @@ internal class ServiceLikeLoggerWrapper
             _sourceLogger.Error(ex, SR.Client_RaizeExWhenPublish(key));
         }
     }
+
+    internal void HandleException(Exception ex)
+    {
+        if (_sourceLogger?.IsErrorEnabled() == true)
+        {
+            _sourceLogger.Error(ex, SR.ExceptionHandleMessage);
+        }
+    }
 }

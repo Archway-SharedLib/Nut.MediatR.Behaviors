@@ -153,4 +153,10 @@
   <data name="Client_RaizeExWhenPublish" xml:space="preserve">
     <value>Raise exception when public {0} event.</value>
   </data>
+  <data name="CannotTypeTranslation" xml:space="preserve">
+    <value>Cannot translate from {0} to {1}.</value>
+  </data>
+  <data name="ExceptionHandleMessage" xml:space="preserve">
+    <value>MediatR ServiceLike threw an exception.</value>
+  </data>
 </root>

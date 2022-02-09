@@ -30,7 +30,7 @@ public class ExceptionTest
     public void RequestNotFoundException_RequestPathが設定される()
     {
         var requestPath = "/path";
-        var exception = new RequestNotFoundException(requestPath);
+        var exception = new ReceiverNotFoundException(requestPath);
         exception.RequestPath.Should().Be(requestPath);
     }
 
@@ -38,7 +38,7 @@ public class ExceptionTest
     public void RequestNotFoundException_メッセージはデフォルトの値が設定される()
     {
         var requestPath = "/path";
-        var exception = new RequestNotFoundException(requestPath);
+        var exception = new ReceiverNotFoundException(requestPath);
         exception.Message.Should().NotBeNullOrEmpty();
     }
 
@@ -47,7 +47,7 @@ public class ExceptionTest
     {
         var requestPath = "/path";
         var message = "testmessage";
-        var exception = new RequestNotFoundException(requestPath, message);
+        var exception = new ReceiverNotFoundException(requestPath, message);
         exception.Message.Should().Be(message);
     }
 }

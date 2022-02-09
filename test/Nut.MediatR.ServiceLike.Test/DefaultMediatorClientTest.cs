@@ -67,8 +67,8 @@ public class DefaultMediatorClientTest
         var client = new DefaultMediatorClient(new ServiceRegistry(), new ListenerRegistry(),
             serviceFactory, new InternalScopedServiceFactoryFactory(serviceFactory), new TestLogger());
 
-        Func<Task> act = () => client.SendAsync<Pong>("/path", new ServicePing());
-        var res = await act.Should().ThrowAsync<RequestNotFoundException>();
+        var act = () => client.SendAsync<Pong>("/path", new ServicePing());
+        var res = await act.Should().ThrowAsync<ReceiverNotFoundException>();
         res.And.RequestPath.Should().Be("/path");
     }
 
@@ -132,6 +132,50 @@ public class DefaultMediatorClientTest
         var pong = await client.SendAsync<LocalPong>("/ping", new { Value = "Ping" });
         pong!.Value.Should().Be("Ping Pong");
         check.Executed.Should().BeTrue();
+    }
+
+    [Fact]
+    public async Task T_SendAsync_引数を変換できない場合は例外が発生する()
+    {
+        var services = new ServiceCollection();
+        services.AddMediatR(typeof(ServicePing).Assembly);
+        var check = new ExecuteCheck();
+        services.AddTransient(_ => check);
+        var provider = services.BuildServiceProvider();
+
+        var serviceFactory = provider.GetService<ServiceFactory>();
+        var registry = new ServiceRegistry();
+        registry.Add(typeof(ServicePing));
+
+        var client = new DefaultMediatorClient(registry, new ListenerRegistry(),
+            serviceFactory!, new InternalScopedServiceFactoryFactory(serviceFactory!), new TestLogger());
+
+        var act = () => client.SendAsync<Pong>("/ping", "ping");
+        var res = await act.Should().ThrowAsync<TypeTranslationException>();
+        res.And.FromType.Should().Be(typeof(string));
+        res.And.ToType.Should().Be(typeof(ServicePing));
+    }
+
+    [Fact]
+    public async Task T_SendAsync_戻り値を変換できない場合は例外が発生する()
+    {
+        var services = new ServiceCollection();
+        services.AddMediatR(typeof(ServicePing).Assembly);
+        var check = new ExecuteCheck();
+        services.AddTransient(_ => check);
+        var provider = services.BuildServiceProvider();
+
+        var serviceFactory = provider.GetService<ServiceFactory>();
+        var registry = new ServiceRegistry();
+        registry.Add(typeof(ServicePing));
+
+        var client = new DefaultMediatorClient(registry, new ListenerRegistry(),
+            serviceFactory!, new InternalScopedServiceFactoryFactory(serviceFactory!), new TestLogger());
+
+        var act = () => client.SendAsync<string>("/ping", new { Value = "Ping" });
+        var res = await act.Should().ThrowAsync<TypeTranslationException>();
+        res.And.FromType.Should().Be(typeof(Pong));
+        res.And.ToType.Should().Be(typeof(string));
     }
 
     [Fact]
