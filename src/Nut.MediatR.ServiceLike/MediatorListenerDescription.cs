@@ -35,7 +35,7 @@ public class MediatorListenerDescription
         }
 
         var evListenerAttrs = listenerType.GetAttributes<AsEventListenerAttribute>(true).ToList();
-        var paths = evListenerAttrs.Select(attr => attr.Path);
+        var paths = evListenerAttrs.Select(attr => attr.Key);
 
         return paths.Select(path =>
             new MediatorListenerDescription(path, listenerType)

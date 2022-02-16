@@ -32,6 +32,6 @@ public class AsEventListenerAttributeTest
     {
         var expect = "/this/is/service/path";
         var attr = new AsEventListenerAttribute(expect);
-        attr.Path.Should().Be(expect);
+        attr.Key.Should().Be(expect);
     }
 }

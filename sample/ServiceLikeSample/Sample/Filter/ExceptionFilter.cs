@@ -18,7 +18,7 @@ public class ExceptionFilter : IMediatorServiceFilter
         {
             var logger = context.ServiceFactory.GetInstance<ILogger<ExceptionFilter>>();
             logger.LogError(ex, "Error");
-            throw ex;
+            throw;
         }
     }
 }

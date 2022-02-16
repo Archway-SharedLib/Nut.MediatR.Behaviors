@@ -9,6 +9,9 @@ using SR = Nut.MediatR.ServiceLike.Resources.Strings;
 
 namespace Nut.MediatR.ServiceLike;
 
+/// <summary>
+/// <see cref="IMediatorClient"/> のデフォルトの実装を定義します。
+/// </summary>
 public class DefaultMediatorClient : IMediatorClient
 {
     private readonly IMediator _mediator;
@@ -18,6 +21,14 @@ public class DefaultMediatorClient : IMediatorClient
     private readonly IScopedServiceFactoryFactory _scopedServiceFactoryFactory;
     private readonly ServiceLikeLoggerWrapper _logger;
 
+    /// <summary>
+    /// インスタンスを初期化します。
+    /// </summary>
+    /// <param name="serviceRegistry">サービスが登録されている<see cref="ServiceRegistry"/></param>
+    /// <param name="eventRegistry">イベントリスナーが登録されている<see cref="ListenerRegistry"/></param>
+    /// <param name="serviceFactory">サービスを取得するための <see cref="ServiceFactory"/></param>
+    /// <param name="scopedServiceFactoryFactory"><see cref="IScoepedServiceFactory"/>を作成する <see cref="IScopedServiceFactoryFactory"/></param>
+    /// <param name="logger">ログ出力を行う <see cref="IServiceLikeLogger"/></param>
     public DefaultMediatorClient(ServiceRegistry serviceRegistry, ListenerRegistry eventRegistry,
         ServiceFactory serviceFactory, IScopedServiceFactoryFactory scopedServiceFactoryFactory,
         IServiceLikeLogger logger)
@@ -30,12 +41,24 @@ public class DefaultMediatorClient : IMediatorClient
         _mediator = new Mediator(serviceFactory);
     }
 
+    /// <summary>
+    /// 指定された <see cref="path"/> で設定されている <see cref="IRequest{TResponse}"/> にメッセージを送信します。
+    /// </summary>
+    /// <param name="path">送信先のパス</param>
+    /// <param name="request">リクエスト</param>
+    /// <typeparam name="TResult">レスポンスの型</typeparam>
+    /// <returns>レスポンスの値</returns>
     public async Task<TResult?> SendAsync<TResult>(string path, object request) where TResult : class
     {
         var result = await SendAsyncInternal(path, request, typeof(TResult));
         return TranslateType(result, typeof(TResult)) as TResult;
     }
 
+    /// <summary>
+    /// 指定された <see cref="path"/> で設定されている <see cref="IRequest"/> にメッセージを送信します。
+    /// </summary>
+    /// <param name="path">送信先のパス</param>
+    /// <param name="request">リクエスト</param>
     public async Task SendAsync(string path, object request)
         => await SendAsyncInternal(path, request, null);
 
@@ -86,6 +109,7 @@ public class DefaultMediatorClient : IMediatorClient
         return await _mediator.Send(parameter!).ConfigureAwait(false);
     }
 
+    
     public Task PublishAsync(string key, object eventData)
         => PublishAsync(key, eventData, new PublishOptions());
 
