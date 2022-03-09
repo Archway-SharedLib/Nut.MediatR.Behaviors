@@ -154,6 +154,32 @@ public class ServiceLikeLoggerWrapperTest
         source.ErrorMessages.Should().HaveCount(1);
     }
 
+    [Fact]
+    public void HandleException_元のロガーが無い時は出力されない()
+    {
+        new ServiceLikeLoggerWrapper(null).HandleException(new Exception());
+    }
+
+    [Fact]
+    public void HandleException_Errorがfalseの場合は出力されない()
+    {
+        var source = new TestServiceLikeLogger();
+        source.ErrorEnabled = false;
+        new ServiceLikeLoggerWrapper(source).HandleException(new Exception());
+
+        source.ErrorMessages.Should().BeEmpty();
+    }
+
+    [Fact]
+    public void HandleException_Errorがtrueの場合は出力される()
+    {
+        var source = new TestServiceLikeLogger();
+        source.ErrorEnabled = true;
+        new ServiceLikeLoggerWrapper(source).HandleException(new Exception());
+
+        source.ErrorMessages.Should().HaveCount(1);
+    }
+
     private class TestServiceLikeLogger : IServiceLikeLogger
     {
         public List<string> ErrorMessages = new();

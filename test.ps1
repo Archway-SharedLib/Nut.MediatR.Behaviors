@@ -28,7 +28,7 @@ dotnet test ./test/Nut.MediatR.ServiceLike.DependencyInjection.Test/Nut.MediatR.
     /p:ExcludeByAttribute=CompilerGenerated
 
 if(!$noReport) {
-    reportgenerator "-reports:.\*.coverage.xml" `
+    reportgenerator "-reports:./*.coverage.xml" `
         -targetdir:coveragereport `
         -reporttypes:Html
 }

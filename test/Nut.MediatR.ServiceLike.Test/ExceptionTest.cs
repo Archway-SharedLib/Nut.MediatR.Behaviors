@@ -50,4 +50,28 @@ public class ExceptionTest
         var exception = new ReceiverNotFoundException(requestPath, message);
         exception.Message.Should().Be(message);
     }
+
+    [Fact]
+    public void TypeTranslationException_FromToが設定される()
+    {
+        var from = typeof(string);
+        var to = typeof(int);
+        var exception = new TypeTranslationException(from, to);
+        exception.FromType.Should().Be(from);
+        exception.ToType.Should().Be(to);
+        exception.Message.Should().NotBeNullOrEmpty();
+    }
+
+    [Fact]
+    public void TypeTranslationException_メッセージが設定される()
+    {
+        var from = typeof(string);
+        var to = typeof(int);
+        var message = "testmessage";
+        var exception = new TypeTranslationException(from, to, message);
+        exception.FromType.Should().Be(from);
+        exception.ToType.Should().Be(to);
+        exception.Message.Should().Be(message);
+    }
+
 }

@@ -31,7 +31,7 @@ requestRegistry.Add(typeof(BasicRequest));
 リクエストを実行するには、`DefaultMediatorClient`のインスタンスを利用します。
 
 ```cs
-var client = new DefaultMediatorClient(requestRegistry, notificationRegistry, serviceFactory);
+var client = new DefaultMediatorClient(requestRegistry, notificationRegistry, serviceFactory, scopedServiceFactoryFactory, logger);
 var result = await client.SendAsync<Output>("/basic", new { Id = "345" });
 ```
 
@@ -103,17 +103,26 @@ requestRegistry.Add(typeof(SampleRequest), typeof(Filter1), typeof(Filter2));
 
 ## INotificationをイベントのように利用する
 
-キーを設定してイベントのように公開するには`INotification`に`AsEventAttribute`属性を設定します。
+キーを設定してイベントのように公開するには`INotification`に`AsEventListenerAttribute`属性を設定します。
 
 ```cs
-[AsEvent("basic")]
+[AsEventListener("basic")]
 public class BasicNotification: INotification
 {
     public string Id { get; set; }
 }
 ```
 
-`AsEventAttribute`属性は一つの`INotification`の実装に対して複数設定して、複数のキーを指定できます。
+`AsEventListenerAttribute`属性は一つの`INotification`の実装に対して複数指定できます。
+
+```cs
+[AsEventListener("basic")]
+[AsEventListener("other")]
+public class BasicNotification: INotification
+{
+    public string Id { get; set; }
+}
+```
 
 この型の`Type`を`NotificationRegistry`のインスタンスに追加することで、設定内容が検証され、キーで呼び出しできるようにオブジェクトが構築されます。
 
@@ -128,7 +137,7 @@ notificationRegistry.Add(typeof(BasicNotification));
 通知を実行するには、`DefaultMediatorClient`のインスタンスを利用します。
 
 ```cs
-var client = new DefaultMediatorClient(requestRegistry, notificationRegistry, serviceFactory);
+var client = new DefaultMediatorClient(requestRegistry, notificationRegistry, serviceFactory, scopedServiceFactoryFactory, logger);
 await client.PublishAsync("basic", new { Id = "345" });
 ```
 
@@ -145,5 +154,9 @@ await client.PublishAsync("basic", new { Id = "345" });
 - JSON文字列をIRequestにデシリアライズする
 
 ただし、引数と戻り値ともに`null`または`MediatR.Unit`型の場合は`null`に変換されます。
+
+#### ServiceFactoryのスコープ
+
+複数の`INotification`で同じイベント名が設定されている場合は、別のスコープの`ServiceFactory`が利用されます。ただし、同じ`INotification`が指定されているハンドラが複数ある場合は、それらのハンドラでは同じスコープが利用されます。
 
 [MediatR]:https://github.com/jbogard/MediatR

@@ -5,7 +5,6 @@ using System.Threading.Tasks;
 using FluentAssertions;
 using MediatR;
 using Microsoft.Extensions.DependencyInjection;
-using Nut.MediatR.ServiceLike.Internals;
 using Xunit;
 
 namespace Nut.MediatR.ServiceLike.Test;
@@ -290,6 +289,17 @@ public class DefaultMediatorClientTest
     }
 
     [Fact]
+    public async Task PublishAsyncActionOption_actionがnullの場合は例外が発生する()
+    {
+        var serviceFactory = new ServiceFactory(_ => null);
+        var client = new DefaultMediatorClient(new ServiceRegistry(), new ListenerRegistry(),
+            serviceFactory, new InternalScopedServiceFactoryFactory(serviceFactory!), new TestLogger());
+
+        var act = () => client.PublishAsync("ev", new Pang(), (Action<PublishOptions>)null!);
+        await act.Should().ThrowAsync<ArgumentNullException>();
+    }
+
+    [Fact]
     public async Task PublishAsync_requestがnullの場合は例外が発生する()
     {
         var serviceFactory = new ServiceFactory(_ => null);
@@ -310,6 +320,40 @@ public class DefaultMediatorClientTest
         client.PublishAsync("key", new Pang());
 
         //TODO: assertion
+    }
+
+    [Fact]
+    public async Task PublishAsyncActionOption_Mediatorが実行される()
+    {
+        var services = new ServiceCollection();
+        services.AddMediatR(typeof(ServicePing).Assembly);
+
+        services.AddSingleton<TaskHolder>();
+        var provider = services.BuildServiceProvider();
+
+        var serviceFactory = provider.GetService<ServiceFactory>();
+        var registry = new ListenerRegistry();
+        registry.Add(typeof(MediatorClientTestPang));
+
+        var client = new DefaultMediatorClient(new ServiceRegistry(), registry,
+            serviceFactory!, new InternalScopedServiceFactoryFactory(serviceFactory!), new TestLogger());
+
+        var holder = provider.GetService<TaskHolder>();
+
+        var pang = new MediatorClientTestPang();
+        await client.PublishAsync(nameof(MediatorClientTestPang), pang, optionsAction: op => {});
+
+        Thread.Sleep(1000); //それぞれで10だけまたしているため、1000あれば終わっているはず。
+
+        await Task.WhenAll(holder.Tasks);
+        holder.Messages.Should().HaveCount(3).And.Contain("1", "2", "3");
+        holder.Pangs.Should().HaveCount(3);
+
+        var paramBang = holder.Pangs[0];
+        foreach (var bangItem in holder.Pangs)
+        {
+            paramBang.Should().Be(bangItem);
+        }
     }
 
     [Fact]
@@ -375,6 +419,7 @@ public class DefaultMediatorClientTest
         var services = new ServiceCollection();
         services.AddMediatR(typeof(MixedRequest).Assembly);
         services.AddSingleton<MixedTaskHolder>();
+        services.AddScoped<ScopeIdProvider>();
         var provider = services.BuildServiceProvider();
 
         var serviceFactory = provider.GetService<ServiceFactory>();
@@ -392,9 +437,10 @@ public class DefaultMediatorClientTest
         // Fire and forgetのため一旦スリープ
         Thread.Sleep(1000);
 
-        holder.Messages.Should().HaveCount(2);
+        holder.Messages.Should().HaveCount(3);
         holder.Messages.Contains("request").Should().BeTrue();
         holder.Messages.Contains("notification").Should().BeTrue();
+        holder.Messages.Contains("notification2").Should().BeTrue();
     }
 
     [Fact]
@@ -403,6 +449,7 @@ public class DefaultMediatorClientTest
         var services = new ServiceCollection();
         services.AddMediatR(typeof(MixedRequest).Assembly);
         services.AddSingleton<MixedTaskHolder>();
+        services.AddScoped<ScopeIdProvider>();
         var provider = services.BuildServiceProvider();
 
         var serviceFactory = provider.GetService<ServiceFactory>();
@@ -414,7 +461,7 @@ public class DefaultMediatorClientTest
 
         var testLogger = new TestLogger();
         var client = new DefaultMediatorClient(new ServiceRegistry(), registry,
-            serviceFactory!, new TestScopedServiceFactoryFactory(), testLogger);
+            serviceFactory!, new ExceptionTestScopedServiceFactoryFactory(), testLogger);
 
         await client.PublishAsync("mixed", new { });
 
@@ -422,11 +469,39 @@ public class DefaultMediatorClientTest
         Thread.Sleep(1000);
 
         holder.Messages.Should().HaveCount(0);
-        testLogger.Errors.Should().HaveCount(1);
+        testLogger.Errors.Should().HaveCount(2);
     }
 
+    [Fact]
+    public async Task PublishAsync_別のScopeで実行されるが同じINotificationは同じScope()
+    {
+        var services = new ServiceCollection();
+        services.AddMediatR(typeof(MixedRequest).Assembly);
+        services.AddSingleton<MixedTaskHolder>();
+        services.AddScoped<ScopeIdProvider>();
+        var provider = services.BuildServiceProvider();
 
-    private class TestScopedServiceFactoryFactory : IScopedServiceFactoryFactory
+        var serviceFactory = provider.GetService<ServiceFactory>();
+        var registry = new ListenerRegistry();
+        registry.Add(typeof(MixedRequest));
+        registry.Add(typeof(MixedNotification));
+
+        var holder = provider.GetService<MixedTaskHolder>();
+
+        var client = new DefaultMediatorClient(new ServiceRegistry(), registry,
+            serviceFactory!, new TestScopedServiceFactoryFactory(provider), new TestLogger());
+
+        await client.PublishAsync("mixed", new { });
+
+        // Fire and forgetのため一旦スリープ
+        Thread.Sleep(1000);
+
+        holder.ScopeIds.Should().HaveCount(3);
+        holder.ScopeIds[typeof(MixedRequestHandler)].Should().NotBe(holder.ScopeIds[typeof(MixedNotificationHandler)]);
+        holder.ScopeIds[typeof(MixedNotificationHandler)].Should().Be(holder.ScopeIds[typeof(MixedNotificationHandler2)]);
+    }
+
+    private class ExceptionTestScopedServiceFactoryFactory : IScopedServiceFactoryFactory
     {
         public IScoepedServiceFactory Create()
         {
@@ -443,38 +518,73 @@ public class DefaultMediatorClientTest
     public class MixedTaskHolder
     {
         public List<string> Messages { get; } = new();
+
+        public Dictionary<Type, string> ScopeIds { get; } = new();
+    }
+
+    public class ScopeIdProvider
+    {
+        public ScopeIdProvider()
+        {
+            Value = Guid.NewGuid().ToString();
+        }
+
+        public string Value { get; }
     }
 
     public class MixedRequestHandler : IRequestHandler<MixedRequest>
     {
-        private readonly MixedTaskHolder holder;
+        private readonly MixedTaskHolder _holder;
+        private readonly ScopeIdProvider _scopeIdProvider;
 
-        public MixedRequestHandler(MixedTaskHolder holder)
+        public MixedRequestHandler(MixedTaskHolder holder, ScopeIdProvider scopeIdProvider)
         {
-            this.holder = holder;
+            _holder = holder;
+            _scopeIdProvider = scopeIdProvider;
         }
         public Task<Unit> Handle(MixedRequest request, CancellationToken cancellationToken)
         {
-            holder.Messages.Add("request");
+            _holder.Messages.Add("request");
+            _holder.ScopeIds.Add(typeof(MixedRequestHandler), _scopeIdProvider.Value);
             return Unit.Task;
         }
     }
 
     public class MixedNotificationHandler : INotificationHandler<MixedNotification>
     {
-        private readonly MixedTaskHolder holder;
+        private readonly MixedTaskHolder _holder;
+        private readonly ScopeIdProvider _scopeIdProvider;
 
-        public MixedNotificationHandler(MixedTaskHolder holder)
+        public MixedNotificationHandler(MixedTaskHolder holder, ScopeIdProvider scopeIdProvider)
         {
-            this.holder = holder;
+            _holder = holder;
+            _scopeIdProvider = scopeIdProvider;
         }
         public Task Handle(MixedNotification request, CancellationToken cancellationToken)
         {
-            holder.Messages.Add("notification");
+            _holder.Messages.Add("notification");
+            _holder.ScopeIds.Add(typeof(MixedNotificationHandler), _scopeIdProvider.Value);
             return Task.CompletedTask;
         }
     }
 
+    public class MixedNotificationHandler2 : INotificationHandler<MixedNotification>
+    {
+        private readonly MixedTaskHolder _holder;
+        private readonly ScopeIdProvider _scopeIdProvider;
+
+        public MixedNotificationHandler2(MixedTaskHolder holder, ScopeIdProvider scopeIdProvider)
+        {
+            _holder = holder;
+            _scopeIdProvider = scopeIdProvider;
+        }
+        public Task Handle(MixedNotification request, CancellationToken cancellationToken)
+        {
+            _holder.Messages.Add("notification2");
+            _holder.ScopeIds.Add(typeof(MixedNotificationHandler2), _scopeIdProvider.Value);
+            return Task.CompletedTask;
+        }
+    }
 
     [AsEventListener(nameof(ExceptionPang))]
     public class ExceptionPang : INotification

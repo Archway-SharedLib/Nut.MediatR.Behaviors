@@ -13,9 +13,31 @@ internal class ServiceLikeMediator : Mediator
     {
     }
 
-    protected override Task PublishCore(IEnumerable<Func<INotification, CancellationToken, Task>> allHandlers, INotification notification, CancellationToken cancellationToken)
+    protected override async Task PublishCore(IEnumerable<Func<INotification, CancellationToken, Task>> allHandlers, INotification notification, CancellationToken cancellationToken)
     {
-        var tasks = allHandlers.Select(hanlder => hanlder(notification, cancellationToken));
-        return Task.WhenAll(tasks);
+        var exceptions = new List<Exception>();
+
+        foreach (var handler in allHandlers)
+        {
+            try
+            {
+                await handler(notification, cancellationToken).ConfigureAwait(false);
+            }
+            catch (AggregateException ex)
+            {
+                exceptions.AddRange(ex.Flatten().InnerExceptions);
+            }
+            catch (Exception ex) when (!(ex is OutOfMemoryException || ex is StackOverflowException))
+            {
+                exceptions.Add(ex);
+            }
+        }
+
+        if (exceptions.Any())
+        {
+            throw new AggregateException(exceptions);
+        }
+        // var tasks = allHandlers.Select(hanlder => hanlder(notification, cancellationToken));
+        // return Task.WhenAll(tasks);
     }
 }

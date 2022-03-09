@@ -42,7 +42,7 @@ public class DefaultMediatorClient : IMediatorClient
     }
 
     /// <summary>
-    /// 指定された <see cref="path"/> で設定されている <see cref="IRequest{TResponse}"/> にメッセージを送信します。
+    /// 指定された <paramref name="path"/> で設定されている <see cref="IRequest{TResponse}"/> にメッセージを送信します。
     /// </summary>
     /// <param name="path">送信先のパス</param>
     /// <param name="request">リクエスト</param>
@@ -55,7 +55,7 @@ public class DefaultMediatorClient : IMediatorClient
     }
 
     /// <summary>
-    /// 指定された <see cref="path"/> で設定されている <see cref="IRequest"/> にメッセージを送信します。
+    /// 指定された <paramref name="path"/> で設定されている <see cref="IRequest"/> にメッセージを送信します。
     /// </summary>
     /// <param name="path">送信先のパス</param>
     /// <param name="request">リクエスト</param>
@@ -109,7 +109,6 @@ public class DefaultMediatorClient : IMediatorClient
         return await _mediator.Send(parameter!).ConfigureAwait(false);
     }
 
-    
     public Task PublishAsync(string key, object eventData)
         => PublishAsync(key, eventData, new PublishOptions());
 
@@ -148,16 +147,7 @@ public class DefaultMediatorClient : IMediatorClient
                 var listenersList = listeners.ToList();
                 _logger.TraceStartPublishToListeners(key, listenersList);
 
-                using var scope = _scopedServiceFactoryFactory.Create();
-
-                var contextAccessors = scope.Instance.GetInstances<IServiceLikeContextAccessor>();
-                if (contextAccessors.Any())
-                {
-                    contextAccessors.First().Context = context;
-                }
-
                 var publishTasks = new List<Task>();
-                var serviceLikeMediator = new ServiceLikeMediator(scope.Instance);
 
                 if (options.BeforePublishAsyncHandler is not null)
                 {
@@ -168,6 +158,15 @@ public class DefaultMediatorClient : IMediatorClient
                 {
                     try
                     {
+                        using var scope = _scopedServiceFactoryFactory.Create();
+
+                        var contextAccessors = scope.Instance.GetInstances<IServiceLikeContextAccessor>().ToList();
+                        if (contextAccessors.Any() == true)
+                        {
+                            contextAccessors.First().Context = context;
+                        }
+                        var serviceLikeMediator = new ServiceLikeMediator(scope.Instance);
+
                         var value = TranslateType(notification, listener.ListenerType);
                         _logger.TracePublishToListener(listener);
                         publishTasks.Add(FireEvent(listener, serviceLikeMediator, value!));
