@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using FluentAssertions;
@@ -85,7 +86,7 @@ public class DefaultMediatorClientTest
         registry.Add(typeof(ServicePing));
 
         var client = new DefaultMediatorClient(registry, new ListenerRegistry(),
-            serviceFactory!, new InternalScopedServiceFactoryFactory(serviceFactory!), new TestLogger());
+            serviceFactory!, new TestScopedServiceFactoryFactory(provider), new TestLogger());
 
         var pong = await client.SendAsync<Pong>("/ping", new ServicePing() { Value = "Ping" });
         pong!.Value.Should().Be("Ping Pong");
@@ -106,7 +107,7 @@ public class DefaultMediatorClientTest
         registry.Add(typeof(ServicePing));
 
         var client = new DefaultMediatorClient(registry, new ListenerRegistry(),
-            serviceFactory!, new InternalScopedServiceFactoryFactory(serviceFactory!), new TestLogger());
+            serviceFactory!, new TestScopedServiceFactoryFactory(provider), new TestLogger());
 
         await client.SendAsync("/ping", new ServicePing() { Value = "Ping" });
         check.Executed.Should().BeTrue();
@@ -126,7 +127,7 @@ public class DefaultMediatorClientTest
         registry.Add(typeof(ServicePing));
 
         var client = new DefaultMediatorClient(registry, new ListenerRegistry(),
-            serviceFactory!, new InternalScopedServiceFactoryFactory(serviceFactory!), new TestLogger());
+            serviceFactory!, new TestScopedServiceFactoryFactory(provider), new TestLogger());
 
         var pong = await client.SendAsync<LocalPong>("/ping", new { Value = "Ping" });
         pong!.Value.Should().Be("Ping Pong");
@@ -147,7 +148,7 @@ public class DefaultMediatorClientTest
         registry.Add(typeof(ServicePing));
 
         var client = new DefaultMediatorClient(registry, new ListenerRegistry(),
-            serviceFactory!, new InternalScopedServiceFactoryFactory(serviceFactory!), new TestLogger());
+            serviceFactory!, new TestScopedServiceFactoryFactory(provider), new TestLogger());
 
         var act = () => client.SendAsync<Pong>("/ping", "ping");
         var res = await act.Should().ThrowAsync<TypeTranslationException>();
@@ -169,7 +170,7 @@ public class DefaultMediatorClientTest
         registry.Add(typeof(ServicePing));
 
         var client = new DefaultMediatorClient(registry, new ListenerRegistry(),
-            serviceFactory!, new InternalScopedServiceFactoryFactory(serviceFactory!), new TestLogger());
+            serviceFactory!, new TestScopedServiceFactoryFactory(provider), new TestLogger());
 
         var act = () => client.SendAsync<string>("/ping", new { Value = "Ping" });
         var res = await act.Should().ThrowAsync<TypeTranslationException>();
@@ -191,7 +192,7 @@ public class DefaultMediatorClientTest
         registry.Add(typeof(ServiceNullPing));
 
         var client = new DefaultMediatorClient(registry, new ListenerRegistry(),
-            serviceFactory!, new InternalScopedServiceFactoryFactory(serviceFactory!), new TestLogger());
+            serviceFactory!, new TestScopedServiceFactoryFactory(provider), new TestLogger());
 
         var pong = await client.SendAsync<Pong>("/ping/null", new { Value = "Ping" });
         pong.Should().BeNull();
@@ -212,7 +213,7 @@ public class DefaultMediatorClientTest
         registry.Add(typeof(ServiceNullPing));
 
         var client = new DefaultMediatorClient(registry, new ListenerRegistry(),
-            serviceFactory!, new InternalScopedServiceFactoryFactory(serviceFactory!), new TestLogger());
+            serviceFactory!, new TestScopedServiceFactoryFactory(provider), new TestLogger());
 
         await client.SendAsync("/ping/null", new { Value = "Ping" });
         check.Executed.Should().BeTrue();
@@ -232,7 +233,7 @@ public class DefaultMediatorClientTest
         registry.Add(typeof(VoidServicePing));
 
         var client = new DefaultMediatorClient(registry, new ListenerRegistry(),
-            serviceFactory!, new InternalScopedServiceFactoryFactory(serviceFactory!), new TestLogger());
+            serviceFactory!, new TestScopedServiceFactoryFactory(provider), new TestLogger());
 
         var pong = await client.SendAsync<Pong>("/ping/void", new { Value = "Ping" });
         pong.Should().BeNull();
@@ -253,7 +254,7 @@ public class DefaultMediatorClientTest
         registry.Add(typeof(VoidServicePing));
 
         var client = new DefaultMediatorClient(registry, new ListenerRegistry(),
-            serviceFactory!, new InternalScopedServiceFactoryFactory(serviceFactory!), new TestLogger());
+            serviceFactory!, new TestScopedServiceFactoryFactory(provider), new TestLogger());
 
         await client.SendAsync("/ping/void", new { Value = "Ping" });
         check.Executed.Should().BeTrue();
@@ -278,7 +279,7 @@ public class DefaultMediatorClientTest
         registry.Add(typeof(ServicePing), typeof(Filter1), typeof(Filter2));
 
         var client = new DefaultMediatorClient(registry, new ListenerRegistry(),
-            serviceFactory!, new InternalScopedServiceFactoryFactory(serviceFactory!), new TestLogger());
+            serviceFactory!, new TestScopedServiceFactoryFactory(provider), new TestLogger());
 
         var pong = await client.SendAsync<Pong>("/ping", new ServicePing() { Value = "Ping" });
 
@@ -336,14 +337,14 @@ public class DefaultMediatorClientTest
         registry.Add(typeof(MediatorClientTestPang));
 
         var client = new DefaultMediatorClient(new ServiceRegistry(), registry,
-            serviceFactory!, new InternalScopedServiceFactoryFactory(serviceFactory!), new TestLogger());
+            serviceFactory!, new TestScopedServiceFactoryFactory(provider), new TestLogger());
 
         var holder = provider.GetService<TaskHolder>();
 
         var pang = new MediatorClientTestPang();
         await client.PublishAsync(nameof(MediatorClientTestPang), pang, optionsAction: op => {});
 
-        Thread.Sleep(1000); //それぞれで10だけまたしているため、1000あれば終わっているはず。
+        await Task.Delay(1000); //それぞれで10だけまたしているため、1000あれば終わっているはず。
 
         await Task.WhenAll(holder.Tasks);
         holder.Messages.Should().HaveCount(3).And.Contain("1", "2", "3");
@@ -370,7 +371,7 @@ public class DefaultMediatorClientTest
         registry.Add(typeof(MediatorClientTestPang));
 
         var client = new DefaultMediatorClient(new ServiceRegistry(), registry,
-            serviceFactory!, new InternalScopedServiceFactoryFactory(serviceFactory!), new TestLogger());
+            serviceFactory!, new TestScopedServiceFactoryFactory(provider), new TestLogger());
 
         var holder = provider.GetService<TaskHolder>();
 
@@ -404,7 +405,7 @@ public class DefaultMediatorClientTest
         var logger = new TestLogger();
 
         var client = new DefaultMediatorClient(new ServiceRegistry(), registry,
-            serviceFactory!, new InternalScopedServiceFactoryFactory(serviceFactory!), logger);
+            serviceFactory!, new TestScopedServiceFactoryFactory(provider), logger);
         await client.PublishAsync(nameof(ExceptionPang), new { });
 
         // Fire and forgetのため一旦スリープ
@@ -430,7 +431,7 @@ public class DefaultMediatorClientTest
         var holder = provider.GetService<MixedTaskHolder>();
 
         var client = new DefaultMediatorClient(new ServiceRegistry(), registry,
-            serviceFactory!, new InternalScopedServiceFactoryFactory(serviceFactory!), new TestLogger());
+            serviceFactory!, new TestScopedServiceFactoryFactory(provider), new TestLogger());
 
         await client.PublishAsync("mixed", new { });
 
@@ -494,11 +495,13 @@ public class DefaultMediatorClientTest
         await client.PublishAsync("mixed", new { });
 
         // Fire and forgetのため一旦スリープ
-        Thread.Sleep(1000);
+        await Task.Delay(1000);
 
         holder.ScopeIds.Should().HaveCount(3);
         holder.ScopeIds[typeof(MixedRequestHandler)].Should().NotBe(holder.ScopeIds[typeof(MixedNotificationHandler)]);
         holder.ScopeIds[typeof(MixedNotificationHandler)].Should().Be(holder.ScopeIds[typeof(MixedNotificationHandler2)]);
+
+        holder.ScopeIdProviders.All(p => p.Disposed).Should().BeTrue();
     }
 
     private class ExceptionTestScopedServiceFactoryFactory : IScopedServiceFactoryFactory
@@ -520,16 +523,31 @@ public class DefaultMediatorClientTest
         public List<string> Messages { get; } = new();
 
         public Dictionary<Type, string> ScopeIds { get; } = new();
+
+        public List<ScopeIdProvider> ScopeIdProviders { get; } = new();
     }
 
-    public class ScopeIdProvider
+    public class ScopeIdProvider: IDisposable
     {
         public ScopeIdProvider()
         {
-            Value = Guid.NewGuid().ToString();
+            _value = Guid.NewGuid().ToString();
         }
 
-        public string Value { get; }
+        private string _value;
+        public string Value
+        {
+            get
+            {
+                return Disposed ? throw new InvalidOperationException("Already disposed") : _value;
+            }
+        }
+
+        public bool Disposed { get; private set; }
+        public void Dispose()
+        {
+            Disposed = true;
+        }
     }
 
     public class MixedRequestHandler : IRequestHandler<MixedRequest>
@@ -541,6 +559,7 @@ public class DefaultMediatorClientTest
         {
             _holder = holder;
             _scopeIdProvider = scopeIdProvider;
+            holder.ScopeIdProviders.Add(scopeIdProvider);
         }
         public Task<Unit> Handle(MixedRequest request, CancellationToken cancellationToken)
         {
@@ -640,7 +659,8 @@ public class DefaultMediatorClientTest
         {
             holder.Pangs.Add(notification);
             task.Start();
-            return Task.CompletedTask;
+            // return Task.CompletedTask;
+            return task;
         }
     }
 

@@ -141,7 +141,7 @@ public class DefaultMediatorClient : IMediatorClient
         Task.Run(async () =>
         {
             var context = new ServiceLikeContext(key, options.Header);
-
+            var scopeHolder = new List<IScoepedServiceFactory>();
             try
             {
                 var listenersList = listeners.ToList();
@@ -158,29 +158,34 @@ public class DefaultMediatorClient : IMediatorClient
                 {
                     try
                     {
-                        using var scope = _scopedServiceFactoryFactory.Create();
+                        var scope = _scopedServiceFactoryFactory.Create();
+                        scopeHolder.Add(scope);
 
                         var contextAccessors = scope.Instance.GetInstances<IServiceLikeContextAccessor>().ToList();
-                        if (contextAccessors.Any() == true)
+                        if (contextAccessors.Any())
                         {
                             contextAccessors.First().Context = context;
                         }
+
                         var serviceLikeMediator = new ServiceLikeMediator(scope.Instance);
 
                         var value = TranslateType(notification, listener.ListenerType);
                         _logger.TracePublishToListener(listener);
                         publishTasks.Add(FireEvent(listener, serviceLikeMediator, value!));
+                        // scope.Dispose();
                     }
                     catch (Exception ex)
                     {
                         _logger.ErrorOnPublish(ex, listener);
                     }
                 }
+
                 // すべて投げたまでで完了とする。
                 if (options.CompleteAsyncHandler is not null)
                 {
                     await options.CompleteAsyncHandler.Invoke(notification, context).ConfigureAwait(false);
                 }
+
                 _logger.TraceFinishPublishToListeners(key);
 
                 await Task.WhenAll(publishTasks);
@@ -191,7 +196,18 @@ public class DefaultMediatorClient : IMediatorClient
                 {
                     await options.ErrorAsyncHandler.Invoke(e, notification, context).ConfigureAwait(false);
                 }
+
                 _logger.ErrorOnPublishEvents(e, key);
+            }
+            finally
+            {
+                foreach (var scope in scopeHolder)
+                {
+                    try
+                    {
+                        scope.Dispose();
+                    }catch{}
+                }
             }
         }).ConfigureAwait(false);
     }
