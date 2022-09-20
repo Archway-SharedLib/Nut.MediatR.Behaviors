@@ -61,46 +61,46 @@ public class ExecuteCheck
 
 public class ServicePingHandler : IRequestHandler<ServicePing, Pong>
 {
-    private readonly ExecuteCheck check;
+    private readonly ExecuteCheck _check;
 
     public ServicePingHandler(ExecuteCheck check)
     {
-        this.check = check;
+        _check = check;
     }
 
     public Task<Pong> Handle(ServicePing request, CancellationToken cancellationToken)
     {
-        check.Executed = true;
+        _check.Executed = true;
         return Task.FromResult(new Pong() { Value = request.Value + " Pong" });
     }
 }
 
 public class ServiceNullPingHandler : IRequestHandler<ServiceNullPing, Pong>
 {
-    private readonly ExecuteCheck check;
+    private readonly ExecuteCheck _check;
 
     public ServiceNullPingHandler(ExecuteCheck check)
     {
-        this.check = check;
+        _check = check;
     }
     public Task<Pong> Handle(ServiceNullPing request, CancellationToken cancellationToken)
     {
-        check.Executed = true;
+        _check.Executed = true;
         return Task.FromResult(null as Pong);
     }
 }
 
 public class VoidServicePingHandler : IRequestHandler<VoidServicePing>
 {
-    private readonly ExecuteCheck check;
+    private readonly ExecuteCheck _check;
 
     public VoidServicePingHandler(ExecuteCheck check)
     {
-        this.check = check;
+        _check = check;
     }
     public Task<Unit> Handle(VoidServicePing request, CancellationToken cancellationToken)
     {
-        check.Executed = true;
+        _check.Executed = true;
         return Unit.Task;
     }
 }

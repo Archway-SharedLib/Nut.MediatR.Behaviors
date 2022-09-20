@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <TargetFramework>netstandard2.1</TargetFramework>
@@ -10,7 +10,7 @@
   <PropertyGroup>
     <Authors>Archway</Authors>
     <Description>Access MediatR like a service.</Description>
-    <Copyright>Copyright 2020 (c) Archway inc. All rights reserved.</Copyright>
+    <Copyright>Copyright 2022 (c) Archway inc. All rights reserved.</Copyright>
     <PackageTags>mediatr Nut mediator service</PackageTags>
     <PackageLicenseExpression>https://github.com/Archway-SharedLib/Nut.MediatR/blob/main/LICENSE</PackageLicenseExpression>
     <PackageProjectUrl>https://github.com/Archway-SharedLib/Nut.MediatR</PackageProjectUrl>
@@ -37,7 +37,7 @@
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
-    <PackageReference Include="MinVer" Version="4.1.0">
+    <PackageReference Include="MinVer" Version="4.2.0">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
@@ -45,7 +45,7 @@
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
-    <PackageReference Include="System.Text.Json" Version="6.0.5" />
+    <PackageReference Include="System.Text.Json" Version="6.0.6" />
   </ItemGroup>
 
   <ItemGroup>

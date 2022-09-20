@@ -109,9 +109,11 @@ public class DefaultMediatorClient : IMediatorClient
         return await _mediator.Send(parameter!).ConfigureAwait(false);
     }
 
+    /// <inheritdoc />
     public Task PublishAsync(string key, object eventData)
         => PublishAsync(key, eventData, new PublishOptions());
 
+    /// <inheritdoc />
     public Task PublishAsync(string key, object @eventData, Action<PublishOptions> optionsAction)
     {
         if (optionsAction is null)
@@ -123,6 +125,7 @@ public class DefaultMediatorClient : IMediatorClient
         return PublishAsync(key, eventData, options);
     }
 
+    /// <inheritdoc />
     public Task PublishAsync(string key, object eventData, PublishOptions options)
     {
         if (eventData is null)

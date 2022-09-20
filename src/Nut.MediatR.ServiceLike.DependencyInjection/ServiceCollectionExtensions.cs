@@ -7,8 +7,18 @@ using Microsoft.Extensions.DependencyInjection.Extensions;
 
 namespace Nut.MediatR.ServiceLike.DependencyInjection;
 
+/// <summary>
+/// <see cref="MediatR"/> を利用してメッセージを送信/発行するための機能を登録する <see cref="IServiceCollection"/> の拡張メソッドを定義します。
+/// </summary>
 public static class ServiceCollectionExtensions
 {
+    /// <summary>
+    /// <see cref="MediatR"/> を利用してメッセージを送信/発行するための機能を登録します。
+    /// </summary>
+    /// <param name="services">元となる <see cref="IServiceCollection"/></param>
+    /// <param name="assembly">メッセージの情報を探索する <see cref="Assembly"/></param>
+    /// <param name="filterTypes">メッセージ送信の前後で実行されるフィルターの型</param>
+    /// <returns>元となった <see cref="IServiceCollection" /></returns>
     public static IServiceCollection AddMediatRServiceLike(this IServiceCollection services, Assembly assembly, params Type[] filterTypes)
     {
         if (!(services.LastOrDefault(s => s.ServiceType == typeof(ServiceRegistry))?

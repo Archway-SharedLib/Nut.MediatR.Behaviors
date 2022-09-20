@@ -4,7 +4,7 @@ using MediatR;
 namespace Nut.MediatR.ServiceLike;
 
 /// <summary>
-/// <see cref="Nut.MediatR.ServiceLike"/> で発生した例外のベースクラスを定義します。
+/// <see cref="ServiceLike"/> で発生した例外のベースクラスを定義します。
 /// </summary>
 public class MediatRServiceLikeException : Exception
 {
@@ -62,6 +62,8 @@ public class TypeTranslationException: MediatRServiceLikeException
     /// <summary>
     /// インスタンスを初期化します。
     /// </summary>
+    /// <param name="fromType">変換元の<see cref="Type"/></param>
+    /// <param name="toType">変換先の<see cref="Type"/></param>
     public TypeTranslationException(Type fromType, Type toType) : base(Resources.Strings.CannotTypeTranslation(fromType, toType))
     {
         FromType = fromType;
@@ -71,6 +73,8 @@ public class TypeTranslationException: MediatRServiceLikeException
     /// <summary>
     /// インスタンスを初期化します。
     /// </summary>
+    /// <param name="fromType">変換元の<see cref="Type"/></param>
+    /// <param name="toType">変換先の<see cref="Type"/></param>
     /// <param name="message">エラーに関するメッセージ</param>
     public TypeTranslationException(Type fromType, Type toType, string message) : base(message)
     {
@@ -78,7 +82,15 @@ public class TypeTranslationException: MediatRServiceLikeException
         ToType = toType;
     }
 
+    /// <summary>
+    /// 変換元の型を取得します。
+    /// </summary>
+    /// <value>変換元の型</value>
     public Type FromType { get; }
 
+    /// <summary>
+    /// 変換先の型を取得します。
+    /// </summary>
+    /// <value>変換先の型</value>
     public Type ToType { get; }
 }
