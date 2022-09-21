@@ -10,9 +10,9 @@ public sealed class AuthorizationResult
     }
 
     /// <summary>
-    /// 認可が失敗した原因となる内容となるメッセージを取得します。
+    /// 認可が失敗した原因となる内容のメッセージを取得します。
     /// </summary>
-    public string? FailurMessage { get; private set; }
+    public string? FailureMessage { get; private set; }
 
     /// <summary>
     /// 認可が成功したかどうかを取得します。
@@ -22,11 +22,11 @@ public sealed class AuthorizationResult
     /// <summary>
     /// 認可が失敗した場合の<see cref="AuthorizationResult"/>のインスタンスを返します。
     /// </summary>
-    /// <param name="failurMessage">失敗した原因となる内容となるメッセージ</param>
+    /// <param name="failureMessage">失敗した原因となる内容となるメッセージ</param>
     /// <returns>認可が失敗した場合の<see cref="AuthorizationResult"/>のインスタンス</returns>
-    public static AuthorizationResult Failed(string failurMessage)
+    public static AuthorizationResult Failed(string failureMessage)
     {
-        return new AuthorizationResult() { Succeeded = false, FailurMessage = failurMessage };
+        return new AuthorizationResult() { Succeeded = false, FailureMessage = failureMessage };
     }
 
     /// <summary>

@@ -46,7 +46,7 @@ public class AuthorizationBehavior<TRequest, TResponse> : IPipelineBehavior<TReq
             {
                 var result = await authorizer.AuthorizeAsync(request, cancellationToken).ConfigureAwait(false);
                 if (!result.Succeeded) throw new UnauthorizedException(
-                    string.IsNullOrEmpty(result.FailurMessage) ? SR.Authorization_NotAuthorized : result.FailurMessage);
+                    string.IsNullOrEmpty(result.FailureMessage) ? SR.Authorization_NotAuthorized : result.FailureMessage);
             }
         }
 
