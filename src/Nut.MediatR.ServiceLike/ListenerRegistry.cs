@@ -6,16 +6,16 @@ using System.Linq;
 namespace Nut.MediatR.ServiceLike;
 
 /// <summary>
-/// メッセージのリスナーのレジストリです。
+/// リスナーのレジストリです。
 /// </summary>
 public class ListenerRegistry
 {
     private readonly ConcurrentDictionary<string, ConcurrentBag<MediatorListenerDescription>> _listenerPool = new();
 
     /// <summary>
-    /// メッセージのリスナーを追加します。
+    /// リスナーを追加します。
     /// </summary>
-    /// <param name="type">メッセージリスナーの<see cref="Type"/></param>
+    /// <param name="type">リスナーの<see cref="Type"/></param>
     /// <exception cref="ArgumentNullException"><paramref name="type"/> が <see langword="null"/> の場合に発生します。</exception>
     public void Add(Type type)
     {
@@ -35,14 +35,14 @@ public class ListenerRegistry
     /// <summary>
     /// 登録されているリスナーのキー
     /// </summary>
-    /// <returns></returns>
+    /// <returns>登録されているリスナーのキー</returns>
     public IEnumerable<string> GetKeys() => _listenerPool.Keys;
 
     /// <summary>
     /// キーを指定してリスナーを取得します。
     /// </summary>
     /// <param name="key">取得するリスナーのキー</param>
-    /// <returns>指定されtキーで登録されているリスナー</returns>
+    /// <returns>指定されたキーで登録されているリスナー</returns>
     public IEnumerable<MediatorListenerDescription> GetListeners(string key)
         => _listenerPool.TryGetValue(key, out var value) ? value : Enumerable.Empty<MediatorListenerDescription>();
 }

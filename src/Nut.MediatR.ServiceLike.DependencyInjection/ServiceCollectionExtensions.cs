@@ -53,11 +53,11 @@ public static class ServiceCollectionExtensions
 
         services.TryAddTransient(typeof(IMediatorClient), provider =>
         {
-            var servRegistry = provider.GetService<ServiceRegistry>();
-            var lisRegistry = provider.GetService<ListenerRegistry>();
-            var serviceFactory = provider.GetService<ServiceFactory>();
-            var scopedServiceFactoryFactory = new ScopedServiceFactoryFactory(provider.GetService<IServiceScopeFactory>());
-            var serviceLikeLogger = provider.GetService<IServiceLikeLogger>();
+            var servRegistry = provider.GetService<ServiceRegistry>()!;
+            var lisRegistry = provider.GetService<ListenerRegistry>()!;
+            var serviceFactory = provider.GetService<ServiceFactory>()!;
+            var scopedServiceFactoryFactory = new ScopedServiceFactoryFactory(provider.GetService<IServiceScopeFactory>()!);
+            var serviceLikeLogger = provider.GetService<IServiceLikeLogger>()!;
 
             return new DefaultMediatorClient(
                 servRegistry,

@@ -14,7 +14,7 @@ public class ServiceRegistryTest
         registry.Add(typeof(ServicePing));
         var req = registry.GetService("/ping");
         req.Should().NotBeNull();
-        registry.GetEndpoints().Should().HaveCount(1);
+        registry.GetKeys().Should().HaveCount(1);
     }
 
     [Fact]
@@ -28,7 +28,7 @@ public class ServiceRegistryTest
         var req2 = registry.GetService("/ping/2");
         req2.Should().NotBeNull();
 
-        registry.GetEndpoints().Should().HaveCount(2);
+        registry.GetKeys().Should().HaveCount(2);
     }
 
     [Fact]
@@ -40,7 +40,7 @@ public class ServiceRegistryTest
         Action act = () => registry.Add(typeof(ServicePing2));
 
         act.Should().Throw<ArgumentException>();
-        registry.GetEndpoints().Should().HaveCount(1);
+        registry.GetKeys().Should().HaveCount(1);
     }
 
     [Fact]
@@ -52,7 +52,7 @@ public class ServiceRegistryTest
         Action act = () => registry.Add(typeof(ServicePing2), false);
 
         act.Should().Throw<ArgumentException>();
-        registry.GetEndpoints().Should().HaveCount(1);
+        registry.GetKeys().Should().HaveCount(1);
     }
 
     [Fact]
@@ -63,7 +63,7 @@ public class ServiceRegistryTest
 
         registry.Add(typeof(ServicePing2), true);
 
-        registry.GetEndpoints().Should().HaveCount(1);
+        registry.GetKeys().Should().HaveCount(1);
         var type = registry.GetService("/ping").ServiceType;
 
         type.Should().Be(typeof(ServicePing));
@@ -73,7 +73,7 @@ public class ServiceRegistryTest
     public void Add_typeがnullの場合は例外が発生する()
     {
         var registry = new ServiceRegistry();
-        Action act = () => registry.Add(null);
+        var act = () => registry.Add(null);
         act.Should().Throw<ArgumentNullException>();
     }
 
@@ -81,7 +81,7 @@ public class ServiceRegistryTest
     public void Add_typeがnullの場合は例外が発生する_withIgnoreDuplication()
     {
         var registry = new ServiceRegistry();
-        Action act = () => registry.Add(null, true);
+        var act = () => registry.Add(null, true);
         act.Should().Throw<ArgumentNullException>();
     }
 
