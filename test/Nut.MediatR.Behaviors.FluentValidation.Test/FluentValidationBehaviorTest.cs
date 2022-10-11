@@ -26,12 +26,12 @@ public class FluentValidationBehaviorTest
             new ServiceFactory(_ => new List<IValidator<TestBehaviorRequest>>()));
         await behavior.Handle(
             new TestBehaviorRequest(),
-            new CancellationToken(),
             () =>
             {
                 executed = true;
                 return Task.FromResult(new TestBehaviorResponse());
-            });
+            },
+            new CancellationToken());
         executed.Should().BeTrue();
     }
 
@@ -43,12 +43,12 @@ public class FluentValidationBehaviorTest
             new ServiceFactory(_ => null));
         await behavior.Handle(
             new TestBehaviorRequest(),
-            new CancellationToken(),
             () =>
             {
                 executed = true;
                 return Task.FromResult(new TestBehaviorResponse());
-            });
+            },
+            new CancellationToken());
         executed.Should().BeTrue();
     }
 
@@ -60,12 +60,11 @@ public class FluentValidationBehaviorTest
             new ServiceFactory(_ => new List<IValidator<TestBehaviorRequest>>() { new Validator1() }));
         Func<Task> act = () => behavior.Handle(
             new TestBehaviorRequest(),
-            new CancellationToken(),
             () =>
             {
                 executed = true;
                 return Task.FromResult(new TestBehaviorResponse());
-            });
+            }, new CancellationToken());
 
         var result = await act.Should().ThrowAsync<ValidationException>();
         result.And.Errors.Should().HaveCount(1);
@@ -80,12 +79,11 @@ public class FluentValidationBehaviorTest
             new ServiceFactory(_ => new List<IValidator<TestBehaviorRequest>>() { new Validator1() }));
         await behavior.Handle(
             new TestBehaviorRequest() { Name = "A" },
-            new CancellationToken(),
             () =>
             {
                 executed = true;
                 return Task.FromResult(new TestBehaviorResponse());
-            });
+            }, new CancellationToken());
         executed.Should().BeTrue();
     }
 
@@ -97,12 +95,11 @@ public class FluentValidationBehaviorTest
             new ServiceFactory(_ => new List<IValidator<TestBehaviorRequest>>() { new Validator1(), new Validator2() }));
         Func<Task> act = () => behavior.Handle(
             new TestBehaviorRequest(),
-            new CancellationToken(),
             () =>
             {
                 executed = true;
                 return Task.FromResult(new TestBehaviorResponse());
-            });
+            }, new CancellationToken());
 
         var errors = await act.Should().ThrowAsync<ValidationException>();
         errors.And.Errors.Should().HaveCount(2);

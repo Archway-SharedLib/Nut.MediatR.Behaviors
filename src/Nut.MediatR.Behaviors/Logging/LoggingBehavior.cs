@@ -38,10 +38,10 @@ public class LoggingBehavior<TRequest, TResponse> : IPipelineBehavior<TRequest, 
     /// ログを出力します。
     /// </summary>
     /// <param name="request">リクエスト</param>
-    /// <param name="cancellationToken"><see cref="CancellationToken"/></param>
     /// <param name="next">次の処理</param>
+    /// <param name="cancellationToken"><see cref="CancellationToken"/></param>
     /// <returns>処理結果</returns>
-    public async Task<TResponse> Handle(TRequest request, CancellationToken cancellationToken, RequestHandlerDelegate<TResponse> next)
+    public async Task<TResponse> Handle(TRequest request, RequestHandlerDelegate<TResponse> next, CancellationToken cancellationToken)
     {
         var logger = ServiceFactory.GetInstanceOrDefault<ILogger<LoggingBehavior<TRequest, TResponse>>>();
         if (logger is null)

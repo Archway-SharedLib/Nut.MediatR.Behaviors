@@ -28,11 +28,11 @@ public class LoggingBehaviorTest
         var logging = new LoggingBehavior<TestBehaviorRequest, TestBehaviorResponse>(new ServiceFactory(_ => null));
 
         var executed = false;
-        await logging.Handle(new TestBehaviorRequest(), new CancellationToken(), () =>
+        await logging.Handle(new TestBehaviorRequest(), () =>
         {
             executed = true;
             return Task.FromResult(new TestBehaviorResponse());
-        });
+        }, new CancellationToken());
         executed.Should().BeTrue();
     }
 
@@ -50,7 +50,7 @@ public class LoggingBehaviorTest
                      } :
                      new List<ILoggingInOutValueCollector<TestBehaviorRequest, TestBehaviorResponse>>();
         }));
-        await logging.Handle(new TestBehaviorRequest(), new CancellationToken(), () =>
+        await logging.Handle(new TestBehaviorRequest(), () =>
         {
             logger.Logs.Should().HaveCount(1);
             var logInfo = logger.Logs[0];
@@ -58,7 +58,7 @@ public class LoggingBehaviorTest
             logInfo.State.First(s => s.Key == "Request").Value.Should().Be(typeof(TestBehaviorRequest).Name);
             logInfo.State.Any(s => s.Key == "Input").Should().BeFalse();
             return Task.FromResult(new TestBehaviorResponse());
-        });
+        }, new CancellationToken());
         logger.Logs.Should().HaveCount(2);
         var logInfo = logger.Logs[1];
         logInfo.LogLevel.Should().Be(LogLevel.Information);
@@ -83,14 +83,14 @@ public class LoggingBehaviorTest
                      new List<ILoggingInOutValueCollector<TestBehaviorRequest, TestBehaviorResponse>>() { new TestLoggingInOutValueCollector1() };
             }));
 
-        await logging.Handle(new TestBehaviorRequest() { Value = "A" }, new CancellationToken(), () =>
+        await logging.Handle(new TestBehaviorRequest() { Value = "A" }, () =>
          {
              logger.Logs.Should().HaveCount(1);
              var logInfo = logger.Logs[0];
              var input = logInfo.State.First(s => s.Key == "Input").Value.Should().Be("A");
 
              return Task.FromResult(new TestBehaviorResponse() { Value = "B" });
-         });
+         }, new CancellationToken());
         logger.Logs.Should().HaveCount(2);
         var logInfo = logger.Logs[1];
 
@@ -112,14 +112,14 @@ public class LoggingBehaviorTest
                     } :
                     new List<ILoggingInOutValueCollector<TestBehaviorRequest, TestBehaviorResponse>>() { new TestLoggingInOutValueCollector2() };
             }));
-        await logging.Handle(new TestBehaviorRequest() { Value = "A" }, new CancellationToken(), () =>
+        await logging.Handle(new TestBehaviorRequest() { Value = "A" }, () =>
         {
             logger.Logs.Should().HaveCount(1);
             var logInfo = logger.Logs[0];
             var input = logInfo.State.Any(s => s.Key == "Input").Should().BeFalse();
 
             return Task.FromResult(new TestBehaviorResponse() { Value = "B" });
-        });
+        }, new CancellationToken());
         logger.Logs.Should().HaveCount(2);
         var logInfo = logger.Logs[1];
 
@@ -141,14 +141,14 @@ public class LoggingBehaviorTest
                      } :
                      new List<ILoggingInOutValueCollector<TestBehaviorRequest, TestBehaviorResponse>>() { new TestLoggingInOutValueCollector3() };
             }));
-        await logging.Handle(new TestBehaviorRequest() { Value = "A" }, new CancellationToken(), () =>
+        await logging.Handle(new TestBehaviorRequest() { Value = "A" }, () =>
         {
             logger.Logs.Should().HaveCount(1);
             var logInfo = logger.Logs[0];
             var input = logInfo.State.Any(s => s.Key == "Input").Should().BeFalse();
 
             return Task.FromResult(new TestBehaviorResponse() { Value = "B" });
-        });
+        }, new CancellationToken());
         logger.Logs.Should().HaveCount(2);
         var logInfo = logger.Logs[1];
 
@@ -169,11 +169,11 @@ public class LoggingBehaviorTest
                      } :
                      null;
         }));
-        Func<Task> act = () => logging.Handle(new TestBehaviorRequest() { Value = "A" }, new CancellationToken(), () =>
+        Func<Task> act = () => logging.Handle(new TestBehaviorRequest() { Value = "A" }, () =>
         {
             logger.Logs.Should().HaveCount(1);
             throw new InvalidOperationException();
-        });
+        }, new CancellationToken());
 
         await act.Should().ThrowAsync<InvalidOperationException>();
 
@@ -203,13 +203,13 @@ public class LoggingBehaviorTest
         logging.Collector.ExecutedInValueAsync.Should().BeFalse();
         logging.Collector.ExecutedOutValueAsync.Should().BeFalse();
         logging.ExecutedGetDefaultCollector.Should().BeFalse();
-        await logging.Handle(new TestBehaviorRequest() { Value = "A" }, new CancellationToken(), () =>
+        await logging.Handle(new TestBehaviorRequest() { Value = "A" }, () =>
         {
             logging.Collector.ExecutedInValueAsync.Should().BeTrue();
             logging.Collector.ExecutedOutValueAsync.Should().BeFalse();
             logging.ExecutedGetDefaultCollector.Should().BeTrue();
             return Task.FromResult(new TestBehaviorResponse() { Value = "B" });
-        });
+        }, new CancellationToken());
         logging.Collector.ExecutedInValueAsync.Should().BeTrue();
         logging.Collector.ExecutedOutValueAsync.Should().BeTrue();
         logging.ExecutedGetDefaultCollector.Should().BeTrue();

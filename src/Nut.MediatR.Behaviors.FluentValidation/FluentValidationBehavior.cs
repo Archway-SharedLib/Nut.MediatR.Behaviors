@@ -28,10 +28,10 @@ public class FluentValidationBehavior<TRequest, TResponse> : IPipelineBehavior<T
     /// 定義された <see cref="IValidator{T}"/> を取得してバリデーションを実行します。
     /// </summary>
     /// <param name="request">リクエストの値</param>
-    /// <param name="cancellationToken"><see cref="CancellationToken"/></param>
     /// <param name="next">次の処理</param>
+    /// <param name="cancellationToken"><see cref="CancellationToken"/></param>
     /// <returns>処理の結果</returns>
-    public async Task<TResponse> Handle(TRequest request, CancellationToken cancellationToken, RequestHandlerDelegate<TResponse> next)
+    public async Task<TResponse> Handle(TRequest request, RequestHandlerDelegate<TResponse> next, CancellationToken cancellationToken)
     {
         var validators = _serviceFactory.GetInstances<IValidator<TRequest>>();
         if (validators?.Any() == true)

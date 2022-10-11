@@ -18,55 +18,55 @@ public static class TestBehaviorMessages
 
 public class TestBehavior1<TRequest, TResponse> : IPipelineBehavior<TRequest, TResponse> where TRequest : IRequest<TResponse>
 {
-    private readonly List<string> execHistory;
+    private readonly List<string> _execHistory;
 
 
     public TestBehavior1(List<string> execHistory)
     {
-        this.execHistory = execHistory;
+        _execHistory = execHistory;
     }
 
-    public Task<TResponse> Handle(TRequest request, CancellationToken cancellationToken, RequestHandlerDelegate<TResponse> next)
+    public Task<TResponse> Handle(TRequest request, RequestHandlerDelegate<TResponse> next, CancellationToken cancellationToken)
     {
-        execHistory.Add(TestBehaviorMessages.StartMessage1);
+        _execHistory.Add(TestBehaviorMessages.StartMessage1);
         var result = next();
-        execHistory.Add(TestBehaviorMessages.EndMessage1);
+        _execHistory.Add(TestBehaviorMessages.EndMessage1);
         return result;
     }
 }
 
 public class TestBehavior2<TRequest, TResponse> : IPipelineBehavior<TRequest, TResponse> where TRequest : IRequest<TResponse>
 {
-    private readonly List<string> execHistory;
+    private readonly List<string> _execHistory;
 
     public TestBehavior2(List<string> execHistory)
     {
-        this.execHistory = execHistory;
+        _execHistory = execHistory;
     }
 
-    public Task<TResponse> Handle(TRequest request, CancellationToken cancellationToken, RequestHandlerDelegate<TResponse> next)
+    public Task<TResponse> Handle(TRequest request, RequestHandlerDelegate<TResponse> next, CancellationToken cancellationToken)
     {
-        execHistory.Add(TestBehaviorMessages.StartMessage2);
+        _execHistory.Add(TestBehaviorMessages.StartMessage2);
         var result = next();
-        execHistory.Add(TestBehaviorMessages.EndMessage2);
+        _execHistory.Add(TestBehaviorMessages.EndMessage2);
         return result;
     }
 }
 
 public class TestBehavior3<TRequest, TResponse> : IPipelineBehavior<TRequest, TResponse> where TRequest : IRequest<TResponse>
 {
-    private readonly List<string> execHistory;
+    private readonly List<string> _execHistory;
 
     public TestBehavior3(List<string> execHistory)
     {
-        this.execHistory = execHistory;
+        _execHistory = execHistory;
     }
 
-    public Task<TResponse> Handle(TRequest request, CancellationToken cancellationToken, RequestHandlerDelegate<TResponse> next)
+    public Task<TResponse> Handle(TRequest request, RequestHandlerDelegate<TResponse> next, CancellationToken cancellationToken)
     {
-        execHistory.Add(TestBehaviorMessages.StartMessage3);
+        _execHistory.Add(TestBehaviorMessages.StartMessage3);
         var result = next();
-        execHistory.Add(TestBehaviorMessages.EndMessage3);
+        _execHistory.Add(TestBehaviorMessages.EndMessage3);
         return result;
     }
 }

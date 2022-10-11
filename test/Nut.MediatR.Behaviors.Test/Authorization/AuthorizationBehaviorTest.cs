@@ -31,7 +31,7 @@ public class AuthorizationBehaviorTest
             };
         });
         var auth = new AuthorizationBehavior<TestBehaviorRequest, TestBehaviorResponse>(factory);
-        await auth.Handle(new TestBehaviorRequest(), new CancellationToken(), () => Task.FromResult(new TestBehaviorResponse()));
+        await auth.Handle(new TestBehaviorRequest(), () => Task.FromResult(new TestBehaviorResponse()), new CancellationToken());
 
         list.Count.Should().Be(2);
         list[0].Should().Be(AuthorizerMessages.SuccessAuthorizer1Message);
@@ -47,7 +47,7 @@ public class AuthorizationBehaviorTest
             return null;
         });
         var auth = new AuthorizationBehavior<TestBehaviorRequest, TestBehaviorResponse>(factory);
-        await auth.Handle(new TestBehaviorRequest(), new CancellationToken(), () => Task.FromResult(new TestBehaviorResponse()));
+        await auth.Handle(new TestBehaviorRequest(), () => Task.FromResult(new TestBehaviorResponse()), new CancellationToken());
 
         list.Should().BeEmpty();
     }
@@ -61,7 +61,7 @@ public class AuthorizationBehaviorTest
             return Enumerable.Empty<IAuthorizer<TestBehaviorRequest>>();
         });
         var auth = new AuthorizationBehavior<TestBehaviorRequest, TestBehaviorResponse>(factory);
-        await auth.Handle(new TestBehaviorRequest(), new CancellationToken(), () => Task.FromResult(new TestBehaviorResponse()));
+        await auth.Handle(new TestBehaviorRequest(), () => Task.FromResult(new TestBehaviorResponse()), new CancellationToken());
 
         list.Should().BeEmpty();
     }
@@ -80,7 +80,7 @@ public class AuthorizationBehaviorTest
             };
         });
         var auth = new AuthorizationBehavior<TestBehaviorRequest, TestBehaviorResponse>(factory);
-        Func<Task> act = () => auth.Handle(new TestBehaviorRequest(), new CancellationToken(), () => Task.FromResult(new TestBehaviorResponse()));
+        Func<Task> act = () => auth.Handle(new TestBehaviorRequest(), () => Task.FromResult(new TestBehaviorResponse()), new CancellationToken());
 
         await act.Should().ThrowAsync<UnauthorizedException>().WithMessage("unauthorized!");
 
@@ -102,7 +102,7 @@ public class AuthorizationBehaviorTest
             };
         });
         var auth = new AuthorizationBehavior<TestBehaviorRequest, TestBehaviorResponse>(factory);
-        Func<Task> act = () => auth.Handle(new TestBehaviorRequest(), new CancellationToken(), () => Task.FromResult(new TestBehaviorResponse()));
+        Func<Task> act = () => auth.Handle(new TestBehaviorRequest(), () => Task.FromResult(new TestBehaviorResponse()), new CancellationToken());
 
         await act.Should().ThrowAsync<UnauthorizedException>().WithMessage("Not authorized.");
 
@@ -124,7 +124,7 @@ public class AuthorizationBehaviorTest
             };
         });
         var auth = new NullAuthorizationBehavior<TestBehaviorRequest, TestBehaviorResponse>(factory);
-        await auth.Handle(new TestBehaviorRequest(), new CancellationToken(), () => Task.FromResult(new TestBehaviorResponse()));
+        await auth.Handle(new TestBehaviorRequest(), () => Task.FromResult(new TestBehaviorResponse()), new CancellationToken());
 
         list.Should().BeEmpty();
     }
@@ -152,50 +152,50 @@ public static class AuthorizerMessages
 
 public class SuccessAuthorizer1 : IAuthorizer<TestBehaviorRequest>
 {
-    private readonly List<string> execHistory;
+    private readonly List<string> _execHistory;
 
     public SuccessAuthorizer1(List<string> execHistory)
     {
-        this.execHistory = execHistory;
+        _execHistory = execHistory;
     }
 
     public Task<AuthorizationResult> AuthorizeAsync(TestBehaviorRequest request, CancellationToken cancellationToken)
     {
-        execHistory.Add(AuthorizerMessages.SuccessAuthorizer1Message);
+        _execHistory.Add(AuthorizerMessages.SuccessAuthorizer1Message);
         return Task.FromResult(AuthorizationResult.Success());
     }
 }
 
 public class SuccessAuthorizer2 : IAuthorizer<TestBehaviorRequest>
 {
-    private readonly List<string> execHistory;
+    private readonly List<string> _execHistory;
 
     public SuccessAuthorizer2(List<string> execHistory)
     {
-        this.execHistory = execHistory;
+        _execHistory = execHistory;
     }
 
     public Task<AuthorizationResult> AuthorizeAsync(TestBehaviorRequest request, CancellationToken cancellationToken)
     {
-        execHistory.Add(AuthorizerMessages.SuccessAuthorizer2Message);
+        _execHistory.Add(AuthorizerMessages.SuccessAuthorizer2Message);
         return Task.FromResult(AuthorizationResult.Success());
     }
 }
 
 public class FailurAuthorizer1 : IAuthorizer<TestBehaviorRequest>
 {
-    private readonly List<string> execHistory;
-    private readonly string message;
+    private readonly List<string> _execHistory;
+    private readonly string _message;
 
     public FailurAuthorizer1(List<string> execHistory, string message)
     {
-        this.execHistory = execHistory;
-        this.message = message;
+        _execHistory = execHistory;
+        _message = message;
     }
 
     public Task<AuthorizationResult> AuthorizeAsync(TestBehaviorRequest request, CancellationToken cancellationToken)
     {
-        execHistory.Add(AuthorizerMessages.FailurAuthorizer1Message);
-        return Task.FromResult(AuthorizationResult.Failed(message));
+        _execHistory.Add(AuthorizerMessages.FailurAuthorizer1Message);
+        return Task.FromResult(AuthorizationResult.Failed(_message));
     }
 }

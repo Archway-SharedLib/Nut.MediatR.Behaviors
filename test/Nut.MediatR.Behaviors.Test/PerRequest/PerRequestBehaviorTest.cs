@@ -26,7 +26,7 @@ public class PerRequestBehaviorTest
             return Activator.CreateInstance(type, list);
         });
         var perReq = new PerRequestBehavior<Req1, Res>(factory);
-        await perReq.Handle(new Req1(), new CancellationToken(), () => Task.FromResult(new Res()));
+        await perReq.Handle(new Req1(), () => Task.FromResult(new Res()), new CancellationToken());
 
         list.Count.Should().Be(6);
         list[0].Should().Be(TestBehaviorMessages.StartMessage3);
@@ -46,7 +46,7 @@ public class PerRequestBehaviorTest
             return Activator.CreateInstance(type, list);
         });
         var perReq = new PerRequestBehavior<Req2, Res>(factory);
-        await perReq.Handle(new Req2(), new CancellationToken(), () => Task.FromResult(new Res()));
+        await perReq.Handle(new Req2(), () => Task.FromResult(new Res()), new CancellationToken());
         list.Count.Should().Be(0);
     }
 
@@ -60,7 +60,7 @@ public class PerRequestBehaviorTest
             return Activator.CreateInstance(type, list);
         });
         var perReq = new PerRequestBehavior<Req1, Res>(factory);
-        await perReq.Handle(new Req1(), new CancellationToken(), () => Task.FromResult(new Res()));
+        await perReq.Handle(new Req1(), () => Task.FromResult(new Res()), new CancellationToken());
 
         list.Count.Should().Be(4);
         list[0].Should().Be(TestBehaviorMessages.StartMessage3);

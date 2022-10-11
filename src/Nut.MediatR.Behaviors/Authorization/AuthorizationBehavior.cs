@@ -33,11 +33,11 @@ public class AuthorizationBehavior<TRequest, TResponse> : IPipelineBehavior<TReq
     /// <see cref="IAuthorizer{TRequest}"/> の実装を取得して実行します。
     /// </summary>
     /// <param name="request">リクエスト</param>
-    /// <param name="cancellationToken"><see cref="CancellationToken"/></param>
     /// <param name="next">次の処理</param>
+    /// <param name="cancellationToken"><see cref="CancellationToken"/></param>
     /// <returns>処理結果</returns>
     /// <exception cref="UnauthorizedException">認可処理が失敗した場合に発生します。</exception>
-    public async Task<TResponse> Handle(TRequest request, CancellationToken cancellationToken, RequestHandlerDelegate<TResponse> next)
+    public async Task<TResponse> Handle(TRequest request, RequestHandlerDelegate<TResponse> next, CancellationToken cancellationToken)
     {
         var authorizers = GetAuthorizers()?.ToList();
         if (authorizers?.Any() == true)
@@ -66,4 +66,5 @@ public class AuthorizationBehavior<TRequest, TResponse> : IPipelineBehavior<TReq
     {
         return ServiceFactory.GetInstances<IAuthorizer<TRequest>>() ?? Enumerable.Empty<IAuthorizer<TRequest>>();
     }
+
 }

@@ -30,26 +30,27 @@ public class PerRequestBehavior<TRequest, TResponse> : IPipelineBehavior<TReques
     /// <see cref="IRequest"/> / <see cref="IRequest{TResponse}"/> ごとに指定された <see cref="IPipelineBehavior{TRequest, TResponse}"/> を実行して、処理を実行します。
     /// </summary>
     /// <param name="request">リクエスト</param>
-    /// <param name="cancellationToken"><see cref="CancellationToken"/></param>
     /// <param name="next">次の処理</param>
+    /// <param name="cancellationToken"><see cref="CancellationToken"/></param>
     /// <returns>処理結果</returns>
-    public async Task<TResponse> Handle(TRequest request, CancellationToken cancellationToken, RequestHandlerDelegate<TResponse> next)
+    public async Task<TResponse> Handle(TRequest request, RequestHandlerDelegate<TResponse> next, CancellationToken cancellationToken)
     {
         var types = Cache<TRequest, TResponse>.Types.ToList();
-        return await ExecuteBehaviors(types, request, cancellationToken, next).ConfigureAwait(false);
+        return await ExecuteBehaviors(types, request, next, cancellationToken).ConfigureAwait(false);
     }
 
-    private async Task<TResponse> ExecuteBehaviors(IList<Type> types, TRequest request, CancellationToken cancellationToken, RequestHandlerDelegate<TResponse> next)
+    private async Task<TResponse> ExecuteBehaviors(IList<Type> types, TRequest request, RequestHandlerDelegate<TResponse> next, CancellationToken cancellationToken)
     {
         if (!types.Any()) return await next.Invoke().ConfigureAwait(false);
         var type = types[0];
         types.RemoveAt(0);
         if (_factory(type) is not IPipelineBehavior<TRequest, TResponse> service)
         {
-            return await ExecuteBehaviors(types, request, cancellationToken, next).ConfigureAwait(false);
+            return await ExecuteBehaviors(types, request, next, cancellationToken).ConfigureAwait(false);
         }
-        return await service.Handle(request, cancellationToken,
-            async () => await ExecuteBehaviors(types, request, cancellationToken, next).ConfigureAwait(false)
+        return await service.Handle(request,
+            async () => await ExecuteBehaviors(types, request, next, cancellationToken).ConfigureAwait(false),
+            cancellationToken
         ).ConfigureAwait(false);
     }
 
