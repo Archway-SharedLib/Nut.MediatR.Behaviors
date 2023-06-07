@@ -16,17 +16,17 @@ namespace Nut.MediatR;
 public class AuthorizationBehavior<TRequest, TResponse> : IPipelineBehavior<TRequest, TResponse> where TRequest : IRequest<TResponse>
 {
     /// <summary>
-    /// <see cref="ServiceFactory"/> を取得します。
+    /// <see cref="ServiceProvider"/> を取得します。
     /// </summary>
-    protected ServiceFactory ServiceFactory { get; }
+    protected IServiceProvider ServiceProvider { get; }
 
     /// <summary>
     /// インスタンスを初期化します。
     /// </summary>
-    /// <param name="serviceFactory">サービスを取得する <see cref="ServiceFactory"/></param>
-    public AuthorizationBehavior(ServiceFactory serviceFactory)
+    /// <param name="serviceFactory">サービスを取得する <see cref="IServiceProvider"/></param>
+    public AuthorizationBehavior(IServiceProvider serviceFactory)
     {
-        ServiceFactory = serviceFactory ?? throw new ArgumentNullException(nameof(serviceFactory));
+        ServiceProvider = serviceFactory ?? throw new ArgumentNullException(nameof(serviceFactory));
     }
 
     /// <summary>
@@ -64,7 +64,7 @@ public class AuthorizationBehavior<TRequest, TResponse> : IPipelineBehavior<TReq
 
     private IEnumerable<IAuthorizer<TRequest>> GetRegisterdAuthorizers()
     {
-        return ServiceFactory.GetInstances<IAuthorizer<TRequest>>() ?? Enumerable.Empty<IAuthorizer<TRequest>>();
+        return ServiceProvider.GetServicesOrEmpty<IAuthorizer<TRequest>>() ?? Enumerable.Empty<IAuthorizer<TRequest>>();
     }
 
 }

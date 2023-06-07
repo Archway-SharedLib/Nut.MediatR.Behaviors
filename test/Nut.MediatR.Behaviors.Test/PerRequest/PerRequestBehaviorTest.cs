@@ -4,6 +4,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using FluentAssertions;
 using MediatR;
+using NSubstitute;
 using Xunit;
 
 namespace Nut.MediatR.Test.PerRequest;
@@ -21,11 +22,12 @@ public class PerRequestBehaviorTest
     public async Task Handle_WithBehaviorAttributeに設定されているBehaviorが実行される()
     {
         var list = new List<string>();
-        var factory = new ServiceFactory(type =>
+        var provider = Substitute.For<IServiceProvider>();
+        provider.GetService(Arg.Any<Type>()).Returns(ci =>
         {
-            return Activator.CreateInstance(type, list);
+            return Activator.CreateInstance(ci.Arg<Type>(), list);
         });
-        var perReq = new PerRequestBehavior<Req1, Res>(factory);
+        var perReq = new PerRequestBehavior<Req1, Res>(provider);
         await perReq.Handle(new Req1(), () => Task.FromResult(new Res()), new CancellationToken());
 
         list.Count.Should().Be(6);
@@ -41,11 +43,12 @@ public class PerRequestBehaviorTest
     public async Task Handle_WithBehaviorsが設定されていない場合は何も実行されない()
     {
         var list = new List<string>();
-        var factory = new ServiceFactory(type =>
+        var provider = Substitute.For<IServiceProvider>();
+        provider.GetService(Arg.Any<Type>()).Returns(ci =>
         {
-            return Activator.CreateInstance(type, list);
+            return Activator.CreateInstance(ci.Arg<Type>(), list);
         });
-        var perReq = new PerRequestBehavior<Req2, Res>(factory);
+        var perReq = new PerRequestBehavior<Req2, Res>(provider);
         await perReq.Handle(new Req2(), () => Task.FromResult(new Res()), new CancellationToken());
         list.Count.Should().Be(0);
     }
@@ -54,12 +57,19 @@ public class PerRequestBehaviorTest
     public async Task Handle_ServiceFactoryからインスタンスが返されないBehaviorはスキップされる()
     {
         var list = new List<string>();
-        var factory = new ServiceFactory(type =>
+        var provider = Substitute.For<IServiceProvider>();
+        provider.GetService(Arg.Any<Type>()).Returns(ci =>
         {
+            var type = ci.Arg<Type>();
             if (type == typeof(TestBehavior1<Req1, Res>)) return null;
             return Activator.CreateInstance(type, list);
         });
-        var perReq = new PerRequestBehavior<Req1, Res>(factory);
+        //var factory = new ServiceFactory(type =>
+        //{
+        //    if (type == typeof(TestBehavior1<Req1, Res>)) return null;
+        //    return Activator.CreateInstance(type, list);
+        //});
+        var perReq = new PerRequestBehavior<Req1, Res>(provider);
         await perReq.Handle(new Req1(), () => Task.FromResult(new Res()), new CancellationToken());
 
         list.Count.Should().Be(4);

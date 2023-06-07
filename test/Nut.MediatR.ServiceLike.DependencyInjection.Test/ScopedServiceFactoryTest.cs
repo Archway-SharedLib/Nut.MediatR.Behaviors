@@ -32,8 +32,8 @@ public class ScopedServiceFactoryTest
 
         using (var scope = new ScopedServiceFactory(provider.GetService<IServiceScopeFactory>()))
         {
-            innerTest1 = scope.Instance.GetInstance<Test>();
-            innerTest2 = scope.Instance.GetInstance<Test>();
+            innerTest1 = scope.Instance.GetService<Test>();
+            innerTest2 = scope.Instance.GetService<Test>();
 
             innerTest1.Should().Be(innerTest2);
             innerTest1.Should().NotBe(outerTest1);

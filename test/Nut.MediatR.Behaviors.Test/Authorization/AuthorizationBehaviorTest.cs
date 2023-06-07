@@ -5,6 +5,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using FluentAssertions;
 using MediatR;
+using NSubstitute;
 using Xunit;
 
 namespace Nut.MediatR.Test.Authorization;
@@ -22,15 +23,24 @@ public class AuthorizationBehaviorTest
     public async Task Handle_Requestに一致する全てのAuthorizerが実行される()
     {
         var list = new List<string>();
-        var factory = new ServiceFactory(type =>
+
+        var provider = Substitute.For<IServiceProvider>();
+        provider.GetService(typeof(IEnumerable<IAuthorizer<TestBehaviorRequest>>)).Returns(new IAuthorizer<TestBehaviorRequest>[]
         {
-            return new IAuthorizer<TestBehaviorRequest>[]
-            {
-                    new SuccessAuthorizer1(list),
-                    new SuccessAuthorizer2(list)
-            };
+                new SuccessAuthorizer1(list),
+                new SuccessAuthorizer2(list)
         });
-        var auth = new AuthorizationBehavior<TestBehaviorRequest, TestBehaviorResponse>(factory);
+
+        //var factory = new ServiceFactory(type =>
+        //{
+        //    return new IAuthorizer<TestBehaviorRequest>[]
+        //    {
+        //            new SuccessAuthorizer1(list),
+        //            new SuccessAuthorizer2(list)
+        //    };
+        //});
+        //var auth = new AuthorizationBehavior<TestBehaviorRequest, TestBehaviorResponse>(factory);
+        var auth = new AuthorizationBehavior<TestBehaviorRequest, TestBehaviorResponse>(provider);
         await auth.Handle(new TestBehaviorRequest(), () => Task.FromResult(new TestBehaviorResponse()), new CancellationToken());
 
         list.Count.Should().Be(2);
@@ -42,11 +52,14 @@ public class AuthorizationBehaviorTest
     public async Task Handle_RequestにするAuthorizerがnullの場合はなにも実行されない()
     {
         var list = new List<string>();
-        var factory = new ServiceFactory(type =>
-        {
-            return null;
-        });
-        var auth = new AuthorizationBehavior<TestBehaviorRequest, TestBehaviorResponse>(factory);
+        var provider = Substitute.For<IServiceProvider>();
+        provider.GetService(typeof(IEnumerable<IAuthorizer<TestBehaviorRequest>>)).Returns((IEnumerable<IAuthorizer<TestBehaviorRequest>>)null);
+        //var factory = new ServiceFactory(type =>
+        //{
+        //    return null;
+        //});
+        //var auth = new AuthorizationBehavior<TestBehaviorRequest, TestBehaviorResponse>(factory);
+        var auth = new AuthorizationBehavior<TestBehaviorRequest, TestBehaviorResponse>(provider);
         await auth.Handle(new TestBehaviorRequest(), () => Task.FromResult(new TestBehaviorResponse()), new CancellationToken());
 
         list.Should().BeEmpty();
@@ -56,11 +69,14 @@ public class AuthorizationBehaviorTest
     public async Task Handle_RequestにするAuthorizerが空の場合はなにも実行されない()
     {
         var list = new List<string>();
-        var factory = new ServiceFactory(type =>
-        {
-            return Enumerable.Empty<IAuthorizer<TestBehaviorRequest>>();
-        });
-        var auth = new AuthorizationBehavior<TestBehaviorRequest, TestBehaviorResponse>(factory);
+        var provider = Substitute.For<IServiceProvider>();
+        provider.GetService(typeof(IEnumerable<IAuthorizer<TestBehaviorRequest>>)).Returns(Enumerable.Empty<IAuthorizer<TestBehaviorRequest>>());
+        //var factory = new ServiceFactory(type =>
+        //{
+        //    return Enumerable.Empty<IAuthorizer<TestBehaviorRequest>>();
+        //});
+        //var auth = new AuthorizationBehavior<TestBehaviorRequest, TestBehaviorResponse>(factory);
+        var auth = new AuthorizationBehavior<TestBehaviorRequest, TestBehaviorResponse>(provider);
         await auth.Handle(new TestBehaviorRequest(), () => Task.FromResult(new TestBehaviorResponse()), new CancellationToken());
 
         list.Should().BeEmpty();
@@ -70,16 +86,24 @@ public class AuthorizationBehaviorTest
     public async Task Handle_Authorizerが途中で失敗した場合はそこで処理が止まりUnauthorizedExceptionが発行される()
     {
         var list = new List<string>();
-        var factory = new ServiceFactory(type =>
+        var provider = Substitute.For<IServiceProvider>();
+        provider.GetService(typeof(IEnumerable<IAuthorizer<TestBehaviorRequest>>)).Returns(new IAuthorizer<TestBehaviorRequest>[]
         {
-            return new IAuthorizer<TestBehaviorRequest>[]
-            {
-                    new SuccessAuthorizer1(list),
-                    new FailurAuthorizer1(list, "unauthorized!"),
-                    new SuccessAuthorizer2(list)
-            };
+                new SuccessAuthorizer1(list),
+                new FailurAuthorizer1(list, "unauthorized!"),
+                new SuccessAuthorizer2(list)
         });
-        var auth = new AuthorizationBehavior<TestBehaviorRequest, TestBehaviorResponse>(factory);
+        //var factory = new ServiceFactory(type =>
+        //{
+        //    return new IAuthorizer<TestBehaviorRequest>[]
+        //    {
+        //            new SuccessAuthorizer1(list),
+        //            new FailurAuthorizer1(list, "unauthorized!"),
+        //            new SuccessAuthorizer2(list)
+        //    };
+        //});
+        //var auth = new AuthorizationBehavior<TestBehaviorRequest, TestBehaviorResponse>(factory);
+        var auth = new AuthorizationBehavior<TestBehaviorRequest, TestBehaviorResponse>(provider);
         Func<Task> act = () => auth.Handle(new TestBehaviorRequest(), () => Task.FromResult(new TestBehaviorResponse()), new CancellationToken());
 
         await act.Should().ThrowAsync<UnauthorizedException>().WithMessage("unauthorized!");
@@ -94,14 +118,20 @@ public class AuthorizationBehaviorTest
     {
         using var cal = TestHelper.SetEnglishCulture();
         var list = new List<string>();
-        var factory = new ServiceFactory(type =>
+        var provider = Substitute.For<IServiceProvider>();
+        provider.GetService(typeof(IEnumerable<IAuthorizer<TestBehaviorRequest>>)).Returns(new IAuthorizer<TestBehaviorRequest>[]
         {
-            return new IAuthorizer<TestBehaviorRequest>[]
-            {
-                    new FailurAuthorizer1(list, string.Empty),
-            };
+                new FailurAuthorizer1(list, string.Empty),
         });
-        var auth = new AuthorizationBehavior<TestBehaviorRequest, TestBehaviorResponse>(factory);
+        //var factory = new ServiceFactory(type =>
+        //{
+        //    return new IAuthorizer<TestBehaviorRequest>[]
+        //    {
+        //            new FailurAuthorizer1(list, string.Empty),
+        //    };
+        //});
+        // var auth = new AuthorizationBehavior<TestBehaviorRequest, TestBehaviorResponse>(factory);
+        var auth = new AuthorizationBehavior<TestBehaviorRequest, TestBehaviorResponse>(provider);
         Func<Task> act = () => auth.Handle(new TestBehaviorRequest(), () => Task.FromResult(new TestBehaviorResponse()), new CancellationToken());
 
         await act.Should().ThrowAsync<UnauthorizedException>().WithMessage("Not authorized.");
@@ -114,16 +144,24 @@ public class AuthorizationBehaviorTest
     public async Task Handle_GetAuthorizerからnullが返ったら処理が実行されずそのまま終了する()
     {
         var list = new List<string>();
-        var factory = new ServiceFactory(type =>
+        var provider = Substitute.For<IServiceProvider>();
+        provider.GetService(typeof(IEnumerable<IAuthorizer<TestBehaviorRequest>>)).Returns(new IAuthorizer<TestBehaviorRequest>[]
         {
-            return new IAuthorizer<TestBehaviorRequest>[]
-            {
-                    new SuccessAuthorizer1(list),
-                    new FailurAuthorizer1(list, "unauthorized!"),
-                    new SuccessAuthorizer2(list)
-            };
+                new SuccessAuthorizer1(list),
+                new FailurAuthorizer1(list, "unauthorized!"),
+                new SuccessAuthorizer2(list)
         });
-        var auth = new NullAuthorizationBehavior<TestBehaviorRequest, TestBehaviorResponse>(factory);
+        //var factory = new ServiceFactory(type =>
+        //{
+        //    return new IAuthorizer<TestBehaviorRequest>[]
+        //    {
+        //            new SuccessAuthorizer1(list),
+        //            new FailurAuthorizer1(list, "unauthorized!"),
+        //            new SuccessAuthorizer2(list)
+        //    };
+        //});
+        //var auth = new NullAuthorizationBehavior<TestBehaviorRequest, TestBehaviorResponse>(factory);
+        var auth = new NullAuthorizationBehavior<TestBehaviorRequest, TestBehaviorResponse>(provider);
         await auth.Handle(new TestBehaviorRequest(), () => Task.FromResult(new TestBehaviorResponse()), new CancellationToken());
 
         list.Should().BeEmpty();
@@ -132,7 +170,7 @@ public class AuthorizationBehaviorTest
 
 public class NullAuthorizationBehavior<TRequest, TResponse> : AuthorizationBehavior<TRequest, TResponse> where TRequest : IRequest<TResponse>
 {
-    public NullAuthorizationBehavior(ServiceFactory serviceFactory) : base(serviceFactory)
+    public NullAuthorizationBehavior(IServiceProvider serviceProvider) : base(serviceProvider)
     {
     }
 

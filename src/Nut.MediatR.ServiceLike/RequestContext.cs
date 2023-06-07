@@ -14,9 +14,9 @@ public class RequestContext
     /// </summary>
     /// <param name="path">送信する先のサービスのパス</param>
     /// <param name="mediatorParameterType">呼び出し先のパラメーターの型</param>
-    /// <param name="serviceFactory">送信先を取得するための <see cref="ServiceFactory"/></param>
+    /// <param name="serviceProvider">送信先を取得するための <see cref="ServiceProvider"/></param>
     /// <param name="clientResultType">呼び出し元の戻り値の型</param>
-    public RequestContext(string path, Type mediatorParameterType, ServiceFactory serviceFactory, Type? clientResultType = null)
+    public RequestContext(string path, Type mediatorParameterType, IServiceProvider serviceProvider, Type? clientResultType = null)
     {
         if (string.IsNullOrWhiteSpace(path))
         {
@@ -24,7 +24,7 @@ public class RequestContext
         }
         Path = path;
         MediatorParameterType = mediatorParameterType ?? throw new ArgumentNullException(nameof(mediatorParameterType));
-        ServiceFactory = serviceFactory ?? throw new ArgumentNullException(nameof(serviceFactory));
+        ServiceProvider = serviceProvider ?? throw new ArgumentNullException(nameof(serviceProvider));
         ClientResultType = clientResultType;
     }
 
@@ -49,7 +49,7 @@ public class RequestContext
     public bool NeedClientResult => ClientResultType is not null;
 
     /// <summary>
-    /// <see cref="ServiceFactory"/> を取得します。
+    /// <see cref="ServiceProvider"/> を取得します。
     /// </summary>
-    public ServiceFactory ServiceFactory { get; }
+    public IServiceProvider ServiceProvider { get; }
 }

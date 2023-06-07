@@ -11,5 +11,5 @@ public interface IScoepedServiceFactory : IDisposable
     /// <summary>
     /// インスタンスを取得します。
     /// </summary>
-    ServiceFactory Instance { get; }
+    IServiceProvider Instance { get; }
 }

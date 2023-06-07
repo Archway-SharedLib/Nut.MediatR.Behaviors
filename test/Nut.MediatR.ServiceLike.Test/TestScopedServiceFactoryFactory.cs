@@ -6,28 +6,28 @@ namespace Nut.MediatR.ServiceLike.Test;
 
 internal class InternalScopedServiceFactoryFactory : IScopedServiceFactoryFactory
 {
-    private readonly ServiceFactory _serviceFactory;
+    private readonly IServiceProvider _serviceProvider;
 
-    public InternalScopedServiceFactoryFactory(ServiceFactory serviceFactory)
+    public InternalScopedServiceFactoryFactory(IServiceProvider serviceProvider)
     {
-        _serviceFactory = serviceFactory ?? throw new ArgumentNullException(nameof(serviceFactory));
+        _serviceProvider = serviceProvider ?? throw new ArgumentNullException(nameof(serviceProvider));
     }
 
-    public IScoepedServiceFactory Create() => new InternalScopedServiceFactory(_serviceFactory);
+    public IScoepedServiceFactory Create() => new InternalScopedServiceFactory(_serviceProvider);
 }
 
 internal class InternalScopedServiceFactory : IScoepedServiceFactory
 {
-    public InternalScopedServiceFactory(ServiceFactory serviceFactory)
+    public InternalScopedServiceFactory(IServiceProvider serviceProvider)
     {
-        Instance = serviceFactory ?? throw new ArgumentNullException(nameof(serviceFactory));
+        Instance = serviceProvider ?? throw new ArgumentNullException(nameof(serviceProvider));
     }
 
     public void Dispose()
     {
     }
 
-    public ServiceFactory Instance { get; }
+    public IServiceProvider Instance { get; }
 }
 
 public class TestScopedServiceFactoryFactory: IScopedServiceFactoryFactory
@@ -51,9 +51,9 @@ public class TestScopedServiceFactory: IScoepedServiceFactory
     public TestScopedServiceFactory(ServiceProvider provider)
     {
         _scope = provider.CreateScope();
-        Instance = _scope.ServiceProvider.GetService;
+        Instance = _scope.ServiceProvider;
     }
-    public ServiceFactory Instance { get; }
+    public IServiceProvider Instance { get; }
 
     public void Dispose()
     {

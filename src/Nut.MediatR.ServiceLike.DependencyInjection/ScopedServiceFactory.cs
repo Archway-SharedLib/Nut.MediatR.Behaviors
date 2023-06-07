@@ -12,7 +12,7 @@ internal class ScopedServiceFactory : IScoepedServiceFactory
     {
         if (scopeFactory is null) throw new ArgumentNullException(nameof(scopeFactory));
         _scope = scopeFactory.CreateScope();
-        Instance = _scope.ServiceProvider.GetService;
+        Instance = _scope.ServiceProvider;
     }
 
     public void Dispose()
@@ -20,5 +20,5 @@ internal class ScopedServiceFactory : IScoepedServiceFactory
         if (_scope is not null) _scope.Dispose();
     }
 
-    public ServiceFactory Instance { get; }
+    public IServiceProvider Instance { get; }
 }

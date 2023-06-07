@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text.Json;
 using System.Threading.Tasks;
 using MediatR;
+using Microsoft.Extensions.DependencyInjection;
 using Nut.MediatR.ServiceLike.Internals;
 using SR = Nut.MediatR.ServiceLike.Resources.Strings;
 
@@ -17,7 +18,7 @@ public class DefaultMediatorClient : IMediatorClient
     private readonly IMediator _mediator;
     private readonly ServiceRegistry _serviceRegistry;
     private readonly ListenerRegistry _listenerRegistry;
-    private readonly ServiceFactory _factory;
+    private readonly IServiceProvider _provider;
     private readonly IScopedServiceFactoryFactory _scopedServiceFactoryFactory;
     private readonly ServiceLikeLoggerWrapper _logger;
 
@@ -26,19 +27,19 @@ public class DefaultMediatorClient : IMediatorClient
     /// </summary>
     /// <param name="serviceRegistry">サービスが登録されている<see cref="ServiceRegistry"/></param>
     /// <param name="eventRegistry">イベントリスナーが登録されている<see cref="ListenerRegistry"/></param>
-    /// <param name="serviceFactory">サービスを取得するための <see cref="ServiceFactory"/></param>
+    /// <param name="serviceProvider">サービスを取得するための <see cref="ServiceFactory"/></param>
     /// <param name="scopedServiceFactoryFactory"><see cref="IScoepedServiceFactory"/>を作成する <see cref="IScopedServiceFactoryFactory"/></param>
     /// <param name="logger">ログ出力を行う <see cref="IServiceLikeLogger"/></param>
     public DefaultMediatorClient(ServiceRegistry serviceRegistry, ListenerRegistry eventRegistry,
-        ServiceFactory serviceFactory, IScopedServiceFactoryFactory scopedServiceFactoryFactory,
+        IServiceProvider serviceProvider, IScopedServiceFactoryFactory scopedServiceFactoryFactory,
         IServiceLikeLogger logger)
     {
-        _factory = serviceFactory ?? throw new ArgumentNullException(nameof(serviceFactory)); ;
+        _provider = serviceProvider ?? throw new ArgumentNullException(nameof(serviceProvider)); ;
         _serviceRegistry = serviceRegistry ?? throw new ArgumentNullException(nameof(serviceRegistry));
         _listenerRegistry = eventRegistry ?? throw new ArgumentNullException(nameof(eventRegistry));
         _scopedServiceFactoryFactory = scopedServiceFactoryFactory ?? throw new ArgumentNullException(nameof(scopedServiceFactoryFactory));
         _logger = new ServiceLikeLoggerWrapper(logger);
-        _mediator = new Mediator(serviceFactory);
+        _mediator = new Mediator(serviceProvider);
     }
 
     /// <summary>
@@ -76,7 +77,7 @@ public class DefaultMediatorClient : IMediatorClient
         }
         var value = TranslateType(request, mediatorRequest.ServiceType);
 
-        var context = new RequestContext(mediatorRequest.Path, mediatorRequest.ServiceType, _factory, resultType);
+        var context = new RequestContext(mediatorRequest.Path, mediatorRequest.ServiceType, _provider, resultType);
 
         return await ExecuteAsync(new Queue<Type>(mediatorRequest.Filters), value, context).ConfigureAwait(false);
     }
@@ -164,7 +165,7 @@ public class DefaultMediatorClient : IMediatorClient
                         var scope = _scopedServiceFactoryFactory.Create();
                         scopeHolder.Add(scope);
 
-                        var contextAccessors = scope.Instance.GetInstances<IServiceLikeContextAccessor>().ToList();
+                        var contextAccessors = scope.Instance.GetServices<IServiceLikeContextAccessor>().ToList();
                         if (contextAccessors.Any())
                         {
                             contextAccessors.First().Context = context;

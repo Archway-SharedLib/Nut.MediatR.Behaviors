@@ -20,7 +20,7 @@ class Program
             {
                 config.AddConsole();
             })
-            .AddMediatR(typeof(Program))
+            .AddMediatR(cfg => cfg.RegisterServicesFromAssembly(typeof(Program).Assembly))
             .AddMediatRServiceLike(typeof(Program).Assembly, typeof(ExceptionFilter))
             .BuildServiceProvider();
 

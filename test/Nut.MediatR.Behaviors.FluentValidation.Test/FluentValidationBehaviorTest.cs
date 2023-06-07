@@ -4,7 +4,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using FluentAssertions;
 using FluentValidation;
-using MediatR;
+using NSubstitute;
 using Xunit;
 
 namespace Nut.MediatR.Behaviors.FluentValidation.Test;
@@ -21,9 +21,12 @@ public class FluentValidationBehaviorTest
     [Fact]
     public async Task Handle_バリデータが空の場合はそのまま実行される()
     {
+        var provider = Substitute.For<IServiceProvider>();
+        provider.GetService(typeof(IEnumerable<IValidator<TestBehaviorRequest>>)).Returns(new List<IValidator<TestBehaviorRequest>>());
+
         var executed = false;
         var behavior = new FluentValidationBehavior<TestBehaviorRequest, TestBehaviorResponse>(
-            new ServiceFactory(_ => new List<IValidator<TestBehaviorRequest>>()));
+            provider);
         await behavior.Handle(
             new TestBehaviorRequest(),
             () =>
@@ -38,9 +41,12 @@ public class FluentValidationBehaviorTest
     [Fact]
     public async Task Handle_バリデータがnullの場合はそのまま実行される()
     {
+        var provider = Substitute.For<IServiceProvider>();
+        provider.GetService(typeof(IEnumerable<IValidator<TestBehaviorRequest>>)).Returns((IEnumerable<IValidator<TestBehaviorRequest>>)null);
+
         var executed = false;
         var behavior = new FluentValidationBehavior<TestBehaviorRequest, TestBehaviorResponse>(
-            new ServiceFactory(_ => null));
+            provider);
         await behavior.Handle(
             new TestBehaviorRequest(),
             () =>
@@ -55,9 +61,12 @@ public class FluentValidationBehaviorTest
     [Fact]
     public async Task Handle_バリデーションが実行されてエラーがある場合は例外が発生する()
     {
+        var provider = Substitute.For<IServiceProvider>();
+        provider.GetService(typeof(IEnumerable<IValidator<TestBehaviorRequest>>)).Returns(new List<IValidator<TestBehaviorRequest>>() { new Validator1() });
+
         var executed = false;
         var behavior = new FluentValidationBehavior<TestBehaviorRequest, TestBehaviorResponse>(
-            new ServiceFactory(_ => new List<IValidator<TestBehaviorRequest>>() { new Validator1() }));
+            provider);
         Func<Task> act = () => behavior.Handle(
             new TestBehaviorRequest(),
             () =>
@@ -74,9 +83,12 @@ public class FluentValidationBehaviorTest
     [Fact]
     public async Task Handle_バリデーションが実行されてエラーがない場合は処理が継続する()
     {
+        var provider = Substitute.For<IServiceProvider>();
+        provider.GetService(typeof(IEnumerable<IValidator<TestBehaviorRequest>>)).Returns(new List<IValidator<TestBehaviorRequest>>() { new Validator1() });
+
         var executed = false;
         var behavior = new FluentValidationBehavior<TestBehaviorRequest, TestBehaviorResponse>(
-            new ServiceFactory(_ => new List<IValidator<TestBehaviorRequest>>() { new Validator1() }));
+            provider);
         await behavior.Handle(
             new TestBehaviorRequest() { Name = "A" },
             () =>
@@ -90,9 +102,12 @@ public class FluentValidationBehaviorTest
     [Fact]
     public async Task Handle_複数バリデーションがある場合は全て実行されてエラーがある場合はマージされる()
     {
+        var provider = Substitute.For<IServiceProvider>();
+        provider.GetService(typeof(IEnumerable<IValidator<TestBehaviorRequest>>)).Returns(new List<IValidator<TestBehaviorRequest>>() { new Validator1(), new Validator2() });
+
         var executed = false;
         var behavior = new FluentValidationBehavior<TestBehaviorRequest, TestBehaviorResponse>(
-            new ServiceFactory(_ => new List<IValidator<TestBehaviorRequest>>() { new Validator1(), new Validator2() }));
+            provider);
         Func<Task> act = () => behavior.Handle(
             new TestBehaviorRequest(),
             () =>

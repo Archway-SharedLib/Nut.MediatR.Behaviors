@@ -4,6 +4,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using FluentValidation;
 using MediatR;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace Nut.MediatR;
 
@@ -14,14 +15,14 @@ namespace Nut.MediatR;
 /// <typeparam name="TResponse">レスポンスの型</typeparam>
 public class FluentValidationBehavior<TRequest, TResponse> : IPipelineBehavior<TRequest, TResponse> where TRequest : IRequest<TResponse>
 {
-    private readonly ServiceFactory _serviceFactory;
+    private readonly IServiceProvider _serviceProvider;
 
     /// <summary>
     /// インスタンスを初期化します。
     /// </summary>
-    public FluentValidationBehavior(ServiceFactory serviceFactory)
+    public FluentValidationBehavior(IServiceProvider serviceProvider)
     {
-        _serviceFactory = serviceFactory ?? throw new ArgumentNullException(nameof(serviceFactory));
+        _serviceProvider = serviceProvider ?? throw new ArgumentNullException(nameof(serviceProvider));
     }
 
     /// <summary>
@@ -33,7 +34,7 @@ public class FluentValidationBehavior<TRequest, TResponse> : IPipelineBehavior<T
     /// <returns>処理の結果</returns>
     public async Task<TResponse> Handle(TRequest request, RequestHandlerDelegate<TResponse> next, CancellationToken cancellationToken)
     {
-        var validators = _serviceFactory.GetInstances<IValidator<TRequest>>();
+        var validators = _serviceProvider.GetServicesOrEmpty<IValidator<TRequest>>();
         if (validators?.Any() == true)
         {
             var validationResults = await Task.WhenAll(validators.Select(v => v.ValidateAsync(new ValidationContext<TRequest>(request), cancellationToken))).ConfigureAwait(false);

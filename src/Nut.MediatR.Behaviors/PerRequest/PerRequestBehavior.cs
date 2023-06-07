@@ -15,15 +15,15 @@ namespace Nut.MediatR;
 /// <typeparam name="TResponse">レスポンスの型</typeparam>
 public class PerRequestBehavior<TRequest, TResponse> : IPipelineBehavior<TRequest, TResponse> where TRequest : IRequest<TResponse>
 {
-    private readonly ServiceFactory _factory;
+    private readonly IServiceProvider _provider;
 
     /// <summary>
-    /// <see cref="ServiceFactory"/> を指定してインスタンスを初期化します。
+    /// <see cref="IServiceProvider"/> を指定してインスタンスを初期化します。
     /// </summary>
-    /// <param name="factory">サービスを取得する <see cref="ServiceFactory"/></param>
-    public PerRequestBehavior(ServiceFactory factory)
+    /// <param name="provider">サービスを取得する <see cref="IServiceProvider"/></param>
+    public PerRequestBehavior(IServiceProvider provider)
     {
-        _factory = factory ?? throw new ArgumentNullException(nameof(factory));
+        _provider = provider ?? throw new ArgumentNullException(nameof(provider));
     }
 
     /// <summary>
@@ -44,7 +44,7 @@ public class PerRequestBehavior<TRequest, TResponse> : IPipelineBehavior<TReques
         if (!types.Any()) return await next.Invoke().ConfigureAwait(false);
         var type = types[0];
         types.RemoveAt(0);
-        if (_factory(type) is not IPipelineBehavior<TRequest, TResponse> service)
+        if (_provider.GetService(type) is not IPipelineBehavior<TRequest, TResponse> service)
         {
             return await ExecuteBehaviors(types, request, next, cancellationToken).ConfigureAwait(false);
         }

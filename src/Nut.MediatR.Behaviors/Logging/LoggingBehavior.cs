@@ -4,6 +4,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using MediatR;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace Nut.MediatR;
 
@@ -15,17 +16,17 @@ namespace Nut.MediatR;
 public class LoggingBehavior<TRequest, TResponse> : IPipelineBehavior<TRequest, TResponse> where TRequest : IRequest<TResponse>
 {
     /// <summary>
-    /// <see cref="ServiceFactory"/> を取得します。
+    /// <see cref="ServiceProvider"/> を取得します。
     /// </summary>
-    protected ServiceFactory ServiceFactory { get; }
+    protected IServiceProvider ServiceProvider { get; }
 
     /// <summary>
     /// インスタンスを初期化します。
     /// </summary>
-    /// <param name="serviceFactory">サービスを取得する <see cref="ServiceFactory"/></param>
-    public LoggingBehavior(ServiceFactory serviceFactory)
+    /// <param name="serviceProvider">サービスを取得する <see cref="ServiceProvider"/></param>
+    public LoggingBehavior(IServiceProvider serviceProvider)
     {
-        ServiceFactory = serviceFactory ?? throw new ArgumentNullException(nameof(serviceFactory));
+        ServiceProvider = serviceProvider ?? throw new ArgumentNullException(nameof(serviceProvider));
     }
 
     /// <summary>
@@ -43,13 +44,13 @@ public class LoggingBehavior<TRequest, TResponse> : IPipelineBehavior<TRequest, 
     /// <returns>処理結果</returns>
     public async Task<TResponse> Handle(TRequest request, RequestHandlerDelegate<TResponse> next, CancellationToken cancellationToken)
     {
-        var logger = ServiceFactory.GetInstanceOrDefault<ILogger<LoggingBehavior<TRequest, TResponse>>>();
+        var logger = ServiceProvider.GetFirstServiceOrDefault<ILogger<LoggingBehavior<TRequest, TResponse>>>();
         if (logger is null)
         {
             return await next().ConfigureAwait(false);
         }
 
-        var collector = ServiceFactory.GetInstanceOrDefault<ILoggingInOutValueCollector<TRequest, TResponse>>()
+        var collector = ServiceProvider.GetFirstServiceOrDefault<ILoggingInOutValueCollector<TRequest, TResponse>>()
             ?? GetDefaultCollector();
 
         var inValue = collector is not null ?

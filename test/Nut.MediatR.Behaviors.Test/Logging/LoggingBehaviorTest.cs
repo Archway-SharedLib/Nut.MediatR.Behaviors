@@ -25,7 +25,9 @@ public class LoggingBehaviorTest
     public async Task Handle_Loggerが取得できなかった場合は処理が実行されずに終了する()
     {
         var logger = new TestLogger<LoggingBehavior<TestBehaviorRequest, TestBehaviorResponse>>();
-        var logging = new LoggingBehavior<TestBehaviorRequest, TestBehaviorResponse>(new ServiceFactory(_ => null));
+        var provider = Substitute.For<IServiceProvider>();
+        provider.GetService(Arg.Any<Type>()).Returns(null);
+        var logging = new LoggingBehavior<TestBehaviorRequest, TestBehaviorResponse>(provider); //new ServiceFactory(_ => null));
 
         var executed = false;
         await logging.Handle(new TestBehaviorRequest(), () =>
@@ -41,15 +43,18 @@ public class LoggingBehaviorTest
     {
         var logger = new TestLogger<LoggingBehavior<TestBehaviorRequest, TestBehaviorResponse>>();
 
-        var logging = new LoggingBehavior<TestBehaviorRequest, TestBehaviorResponse>(new ServiceFactory(type =>
-        {
-            return type.GenericTypeArguments[0].GetGenericTypeDefinition() == typeof(ILogger<>) ?
-                     new List<ILogger<LoggingBehavior<TestBehaviorRequest, TestBehaviorResponse>>>()
-                     {
-                        (ILogger<LoggingBehavior<TestBehaviorRequest, TestBehaviorResponse>>)logger
-                     } :
-                     new List<ILoggingInOutValueCollector<TestBehaviorRequest, TestBehaviorResponse>>();
-        }));
+        var provider = Substitute.For<IServiceProvider>();
+        provider.GetService(Arg.Any<Type>())
+            .Returns(ci =>
+            {
+                return ci.Arg<Type>().GenericTypeArguments[0].GetGenericTypeDefinition() == typeof(ILogger<>) ?
+                 new List<ILogger<LoggingBehavior<TestBehaviorRequest, TestBehaviorResponse>>>()
+                 {
+                    logger
+                 } :
+                 new List<ILoggingInOutValueCollector<TestBehaviorRequest, TestBehaviorResponse>>();
+            });
+        var logging = new LoggingBehavior<TestBehaviorRequest, TestBehaviorResponse>(provider);
         await logging.Handle(new TestBehaviorRequest(), () =>
         {
             logger.Logs.Should().HaveCount(1);
@@ -71,17 +76,18 @@ public class LoggingBehaviorTest
     public async Task Handle_InOutValueCollectorが設定されている場合は値も出力される()
     {
         var logger = new TestLogger<LoggingBehavior<TestBehaviorRequest, TestBehaviorResponse>>();
-
-        var logging = new LoggingBehavior<TestBehaviorRequest, TestBehaviorResponse>(
-            new ServiceFactory(type =>
+        var provider = Substitute.For<IServiceProvider>();
+        provider.GetService(Arg.Any<Type>())
+            .Returns(ci =>
             {
-                return type.GenericTypeArguments[0].GetGenericTypeDefinition() == typeof(ILogger<>) ?
-                     new List<ILogger<LoggingBehavior<TestBehaviorRequest, TestBehaviorResponse>>>()
-                     {
-                        (ILogger<LoggingBehavior<TestBehaviorRequest, TestBehaviorResponse>>)logger
-                     } :
-                     new List<ILoggingInOutValueCollector<TestBehaviorRequest, TestBehaviorResponse>>() { new TestLoggingInOutValueCollector1() };
-            }));
+                return ci.Arg<Type>().GenericTypeArguments[0].GetGenericTypeDefinition() == typeof(ILogger<>) ?
+                 new List<ILogger<LoggingBehavior<TestBehaviorRequest, TestBehaviorResponse>>>()
+                 {
+                    logger
+                 } :
+                 new List<ILoggingInOutValueCollector<TestBehaviorRequest, TestBehaviorResponse>>() { new TestLoggingInOutValueCollector1() };
+            });
+        var logging = new LoggingBehavior<TestBehaviorRequest, TestBehaviorResponse>(provider);
 
         await logging.Handle(new TestBehaviorRequest() { Value = "A" }, () =>
          {
@@ -101,17 +107,18 @@ public class LoggingBehaviorTest
     public async Task Handle_InOutValueCollectorが設定されていても結果がEmptyの場合は値は出力されない()
     {
         var logger = new TestLogger<LoggingBehavior<TestBehaviorRequest, TestBehaviorResponse>>();
-
-        var logging = new LoggingBehavior<TestBehaviorRequest, TestBehaviorResponse>(
-            new ServiceFactory(type =>
+        var provider = Substitute.For<IServiceProvider>();
+        provider.GetService(Arg.Any<Type>())
+            .Returns(ci =>
             {
-               return type.GenericTypeArguments[0].GetGenericTypeDefinition() == typeof(ILogger<>) ?
-                    new List<ILogger<LoggingBehavior<TestBehaviorRequest, TestBehaviorResponse>>>()
-                    {
-                        (ILogger<LoggingBehavior<TestBehaviorRequest, TestBehaviorResponse>>)logger
-                    } :
-                    new List<ILoggingInOutValueCollector<TestBehaviorRequest, TestBehaviorResponse>>() { new TestLoggingInOutValueCollector2() };
-            }));
+                return ci.Arg<Type>().GenericTypeArguments[0].GetGenericTypeDefinition() == typeof(ILogger<>) ?
+                 new List<ILogger<LoggingBehavior<TestBehaviorRequest, TestBehaviorResponse>>>()
+                 {
+                    logger
+                 } :
+                 new List<ILoggingInOutValueCollector<TestBehaviorRequest, TestBehaviorResponse>>() { new TestLoggingInOutValueCollector2() };
+            });
+        var logging = new LoggingBehavior<TestBehaviorRequest, TestBehaviorResponse>(provider);
         await logging.Handle(new TestBehaviorRequest() { Value = "A" }, () =>
         {
             logger.Logs.Should().HaveCount(1);
@@ -130,17 +137,18 @@ public class LoggingBehaviorTest
     public async Task Handle_InOutValueCollectorが設定されていても結果がNullの場合は値は出力されない()
     {
         var logger = new TestLogger<LoggingBehavior<TestBehaviorRequest, TestBehaviorResponse>>();
-
-        var logging = new LoggingBehavior<TestBehaviorRequest, TestBehaviorResponse>(
-            new ServiceFactory(type =>
+        var provider = Substitute.For<IServiceProvider>();
+        provider.GetService(Arg.Any<Type>())
+            .Returns(ci =>
             {
-                return type.GenericTypeArguments[0].GetGenericTypeDefinition() == typeof(ILogger<>) ?
-                     new List<ILogger<LoggingBehavior<TestBehaviorRequest, TestBehaviorResponse>>>()
-                     {
-                        (ILogger<LoggingBehavior<TestBehaviorRequest, TestBehaviorResponse>>)logger
-                     } :
-                     new List<ILoggingInOutValueCollector<TestBehaviorRequest, TestBehaviorResponse>>() { new TestLoggingInOutValueCollector3() };
-            }));
+                return ci.Arg<Type>().GenericTypeArguments[0].GetGenericTypeDefinition() == typeof(ILogger<>) ?
+                 new List<ILogger<LoggingBehavior<TestBehaviorRequest, TestBehaviorResponse>>>()
+                 {
+                    logger
+                 } :
+                 new List<ILoggingInOutValueCollector<TestBehaviorRequest, TestBehaviorResponse>>() { new TestLoggingInOutValueCollector3() };
+            });
+        var logging = new LoggingBehavior<TestBehaviorRequest, TestBehaviorResponse>(provider);
         await logging.Handle(new TestBehaviorRequest() { Value = "A" }, () =>
         {
             logger.Logs.Should().HaveCount(1);
@@ -159,16 +167,18 @@ public class LoggingBehaviorTest
     public async Task Handle_例外が発生した場合は例外も出力しそのままリスローする()
     {
         var logger = new TestLogger<LoggingBehavior<TestBehaviorRequest, TestBehaviorResponse>>();
-
-        var logging = new LoggingBehavior<TestBehaviorRequest, TestBehaviorResponse>(new ServiceFactory(type =>
-        {
-            return type.GenericTypeArguments[0].GetGenericTypeDefinition() == typeof(ILogger<>) ?
-                     new List<ILogger<LoggingBehavior<TestBehaviorRequest, TestBehaviorResponse>>>()
-                     {
-                        logger
-                     } :
-                     null;
-        }));
+        var provider = Substitute.For<IServiceProvider>();
+        provider.GetService(Arg.Any<Type>())
+            .Returns(ci =>
+            {
+                return ci.Arg<Type>().GenericTypeArguments[0].GetGenericTypeDefinition() == typeof(ILogger<>) ?
+                 new List<ILogger<LoggingBehavior<TestBehaviorRequest, TestBehaviorResponse>>>()
+                 {
+                    logger
+                 } :
+                 null;
+            });
+        var logging = new LoggingBehavior<TestBehaviorRequest, TestBehaviorResponse>(provider);
         Func<Task> act = () => logging.Handle(new TestBehaviorRequest() { Value = "A" }, () =>
         {
             logger.Logs.Should().HaveCount(1);
@@ -189,16 +199,18 @@ public class LoggingBehaviorTest
     public async Task Handle_ServiceFacotryからCollectorが取得できないときにDefaultCollectorが利用される()
     {
         var logger = new TestLogger<LoggingBehavior<TestBehaviorRequest, TestBehaviorResponse>>();
-
-        var logging = new TestLoggingBehavior<TestBehaviorRequest, TestBehaviorResponse>(new ServiceFactory(type =>
-        {
-            return type.GenericTypeArguments[0].GetGenericTypeDefinition() == typeof(ILogger<>) ?
-                     new List<ILogger<LoggingBehavior<TestBehaviorRequest, TestBehaviorResponse>>>()
-                     {
-                        (ILogger<LoggingBehavior<TestBehaviorRequest, TestBehaviorResponse>>)logger
-                     } :
-                     null;
-        }));
+        var provider = Substitute.For<IServiceProvider>();
+        provider.GetService(Arg.Any<Type>())
+            .Returns(ci =>
+            {
+                return ci.Arg<Type>().GenericTypeArguments[0].GetGenericTypeDefinition() == typeof(ILogger<>) ?
+                 new List<ILogger<LoggingBehavior<TestBehaviorRequest, TestBehaviorResponse>>>()
+                 {
+                    logger
+                 } :
+                 null;
+            });
+        var logging = new TestLoggingBehavior<TestBehaviorRequest, TestBehaviorResponse>(provider);
 
         logging.Collector.ExecutedInValueAsync.Should().BeFalse();
         logging.Collector.ExecutedOutValueAsync.Should().BeFalse();
@@ -222,7 +234,7 @@ public class TestLoggingBehavior<TRequest, TResponse> : LoggingBehavior<TRequest
 
     public bool ExecutedGetDefaultCollector { get; private set; } = false;
 
-    public TestLoggingBehavior(ServiceFactory serviceFactory) : base(serviceFactory)
+    public TestLoggingBehavior(IServiceProvider serviceProvider) : base(serviceProvider)
     {
     }
 

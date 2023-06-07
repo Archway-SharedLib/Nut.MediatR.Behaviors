@@ -21,8 +21,8 @@ public static class ServiceCollectionExtensions
     /// <returns>元となった <see cref="IServiceCollection" /></returns>
     public static IServiceCollection AddMediatRServiceLike(this IServiceCollection services, Assembly assembly, params Type[] filterTypes)
     {
-        if (!(services.LastOrDefault(s => s.ServiceType == typeof(ServiceRegistry))?
-            .ImplementationInstance is ServiceRegistry serviceRegistry))
+        if (services.LastOrDefault(s => s.ServiceType == typeof(ServiceRegistry))?
+            .ImplementationInstance is not ServiceRegistry serviceRegistry)
         {
             serviceRegistry = new ServiceRegistry();
         }
@@ -35,8 +35,8 @@ public static class ServiceCollectionExtensions
             serviceRegistry.Add(serviceDescription, true, filterTypes);
         }
 
-        if (!(services.LastOrDefault(s => s.ServiceType == typeof(ListenerRegistry))?
-            .ImplementationInstance is ListenerRegistry listenerRegistry))
+        if (services.LastOrDefault(s => s.ServiceType == typeof(ListenerRegistry))?
+            .ImplementationInstance is not ListenerRegistry listenerRegistry)
         {
             listenerRegistry = new ListenerRegistry();
         }
@@ -55,14 +55,13 @@ public static class ServiceCollectionExtensions
         {
             var servRegistry = provider.GetService<ServiceRegistry>()!;
             var lisRegistry = provider.GetService<ListenerRegistry>()!;
-            var serviceFactory = provider.GetService<ServiceFactory>()!;
             var scopedServiceFactoryFactory = new ScopedServiceFactoryFactory(provider.GetService<IServiceScopeFactory>()!);
             var serviceLikeLogger = provider.GetService<IServiceLikeLogger>()!;
 
             return new DefaultMediatorClient(
                 servRegistry,
                 lisRegistry,
-                serviceFactory,
+                provider,
                 scopedServiceFactoryFactory,
                 serviceLikeLogger);
         });

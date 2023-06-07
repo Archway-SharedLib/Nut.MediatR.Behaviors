@@ -19,7 +19,7 @@ class Program
                 config.AddConsole();
             })
             .AddValidatorsFromAssemblies(new[] { typeof(Program).Assembly })
-            .AddMediatR(typeof(Program))
+            .AddMediatR(cfg => cfg.RegisterServicesFromAssemblies(typeof(Program).Assembly))
             // MediatRから呼べるようにPreRequestBehaviorを登録する
             .AddTransient(typeof(IPipelineBehavior<,>), typeof(PerRequestBehavior<,>))
             // PreRequestBehaviorから利用するBehaviorは直接型でインスタンスを取得するので、IPipelineBehavior経由にしない。

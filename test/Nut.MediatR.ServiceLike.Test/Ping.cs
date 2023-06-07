@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using MediatR;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace Nut.MediatR.ServiceLike.Test;
 
@@ -98,7 +99,7 @@ public class VoidServicePingHandler : IRequestHandler<VoidServicePing>
     {
         _check = check;
     }
-    public Task<Unit> Handle(VoidServicePing request, CancellationToken cancellationToken)
+    public Task Handle(VoidServicePing request, CancellationToken cancellationToken)
     {
         _check.Executed = true;
         return Unit.Task;
@@ -109,7 +110,7 @@ public class Filter1 : IMediatorServiceFilter
 {
     public async Task<object> HandleAsync(RequestContext context, object parameter, Func<object, Task<object>> next)
     {
-        var check = context.ServiceFactory.GetInstance<FilterExecutionCheck>();
+        var check = context.ServiceProvider.GetService<FilterExecutionCheck>();
         check.Checks.Add("1");
         return await next(parameter);
     }
@@ -119,7 +120,7 @@ public class Filter2 : IMediatorServiceFilter
 {
     public async Task<object> HandleAsync(RequestContext context, object parameter, Func<object, Task<object>> next)
     {
-        var check = context.ServiceFactory.GetInstance<FilterExecutionCheck>();
+        var check = context.ServiceProvider.GetService<FilterExecutionCheck>();
         check.Checks.Add("2");
         return await next(parameter);
     }
@@ -129,7 +130,7 @@ public class Filter3 : IMediatorServiceFilter
 {
     public async Task<object> HandleAsync(RequestContext context, object parameter, Func<object, Task<object>> next)
     {
-        var check = context.ServiceFactory.GetInstance<FilterExecutionCheck>();
+        var check = context.ServiceProvider.GetService<FilterExecutionCheck>();
         check.Checks.Add("3");
         return await next(parameter);
     }
@@ -139,7 +140,7 @@ public class Filter4 : IMediatorServiceFilter
 {
     public async Task<object> HandleAsync(RequestContext context, object parameter, Func<object, Task<object>> next)
     {
-        var check = context.ServiceFactory.GetInstance<FilterExecutionCheck>();
+        var check = context.ServiceProvider.GetService<FilterExecutionCheck>();
         check.Checks.Add("4");
         return await next(parameter);
     }
