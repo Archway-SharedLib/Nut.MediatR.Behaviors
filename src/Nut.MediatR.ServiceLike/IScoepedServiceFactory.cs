@@ -4,7 +4,7 @@ using MediatR;
 namespace Nut.MediatR.ServiceLike;
 
 /// <summary>
-/// スコープで限定された <see cref="ServiceFactory"/>
+/// スコープで限定された <see cref="IServiceProvider"/>
 /// </summary>
 public interface IScoepedServiceFactory : IDisposable
 {

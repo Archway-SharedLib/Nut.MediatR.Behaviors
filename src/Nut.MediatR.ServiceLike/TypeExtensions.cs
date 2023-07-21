@@ -46,11 +46,11 @@ internal static class TypeExtensions
 
     public static ConstructorInfo GetDefaultConstructor(this Type type) => type.GetConstructor(Type.EmptyTypes);
 
-    private static ConcurrentDictionary<Type, Func<object>> activatorCache = new ConcurrentDictionary<Type, Func<object>>();
+    private static ConcurrentDictionary<Type, Func<object>> s_activatorCache = new ConcurrentDictionary<Type, Func<object>>();
 
     public static T Activate<T>(this Type type)
     {
-        var expr = activatorCache.GetOrAdd(type, (t) =>
+        var expr = s_activatorCache.GetOrAdd(type, (t) =>
         {
             return Expression.Lambda<Func<object>>(Expression.New(type.GetDefaultConstructor())).Compile();
         });

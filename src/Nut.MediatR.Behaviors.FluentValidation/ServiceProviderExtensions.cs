@@ -16,12 +16,12 @@ internal static class ServiceProviderExtensions
 
     private static object GetServices(IServiceProvider provider, Type serviceType)
     {
-        if (provider == null)
+        if (provider is null)
         {
             throw new ArgumentNullException(nameof(provider));
         }
 
-        if (serviceType == null)
+        if (serviceType is null)
         {
             throw new ArgumentNullException(nameof(serviceType));
         }

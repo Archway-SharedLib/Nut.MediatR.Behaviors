@@ -27,7 +27,7 @@ public class DefaultMediatorClient : IMediatorClient
     /// </summary>
     /// <param name="serviceRegistry">サービスが登録されている<see cref="ServiceRegistry"/></param>
     /// <param name="eventRegistry">イベントリスナーが登録されている<see cref="ListenerRegistry"/></param>
-    /// <param name="serviceProvider">サービスを取得するための <see cref="ServiceFactory"/></param>
+    /// <param name="serviceProvider">サービスを取得するための <see cref="IServiceProvider"/></param>
     /// <param name="scopedServiceFactoryFactory"><see cref="IScoepedServiceFactory"/>を作成する <see cref="IScopedServiceFactoryFactory"/></param>
     /// <param name="logger">ログ出力を行う <see cref="IServiceLikeLogger"/></param>
     public DefaultMediatorClient(ServiceRegistry serviceRegistry, ListenerRegistry eventRegistry,
@@ -171,7 +171,7 @@ public class DefaultMediatorClient : IMediatorClient
                             contextAccessors.First().Context = context;
                         }
 
-                        var serviceLikeMediator = new ServiceLikeMediator(scope.Instance);
+                        var serviceLikeMediator = new Mediator(scope.Instance, new ForeachAllAwaitPublisher());
 
                         var value = TranslateType(notification, listener.ListenerType);
                         _logger.TracePublishToListener(listener);
@@ -216,7 +216,7 @@ public class DefaultMediatorClient : IMediatorClient
         }).ConfigureAwait(false);
     }
 
-    private Task FireEvent(MediatorListenerDescription description, ServiceLikeMediator serviceLikeMediator,
+    private Task FireEvent(MediatorListenerDescription description, Mediator serviceLikeMediator,
         object eventData)
         => description.MediateType == MediateType.Notification
             ? serviceLikeMediator.Publish(eventData)
