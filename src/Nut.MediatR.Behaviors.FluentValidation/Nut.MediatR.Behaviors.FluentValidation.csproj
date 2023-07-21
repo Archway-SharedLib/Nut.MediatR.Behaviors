@@ -10,7 +10,7 @@
   <PropertyGroup>
     <Authors>Archway</Authors>
     <Description>The MediatR Behaviors using FluentValidation.</Description>
-    <Copyright>Copyright 2022 (c) Archway inc. All rights reserved.</Copyright>
+    <Copyright>Copyright 2023 (c) Archway inc. All rights reserved.</Copyright>
     <PackageTags>mediatr mediator behavior fluent validation Nut</PackageTags>
     <PackageLicenseExpression>https://github.com/Archway-SharedLib/Nut.MediatR/blob/main/LICENSE</PackageLicenseExpression>
     <PackageProjectUrl>https://github.com/Archway-SharedLib/Nut.MediatR</PackageProjectUrl>
