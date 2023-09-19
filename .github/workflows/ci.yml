@@ -33,7 +33,7 @@ jobs:
         # Repository upload token - get it from codecov.io. Required only for private repositories
         token: ${{ secrets.CODECOV_TOKEN }}
         # Path to coverage file to upload
-        files: ./Nut.MediatR.*.coverage.xml
+        files: ./Nut.MediatR.Behaviors.coverage.xml,./Nut.MediatR.Behaviors.FluentValidation.coverage.xml,./Nut.MediatR.ServiceLike.coverage.xml,./Nut.MediatR.ServiceLike.DependencyInjection.coverage.xml
         flags: unittests
         fail_ci_if_error: true
         verbose: true
