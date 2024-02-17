@@ -18,12 +18,17 @@ variables:
   buildConfiguration: 'Release'
 
 steps:
+- checkout: self
+  fetchDepth: 0
+  fetchTags: true
+  clean: true
 
 - task: UseDotNet@2
   displayName: 'Install .Net 8 SDK'
   inputs:
     packageType: 'sdk'
     version: '8.0.x'
+
 - script: dotnet build --configuration $(buildConfiguration)
   displayName: 'dotnet build $(buildConfiguration)'
 
