@@ -126,6 +126,34 @@ public class PerRequestBehaviorTest
         list[4].Should().Be(TestBehaviorMessages.EndMessage1);
         list[5].Should().Be(TestBehaviorMessages.EndMessage3);
     }
+
+    [Fact]
+    public async Task Handle_WithBehaviorAttributeを継承した属性の場合もBehaviorが実行される()
+    {
+        var collection = new ServiceCollection();
+        collection.AddMediatR(cfg =>
+        {
+            cfg.RegisterServicesFromAssemblies(typeof(PerRequestBehaviorTest).Assembly);
+            cfg.AddOpenBehavior(typeof(PerRequestBehavior<,>));
+        });
+        collection.AddTransient(typeof(TestBehavior1<,>));
+        collection.AddTransient(typeof(TestBehavior2<,>));
+        collection.AddTransient(typeof(TestBehavior3<,>));
+        collection.AddSingleton<ExecHistory>();
+
+        var provider = collection.BuildServiceProvider();
+
+        var mediator = provider.GetService<IMediator>();
+        var result = await mediator.Send(new Req4());
+
+        var list = provider.GetService<ExecHistory>().List;
+
+        list.Count.Should().Be(4);
+        list[0].Should().Be(TestBehaviorMessages.StartMessage3);
+        list[1].Should().Be(TestBehaviorMessages.StartMessage1);
+        list[2].Should().Be(TestBehaviorMessages.EndMessage1);
+        list[3].Should().Be(TestBehaviorMessages.EndMessage3);
+    }
 }
 
 public class Res
@@ -167,5 +195,26 @@ public class Req3Handler : IRequestHandler<Req3>
     public Task Handle(Req3 request, CancellationToken cancellationToken)
     {
         return Task.CompletedTask;
+    }
+}
+
+public class InheritWithBehaviorsAttribute: WithBehaviorsAttribute
+{
+    public InheritWithBehaviorsAttribute():
+        base(typeof(TestBehavior3<,>), typeof(TestBehavior1<,>))
+    {
+    }
+}
+
+[InheritWithBehaviors]
+public class Req4 : IRequest<Res>
+{
+}
+
+public class Req4Handler : IRequestHandler<Req4, Res>
+{
+    public Task<Res> Handle(Req4 request, CancellationToken cancellationToken)
+    {
+        return Task.FromResult(new Res());
     }
 }
