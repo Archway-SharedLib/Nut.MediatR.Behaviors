@@ -14,9 +14,9 @@ jobs:
     steps:
     - uses: actions/checkout@v4
     - name: Setup .NET Core
-      uses: actions/setup-dotnet@v3
+      uses: actions/setup-dotnet@v4
       with:
-        dotnet-version: 6.0.x
+        dotnet-version: 8.0.x
     - name: Install dependencies
       run: dotnet restore
     - name: Build
@@ -25,15 +25,4 @@ jobs:
       run: |
         ./test.ps1 -noReport
       shell: pwsh
-    - name: Codecov
-      uses: codecov/codecov-action@v3.1.4
-      with:
-        # User defined upload name. Visible in Codecov UI
-        name: Nut.MediatR
-        # Repository upload token - get it from codecov.io. Required only for private repositories
-        token: ${{ secrets.CODECOV_TOKEN }}
-        # Path to coverage file to upload
-        files: ./Nut.MediatR.Behaviors.coverage.xml,./Nut.MediatR.Behaviors.FluentValidation.coverage.xml,./Nut.MediatR.ServiceLike.coverage.xml,./Nut.MediatR.ServiceLike.DependencyInjection.coverage.xml
-        flags: unittests
-        fail_ci_if_error: true
-        verbose: true
+
