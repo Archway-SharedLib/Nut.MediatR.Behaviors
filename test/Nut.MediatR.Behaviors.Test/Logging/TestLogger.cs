@@ -6,7 +6,6 @@ namespace Nut.MediatR.Test.Logging;
 
 public class TestLogger<TName> : ILogger<TName>
 {
-
     public IList<string> Scopes { get; } = new List<string>();
     public IList<TestLogInfo> Logs { get; } = new List<TestLogInfo>();
 

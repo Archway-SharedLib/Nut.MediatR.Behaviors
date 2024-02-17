@@ -10,7 +10,7 @@ namespace Nut.MediatR;
 /// </summary>
 /// <typeparam name="TRequest">リクエストの型</typeparam>
 /// <typeparam name="TResponse">レスポンスの型</typeparam>
-public class DataAnnotationValidationBehavior<TRequest, TResponse> : IPipelineBehavior<TRequest, TResponse> where TRequest : IRequest<TResponse>
+public class DataAnnotationValidationBehavior<TRequest, TResponse> : IPipelineBehavior<TRequest, TResponse> where TRequest : notnull
 {
     /// <summary>
     /// インスタンスを初期化します。

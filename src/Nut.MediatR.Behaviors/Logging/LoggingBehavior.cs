@@ -4,7 +4,6 @@ using System.Threading;
 using System.Threading.Tasks;
 using MediatR;
 using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.DependencyInjection;
 
 namespace Nut.MediatR;
 
@@ -13,7 +12,7 @@ namespace Nut.MediatR;
 /// </summary>
 /// <typeparam name="TRequest">リクエストの型</typeparam>
 /// <typeparam name="TResponse">レスポンスの型</typeparam>
-public class LoggingBehavior<TRequest, TResponse> : IPipelineBehavior<TRequest, TResponse> where TRequest : IRequest<TResponse>
+public class LoggingBehavior<TRequest, TResponse> : IPipelineBehavior<TRequest, TResponse> where TRequest : notnull
 {
     /// <summary>
     /// <see cref="ServiceProvider"/> を取得します。

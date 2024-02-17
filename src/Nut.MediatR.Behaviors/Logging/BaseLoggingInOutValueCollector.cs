@@ -1,6 +1,5 @@
 using System.Threading;
 using System.Threading.Tasks;
-using MediatR;
 
 namespace Nut.MediatR.Logging;
 
@@ -11,7 +10,7 @@ namespace Nut.MediatR.Logging;
 /// <typeparam name="TRequest">リクエストの型</typeparam>
 /// <typeparam name="TResponse">レスポンスの型</typeparam>
 public abstract class BaseLoggingInOutValueCollector<TRequest, TResponse> : ILoggingInOutValueCollector<TRequest, TResponse>
-    where TRequest : IRequest<TResponse>
+    where TRequest : notnull
 {
     /// <inheritdoc />
     public virtual Task<InOutValueResult> CollectInValueAsync(TRequest request, CancellationToken cancellationToken)

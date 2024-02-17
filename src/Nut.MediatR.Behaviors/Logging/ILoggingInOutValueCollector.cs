@@ -1,6 +1,5 @@
 using System.Threading;
 using System.Threading.Tasks;
-using MediatR;
 
 namespace Nut.MediatR;
 
@@ -9,7 +8,7 @@ namespace Nut.MediatR;
 /// </summary>
 /// <typeparam name="TRequest">リクエストの型</typeparam>
 /// <typeparam name="TResponse">レスポンスの型</typeparam>
-public interface ILoggingInOutValueCollector<in TRequest, TResponse> where TRequest : IRequest<TResponse>
+public interface ILoggingInOutValueCollector<in TRequest, TResponse> where TRequest : notnull
 {
     /// <summary>
     /// 入力時に出力する追加の値を取得します。

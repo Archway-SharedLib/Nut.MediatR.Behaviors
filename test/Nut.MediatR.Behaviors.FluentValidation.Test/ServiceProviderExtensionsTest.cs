@@ -1,9 +1,11 @@
 using System;
 using FluentAssertions;
 using Microsoft.Extensions.DependencyInjection;
+using NSubstitute;
 using Xunit;
 
-namespace Nut.MediatR.Test;
+namespace Nut.MediatR.Behaviors.FluentValidation.Test;
+
 public class ServiceProviderExtensionsTest
 {
     [Fact]
@@ -40,11 +42,12 @@ public class ServiceProviderExtensionsTest
     }
 
     [Fact]
-    public void GetFirstServiceOrDefault_ServiceProviderがnullの場合は例外が発生する()
+    public void GetServicesOrEmpty_GetServiceがnullの場合は空が返る()
     {
-        IServiceProvider serviceProvider = null;
-        var act = () => serviceProvider.GetFirstServiceOrDefault<ITestService>();
-        act.Should().Throw<ArgumentNullException>();
+        var provider = Substitute.For<IServiceProvider>();
+        provider.GetService(Arg.Any<Type>()).Returns(null);
+        var result = provider.GetServicesOrEmpty<ITestService>();
+        result.Should().BeEmpty();
     }
 
     public interface ITestService

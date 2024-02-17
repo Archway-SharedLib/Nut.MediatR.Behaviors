@@ -12,18 +12,18 @@ public static class TestHelper
 
     private class CultureSwitcher : IDisposable
     {
-        private CultureInfo sourceCulture = null;
+        private CultureInfo _sourceCulture = null;
         public CultureSwitcher(CultureInfo targetCulture)
         {
-            sourceCulture = CultureInfo.CurrentCulture;
+            _sourceCulture = CultureInfo.CurrentCulture;
             CultureInfo.CurrentCulture = targetCulture;
             CultureInfo.CurrentUICulture = targetCulture;
         }
 
         public void Dispose()
         {
-            CultureInfo.CurrentCulture = sourceCulture;
-            CultureInfo.CurrentUICulture = sourceCulture;
+            CultureInfo.CurrentCulture = _sourceCulture;
+            CultureInfo.CurrentUICulture = _sourceCulture;
         }
     }
 }

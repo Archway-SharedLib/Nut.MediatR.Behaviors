@@ -4,7 +4,6 @@ using System.Threading;
 using System.Threading.Tasks;
 using FluentValidation;
 using MediatR;
-using Microsoft.Extensions.DependencyInjection;
 
 namespace Nut.MediatR;
 
@@ -13,7 +12,7 @@ namespace Nut.MediatR;
 /// </summary>
 /// <typeparam name="TRequest">リクエストの型</typeparam>
 /// <typeparam name="TResponse">レスポンスの型</typeparam>
-public class FluentValidationBehavior<TRequest, TResponse> : IPipelineBehavior<TRequest, TResponse> where TRequest : IRequest<TResponse>
+public class FluentValidationBehavior<TRequest, TResponse> : IPipelineBehavior<TRequest, TResponse> where TRequest : notnull
 {
     private readonly IServiceProvider _serviceProvider;
 

@@ -13,7 +13,7 @@ namespace Nut.MediatR;
 /// </summary>
 /// <typeparam name="TRequest">リクエストの型</typeparam>
 /// <typeparam name="TResponse">レスポンスの型</typeparam>
-public class AuthorizationBehavior<TRequest, TResponse> : IPipelineBehavior<TRequest, TResponse> where TRequest : IRequest<TResponse>
+public class AuthorizationBehavior<TRequest, TResponse> : IPipelineBehavior<TRequest, TResponse> where TRequest : notnull
 {
     /// <summary>
     /// <see cref="ServiceProvider"/> を取得します。
@@ -59,12 +59,11 @@ public class AuthorizationBehavior<TRequest, TResponse> : IPipelineBehavior<TReq
     /// <returns>サービスとして登録されている<see cref="IAuthorizer{TRequest}"/></returns>
     protected virtual IEnumerable<IAuthorizer<TRequest>> GetAuthorizers()
     {
-        return GetRegisterdAuthorizers();
+        return GetRegisteredAuthorizers();
     }
 
-    private IEnumerable<IAuthorizer<TRequest>> GetRegisterdAuthorizers()
+    private IEnumerable<IAuthorizer<TRequest>> GetRegisteredAuthorizers()
     {
-        return ServiceProvider.GetServicesOrEmpty<IAuthorizer<TRequest>>() ?? Enumerable.Empty<IAuthorizer<TRequest>>();
+        return ServiceProvider.GetServicesOrEmpty<IAuthorizer<TRequest>>();
     }
-
 }
