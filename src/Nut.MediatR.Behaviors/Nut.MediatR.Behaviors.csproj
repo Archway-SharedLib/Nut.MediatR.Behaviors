@@ -10,10 +10,10 @@
   <PropertyGroup>
     <Authors>Archway</Authors>
     <Description>The MediatR Behaviors.</Description>
-    <Copyright>Copyright 2023 (c) Archway inc. All rights reserved.</Copyright>
+    <Copyright>Copyright 2024 (c) Archway inc. All rights reserved.</Copyright>
     <PackageTags>mediatr mediator behavior Nut</PackageTags>
-    <PackageLicenseExpression>https://github.com/Archway-SharedLib/Nut.MediatR/blob/main/LICENSE</PackageLicenseExpression>
-    <PackageProjectUrl>https://github.com/Archway-SharedLib/Nut.MediatR</PackageProjectUrl>
+    <PackageLicenseExpression>https://github.com/Archway-SharedLib/Nut.MediatR.Behaviors/blob/main/LICENSE</PackageLicenseExpression>
+    <PackageProjectUrl>https://github.com/Archway-SharedLib/Nut.MediatR.Behaviors</PackageProjectUrl>
     <RepositoryType>GIT</RepositoryType>
     <PackageId>Nut.MediatR.Behaviors</PackageId>
     <RootNamespace>Nut.MediatR</RootNamespace>
@@ -28,7 +28,7 @@
     <MinVerTagPrefix>v</MinVerTagPrefix>
     <MinVerDefaultPreReleaseIdentifiers>preview</MinVerDefaultPreReleaseIdentifiers>
     <PackageIcon>logo_128.png</PackageIcon>
-    <RepositoryUrl>https://github.com/Archway-SharedLib/Nut.MediatR</RepositoryUrl>
+    <RepositoryUrl>https://github.com/Archway-SharedLib/Nut.MediatR.Behaviors</RepositoryUrl>
   </PropertyGroup>
   
   <ItemGroup>
