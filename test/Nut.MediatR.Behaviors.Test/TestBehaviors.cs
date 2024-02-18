@@ -21,6 +21,11 @@ public class ExecHistory
     public List<string> List { get; } = new();
 }
 
+public class Executed
+{
+    public bool Value { get; set; }
+}
+
 public class TestBehavior1<TRequest, TResponse> : IPipelineBehavior<TRequest, TResponse> where TRequest : notnull
 {
     private readonly ExecHistory _execHistory;

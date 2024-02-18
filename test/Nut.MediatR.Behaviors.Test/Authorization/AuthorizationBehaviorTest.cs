@@ -5,6 +5,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using FluentAssertions;
 using MediatR;
+using Microsoft.Extensions.DependencyInjection;
 using NSubstitute;
 using Xunit;
 
@@ -15,32 +16,81 @@ public class AuthorizationBehaviorTest
     [Fact]
     public void ctor_引数がnullの場合は例外が発生する()
     {
-        Action act = () => new AuthorizationBehavior<TestBehaviorRequest, TestBehaviorResponse>(null);
+        var act = () => new AuthorizationBehavior<TestBehaviorRequest, TestBehaviorResponse>(null);
         act.Should().Throw<ArgumentNullException>();
     }
+
+    //---------------------------------
 
     [Fact]
     public async Task Handle_Requestに一致する全てのAuthorizerが実行される()
     {
         var list = new List<string>();
-
-        var provider = Substitute.For<IServiceProvider>();
-        provider.GetService(typeof(IEnumerable<IAuthorizer<TestBehaviorRequest>>)).Returns(new IAuthorizer<TestBehaviorRequest>[]
+        var collection = new ServiceCollection();
+        collection.AddMediatR(cfg =>
         {
-            new SuccessAuthorizer1(list),
-            new SuccessAuthorizer2(list)
+            cfg.RegisterServicesFromAssemblies(typeof(AuthorizationBehaviorTest).Assembly);
+            cfg.AddOpenBehavior(typeof(AuthorizationBehavior<,>));
         });
+        collection.AddSingleton<Executed>();
+        collection.AddTransient<IAuthorizer<AuthorizeAllRequest>>(_ => new AuthorizeAllAuthorizer1(list));
+        collection.AddTransient<IAuthorizer<AuthorizeAllRequest>>(_ => new AuthorizeAllAuthorizer2(list));
+        collection.AddTransient<IAuthorizer<AuthorizeAllDummyRequest>>(_ => new AuthorizeAllDymmyAuthorizer(list));
 
-        var auth = new AuthorizationBehavior<TestBehaviorRequest, TestBehaviorResponse>(provider);
-        await auth.Handle(new TestBehaviorRequest(), () => Task.FromResult(new TestBehaviorResponse()), new CancellationToken());
+        var provider = collection.BuildServiceProvider();
+        await  provider.GetService<IMediator>().Send(new AuthorizeAllRequest());
 
         list.Count.Should().Be(2);
-        list[0].Should().Be(AuthorizerMessages.SuccessAuthorizer1Message);
-        list[1].Should().Be(AuthorizerMessages.SuccessAuthorizer2Message);
+        list[0].Should().Be("AuthorizeAllAuthorizer1");
+        list[1].Should().Be("AuthorizeAllAuthorizer2");
     }
 
+    public record AuthorizeAllRequest: IRequest<AuthorizeAllResponse>;
+
+    public record AuthorizeAllResponse;
+
+    public class AuthorizeAllRequestHandler : IRequestHandler<AuthorizeAllRequest, AuthorizeAllResponse>
+    {
+        public Task<AuthorizeAllResponse> Handle(AuthorizeAllRequest request, CancellationToken cancellationToken)
+        {
+            return Task.FromResult(new AuthorizeAllResponse());
+        }
+    }
+
+    public record AuthorizeAllAuthorizer1(List<string> run) : IAuthorizer<AuthorizeAllRequest>
+    {
+        public Task<AuthorizationResult> AuthorizeAsync(AuthorizeAllRequest request, CancellationToken cancellationToken)
+        {
+            run.Add("AuthorizeAllAuthorizer1");
+            return Task.FromResult(AuthorizationResult.Success());
+        }
+    }
+
+    public record AuthorizeAllAuthorizer2(List<string> run) : IAuthorizer<AuthorizeAllRequest>
+    {
+        public Task<AuthorizationResult> AuthorizeAsync(AuthorizeAllRequest request, CancellationToken cancellationToken)
+        {
+            run.Add("AuthorizeAllAuthorizer2");
+            return Task.FromResult(AuthorizationResult.Success());
+        }
+    }
+
+    public record AuthorizeAllDummyRequest: IRequest<AuthorizeAllDummyResponse>;
+    public record AuthorizeAllDummyResponse;
+
+    public record AuthorizeAllDymmyAuthorizer(List<string> run) : IAuthorizer<AuthorizeAllDummyRequest>
+    {
+        public Task<AuthorizationResult> AuthorizeAsync(AuthorizeAllDummyRequest request, CancellationToken cancellationToken)
+        {
+            run.Add("AuthorizeAllAuthorizer3");
+            return Task.FromResult(AuthorizationResult.Success());
+        }
+    }
+
+    //--------------
+
     [Fact]
-    public async Task Handle_RequestにするAuthorizerがnullの場合はなにも実行されない()
+    public async Task Handle_RequestするAuthorizerがnullの場合はなにも実行されない()
     {
         var list = new List<string>();
         var provider = Substitute.For<IServiceProvider>();
@@ -50,6 +100,8 @@ public class AuthorizationBehaviorTest
 
         list.Should().BeEmpty();
     }
+
+    //---------
 
     [Fact]
     public async Task Handle_RequestにするAuthorizerが空の場合はなにも実行されない()
@@ -63,130 +115,112 @@ public class AuthorizationBehaviorTest
         list.Should().BeEmpty();
     }
 
+    //---------
+
+
     [Fact]
     public async Task Handle_Authorizerが途中で失敗した場合はそこで処理が止まりUnauthorizedExceptionが発行される()
     {
         var list = new List<string>();
-        var provider = Substitute.For<IServiceProvider>();
-        provider.GetService(typeof(IEnumerable<IAuthorizer<TestBehaviorRequest>>)).Returns(new IAuthorizer<TestBehaviorRequest>[]
+        var collection = new ServiceCollection();
+        collection.AddMediatR(cfg =>
         {
-                new SuccessAuthorizer1(list),
-                new FailurAuthorizer1(list, "unauthorized!"),
-                new SuccessAuthorizer2(list)
+            cfg.RegisterServicesFromAssemblies(typeof(AuthorizationBehaviorTest).Assembly);
+            cfg.AddOpenBehavior(typeof(AuthorizationBehavior<,>));
         });
-        var auth = new AuthorizationBehavior<TestBehaviorRequest, TestBehaviorResponse>(provider);
-        Func<Task> act = () => auth.Handle(new TestBehaviorRequest(), () => Task.FromResult(new TestBehaviorResponse()), new CancellationToken());
+        collection.AddSingleton<Executed>();
+        collection.AddTransient<IAuthorizer<AuthorizeFailRequest>>(_ => new AuthorizeFailAuthorizer1(list));
+        collection.AddTransient<IAuthorizer<AuthorizeFailRequest>>(_ => new AuthorizeFailAuthorizer2(list));
+        collection.AddTransient<IAuthorizer<AuthorizeFailRequest>>(_ => new AuthorizeFailAuthorizer3(list));
 
-        await act.Should().ThrowAsync<UnauthorizedException>().WithMessage("unauthorized!");
+        var provider = collection.BuildServiceProvider();
+        var act = () => provider.GetService<IMediator>().Send(new AuthorizeFailRequest());
+        await act.Should().ThrowAsync<UnauthorizedException>().WithMessage("Authorize Fail");
+
 
         list.Count.Should().Be(2);
-        list[0].Should().Be(AuthorizerMessages.SuccessAuthorizer1Message);
-        list[1].Should().Be(AuthorizerMessages.FailurAuthorizer1Message);
+        list[0].Should().Be("AuthorizeFailAuthorizer1");
+        list[1].Should().Be("AuthorizeFailAuthorizer2");
     }
+
+    public record AuthorizeFailRequest : IRequest<AuthorizeFailResponse>;
+
+    public record AuthorizeFailResponse;
+
+    public class AuthorizeFailRequestHandler : IRequestHandler<AuthorizeFailRequest, AuthorizeFailResponse>
+    {
+        public Task<AuthorizeFailResponse> Handle(AuthorizeFailRequest request, CancellationToken cancellationToken)
+        {
+            return Task.FromResult(new AuthorizeFailResponse());
+        }
+    }
+
+    public record AuthorizeFailAuthorizer1(List<string> run) : IAuthorizer<AuthorizeFailRequest>
+    {
+        public Task<AuthorizationResult> AuthorizeAsync(AuthorizeFailRequest request, CancellationToken cancellationToken)
+        {
+            run.Add("AuthorizeFailAuthorizer1");
+            return Task.FromResult(AuthorizationResult.Success());
+        }
+    }
+
+    public record AuthorizeFailAuthorizer2(List<string> run) : IAuthorizer<AuthorizeFailRequest>
+    {
+        public Task<AuthorizationResult> AuthorizeAsync(AuthorizeFailRequest request, CancellationToken cancellationToken)
+        {
+            run.Add("AuthorizeFailAuthorizer2");
+            return Task.FromResult(AuthorizationResult.Failed("Authorize Fail"));
+        }
+    }
+
+    public record AuthorizeFailAuthorizer3(List<string> run) : IAuthorizer<AuthorizeFailRequest>
+    {
+        public Task<AuthorizationResult> AuthorizeAsync(AuthorizeFailRequest request, CancellationToken cancellationToken)
+        {
+            run.Add("AuthorizeFailAuthorizer3");
+            return Task.FromResult(AuthorizationResult.Success());
+        }
+    }
+
+    //---------
 
     [Fact]
     public async Task Handle_失敗した時にメッセージが設定されていない場合は例外にデフォルトのメッセージが設定される()
     {
-        using var cal = TestHelper.SetEnglishCulture();
+        using var _ = TestHelper.SetEnglishCulture();
+
         var list = new List<string>();
-        var provider = Substitute.For<IServiceProvider>();
-        provider.GetService(typeof(IEnumerable<IAuthorizer<TestBehaviorRequest>>)).Returns(new IAuthorizer<TestBehaviorRequest>[]
+        var collection = new ServiceCollection();
+        collection.AddMediatR(cfg =>
         {
-                new FailurAuthorizer1(list, string.Empty),
+            cfg.RegisterServicesFromAssemblies(typeof(AuthorizationBehaviorTest).Assembly);
+            cfg.AddOpenBehavior(typeof(AuthorizationBehavior<,>));
         });
-        var auth = new AuthorizationBehavior<TestBehaviorRequest, TestBehaviorResponse>(provider);
-        Func<Task> act = () => auth.Handle(new TestBehaviorRequest(), () => Task.FromResult(new TestBehaviorResponse()), new CancellationToken());
+        collection.AddSingleton<Executed>();
+        collection.AddTransient<IAuthorizer<AuthorizeFailDefaultMessageRequest>>(_ => new AuthorizeFailDefaultMessageAuthorizer1(list));
 
-        await act.Should().ThrowAsync<UnauthorizedException>().WithMessage("Not authorized.");
-
-        list.Count.Should().Be(1);
-        list[0].Should().Be(AuthorizerMessages.FailurAuthorizer1Message);
+        var provider = collection.BuildServiceProvider();
+        var act = () => provider.GetService<IMediator>().Send(new AuthorizeFailDefaultMessageRequest());
+        await act.Should().ThrowAsync<UnauthorizedException>().WithMessage("Not Authorized.");
     }
 
-    [Fact]
-    public async Task Handle_GetAuthorizerからnullが返ったら処理が実行されずそのまま終了する()
+    public record AuthorizeFailDefaultMessageRequest : IRequest<AuthorizeFailDefaultMessageResponse>;
+
+    public record AuthorizeFailDefaultMessageResponse;
+
+    public class AuthorizeFailDefaultMessageRequestHandler : IRequestHandler<AuthorizeFailDefaultMessageRequest, AuthorizeFailDefaultMessageResponse>
     {
-        var list = new List<string>();
-        var provider = Substitute.For<IServiceProvider>();
-        provider.GetService(typeof(IEnumerable<IAuthorizer<TestBehaviorRequest>>)).Returns(new IAuthorizer<TestBehaviorRequest>[]
+        public Task<AuthorizeFailDefaultMessageResponse> Handle(AuthorizeFailDefaultMessageRequest request, CancellationToken cancellationToken)
         {
-                new SuccessAuthorizer1(list),
-                new FailurAuthorizer1(list, "unauthorized!"),
-                new SuccessAuthorizer2(list)
-        });
-        var auth = new NullAuthorizationBehavior<TestBehaviorRequest, TestBehaviorResponse>(provider);
-        await auth.Handle(new TestBehaviorRequest(), () => Task.FromResult(new TestBehaviorResponse()), new CancellationToken());
-
-        list.Should().BeEmpty();
-    }
-}
-
-public class NullAuthorizationBehavior<TRequest, TResponse> : AuthorizationBehavior<TRequest, TResponse> where TRequest : IRequest<TResponse>
-{
-    public NullAuthorizationBehavior(IServiceProvider serviceProvider) : base(serviceProvider)
-    {
+            return Task.FromResult(new AuthorizeFailDefaultMessageResponse());
+        }
     }
 
-    protected override IEnumerable<IAuthorizer<TRequest>> GetAuthorizers()
+    public record AuthorizeFailDefaultMessageAuthorizer1(List<string> run) : IAuthorizer<AuthorizeFailDefaultMessageRequest>
     {
-        return null;
-    }
-}
-
-
-public static class AuthorizerMessages
-{
-    public const string SuccessAuthorizer1Message = "SuccessAuthorizer1";
-    public const string SuccessAuthorizer2Message = "SuccessAuthorizer2";
-    public const string FailurAuthorizer1Message = "FailurAuthorizer1";
-}
-
-public class SuccessAuthorizer1 : IAuthorizer<TestBehaviorRequest>
-{
-    private readonly List<string> _execHistory;
-
-    public SuccessAuthorizer1(List<string> execHistory)
-    {
-        _execHistory = execHistory;
-    }
-
-    public Task<AuthorizationResult> AuthorizeAsync(TestBehaviorRequest request, CancellationToken cancellationToken)
-    {
-        _execHistory.Add(AuthorizerMessages.SuccessAuthorizer1Message);
-        return Task.FromResult(AuthorizationResult.Success());
-    }
-}
-
-public class SuccessAuthorizer2 : IAuthorizer<TestBehaviorRequest>
-{
-    private readonly List<string> _execHistory;
-
-    public SuccessAuthorizer2(List<string> execHistory)
-    {
-        _execHistory = execHistory;
-    }
-
-    public Task<AuthorizationResult> AuthorizeAsync(TestBehaviorRequest request, CancellationToken cancellationToken)
-    {
-        _execHistory.Add(AuthorizerMessages.SuccessAuthorizer2Message);
-        return Task.FromResult(AuthorizationResult.Success());
-    }
-}
-
-public class FailurAuthorizer1 : IAuthorizer<TestBehaviorRequest>
-{
-    private readonly List<string> _execHistory;
-    private readonly string _message;
-
-    public FailurAuthorizer1(List<string> execHistory, string message)
-    {
-        _execHistory = execHistory;
-        _message = message;
-    }
-
-    public Task<AuthorizationResult> AuthorizeAsync(TestBehaviorRequest request, CancellationToken cancellationToken)
-    {
-        _execHistory.Add(AuthorizerMessages.FailurAuthorizer1Message);
-        return Task.FromResult(AuthorizationResult.Failed(_message));
+        public Task<AuthorizationResult> AuthorizeAsync(AuthorizeFailDefaultMessageRequest request, CancellationToken cancellationToken)
+        {
+            return Task.FromResult(AuthorizationResult.Failed(null));
+        }
     }
 }
