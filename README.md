@@ -1,4 +1,4 @@
-<img src="./assets/logo/logo.svg" alt="logo" height="192px" style="margin-bottom:2rem;" />
+<img src="https://raw.githubusercontent.com/Archway-SharedLib/Nut.MediatR.Behaviors/main/assets/logo/logo.svg" alt="logo" height="192px" style="margin-bottom:2rem;" />
 
 [![CI](https://github.com/Archway-SharedLib/Nut.MediatR.Behaviors/workflows/CI/badge.svg)](https://github.com/Archway-SharedLib/Nut.MediatR.Behaviors/actions)
 
