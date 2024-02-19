@@ -1,3 +1,4 @@
+using System;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -9,18 +10,15 @@ namespace Nut.MediatR.Logging;
 /// </summary>
 /// <typeparam name="TRequest">リクエストの型</typeparam>
 /// <typeparam name="TResponse">レスポンスの型</typeparam>
+[Obsolete("Use ILoggingInOutValueCollector<TRequest, TResponse> instead.")]
 public abstract class BaseLoggingInOutValueCollector<TRequest, TResponse> : ILoggingInOutValueCollector<TRequest, TResponse>
     where TRequest : notnull
 {
     /// <inheritdoc />
     public virtual Task<InOutValueResult> CollectInValueAsync(TRequest request, CancellationToken cancellationToken)
-    {
-        return Task.FromResult(InOutValueResult.Empty());
-    }
+        => Task.FromResult(InOutValueResult.Empty());
 
     /// <inheritdoc />
     public virtual Task<InOutValueResult> CollectOutValueAsync(TResponse response, CancellationToken cancellationToken)
-    {
-        return Task.FromResult(InOutValueResult.Empty());
-    }
+        => Task.FromResult(InOutValueResult.Empty());
 }

@@ -3,6 +3,7 @@ using System.Diagnostics;
 using System.Threading;
 using System.Threading.Tasks;
 using MediatR;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 
 namespace Nut.MediatR;
@@ -49,8 +50,7 @@ public class LoggingBehavior<TRequest, TResponse> : IPipelineBehavior<TRequest, 
             return await next().ConfigureAwait(false);
         }
 
-        var collector = ServiceProvider.GetFirstServiceOrDefault<ILoggingInOutValueCollector<TRequest, TResponse>>()
-            ?? GetDefaultCollector();
+        var collector = GetCollector() ?? GetDefaultCollector();
 
         var inValue = collector is not null ?
             await collector.CollectInValueAsync(request, cancellationToken).ConfigureAwait(false) :
@@ -98,5 +98,19 @@ public class LoggingBehavior<TRequest, TResponse> : IPipelineBehavior<TRequest, 
             logger.Log(LogLevel.Error, e, "Exception {Request} in {Elapsed}ms.", typeof(TRequest).Name, watch.ElapsedMilliseconds, e.Message);
             throw;
         }
+    }
+
+    private ILoggingInOutValueCollector<TRequest, TResponse>? GetCollector()
+    {
+        if(typeof(TResponse) == typeof(Unit))
+        {
+            var requestOnly = ServiceProvider.GetService<ILoggingInOutValueCollector<TRequest>>();
+            if(requestOnly is not null)
+            {
+                return requestOnly as ILoggingInOutValueCollector<TRequest, TResponse>;
+            }
+            
+        }
+        return ServiceProvider.GetFirstServiceOrDefault<ILoggingInOutValueCollector<TRequest, TResponse>>();
     }
 }
