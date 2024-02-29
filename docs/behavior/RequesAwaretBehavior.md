@@ -1,4 +1,4 @@
-# PerRequestBehaviorの使い方
+# RequestAwareBehaviorの使い方
 
 [MediatR]の[Behavior]はハンドラの前後に、バリデーションやログ出力など共通的な処理を挟み込むための優れた機構です。利用しているコンテナに登録するだけで自動的に実行されます。しかし、その構造のために次のような弱点をもっています。
 
@@ -8,7 +8,7 @@
 実行順序については、登録順に実行されると[ドキュメント](https://github.com/jbogard/MediatR/wiki/Behaviors#registering-pipeline-behaviors)には記載されていますが、実際は[MediatR]側では特に制御をしていないため、コンテナの実装が将来変わった場合に、保証されなくなる可能性があります。
 また、登録したBehaviorが常に全て実行されるため、リクエスト単位で実行したい/実行したくないBehaviorがある場合には制御ができません。
 
-PerRequestBehaviorは上記の課題に対応するために、リクエストごとに属性を利用して実行するBehaviorを指定する機能を提供します。
+RequestAwareBehaviorは上記の課題に対応するために、リクエストごとに属性を利用して実行するBehaviorを指定する機能を提供します。
 
 ## 実行するBehaviorの指定
 
@@ -26,26 +26,30 @@ public class SampleRequest: IRequest<SampleResponse>
 }
 ```
 
-`PerRequestBehavior`が実行時に、対象のリクエストに`WithBehaviors`属性で指定されたBehaviorを読み取り、先頭から順番に実行します。
+`RequestAwareBehavior`が実行時に、対象のリクエストに`WithBehaviors`属性で指定されたBehaviorを読み取り、先頭から順番に実行します。
 
 ## Behaviorの登録
 
-`PerRequestBehavior`は通常のBehaviorと同様に利用しているコンテナに対して`IPipelineBehavior<,>`をキーにして登録します。
+`RequestAwareBehavior`は専用の`IServiceCollection`の拡張メソッドである`AddMediatRRequestAwareBehavior`を使って登録します。
 
 ```cs
-services.AddTransient(typeof(IPipelineBehavior<,>), typeof(PerRequestBehavior<,>));
+new ServiceCollection()
+    .AddMediatR(cfg => {
+        cfg.RegisterServicesFromAssemblies(typeof(Program).Assembly);
+    })
+    .AddMediatRRequestAwareBehavior(builder =>
+    {
+        builder
+            // 各Behaviorでアセンブリをもとに自動登録するクラスがある場合は指定する
+            .AddAssembliesForAutoRegister(typeof(Program).Assembly)
+            .AddLogging()
+            .AddAuthorization()
+            .AddDataAnnotationValidation()
+            .AddOpenBehavior(typeof(FluentValidationBehavior<,>));
+    })
 ```
 
-`PerRequestBehavior`から呼ばれるBehaviorは`IPipelineBehavior<,>`をキーにせず、直接型を登録してください。
-
-```cs
-services.AddTransient(typeof(LoggingBehavior<,>));
-services.AddTransient(typeof(AuthorizationBehavior<,>));
-services.AddTransient(typeof(DataAnnotationValidationBehavior<,>));
-```
-
-`IPipelineBehavior<,>`をキーにして登録した場合、`MediatR`が直接実行するため`WithBehaviors`属性で指定した順序にならず、また`WithBehaviors`属性で指定していなくても実行されてしまうことに注意してください。
-また、`IPipelineBehavior<,>`をキーにして登録したものと、直接登録したものの両方がある場合、複数回実行されてしまうことにも注意してください。
+`AddMediatR`側でビヘイビアが登録されている場合は、`RequestAwareBehavior`の制御下にならず、`MediatR`が直接実行するため`WithBehaviors`属性で指定した順序にならず、また`WithBehaviors`属性で指定していなくても実行されてしまうことに注意してください。
 
 ## 複数のリクエストで共通するBehavior実行の定義
 

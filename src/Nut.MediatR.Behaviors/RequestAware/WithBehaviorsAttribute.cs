@@ -8,7 +8,7 @@ using SR = Nut.MediatR.Resources.Strings;
 namespace Nut.MediatR;
 
 /// <summary>
-/// <see cref="PerRequestBehavior{TRequest, TResponse}"/> を通して実行される <see cref="IPipelineBehavior{TRequest, TResponse}"/> を指定します。
+/// <see cref="RequestAwareBehavior{TRequest, TResponse}"/> を通して実行される <see cref="IPipelineBehavior{TRequest, TResponse}"/> を指定します。
 /// </summary>
 [AttributeUsage(AttributeTargets.Class | AttributeTargets.Interface, Inherited = true, AllowMultiple = false)]
 public class WithBehaviorsAttribute : Attribute
@@ -27,8 +27,8 @@ public class WithBehaviorsAttribute : Attribute
         if (behaviorTypes is null) throw new ArgumentNullException(nameof(behaviorTypes));
         foreach (var type in behaviorTypes)
         {
-            if (type is null) throw new ArgumentException(SR.PerRequest_ContainsNullInTypes);
-            if (!IsPipelineBehaviorType(type)) throw new ArgumentException(SR.PerRequest_TypeIsNotBehavior(type.FullName, typeof(IPipelineBehavior<,>).Name));
+            if (type is null) throw new ArgumentException(SR.RequestAware_ContainsNullInTypes);
+            if (!IsPipelineBehaviorType(type)) throw new ArgumentException(SR.RequestAware_TypeIsNotBehavior(type.FullName, typeof(IPipelineBehavior<,>).Name));
         }
         BehaviorTypes = new ReadOnlyCollection<Type>(behaviorTypes);
     }

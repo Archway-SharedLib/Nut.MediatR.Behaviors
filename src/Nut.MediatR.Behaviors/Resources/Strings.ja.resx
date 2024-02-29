@@ -120,10 +120,10 @@
   <data name="Authorization_NotAuthorized" xml:space="preserve">
     <value>権限がありません。</value>
   </data>
-  <data name="PerRequest_ContainsNullInTypes" xml:space="preserve">
+  <data name="RequestAware_ContainsNullInTypes" xml:space="preserve">
     <value>Typeのリストの中にnullが含まれていてはいけません。</value>
   </data>
-  <data name="PerRequest_TypeIsNotBehavior" xml:space="preserve">
+  <data name="RequestAware_TypeIsNotBehavior" xml:space="preserve">
     <value>{0}は{1}を実装している必要があります。</value>
   </data>
 </root>

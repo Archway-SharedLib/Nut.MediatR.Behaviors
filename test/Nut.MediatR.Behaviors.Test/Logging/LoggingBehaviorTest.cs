@@ -6,7 +6,7 @@ using FluentAssertions;
 using MediatR;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-using Nut.MediatR.Test.PerRequest;
+using Nut.MediatR.Test.RequestAware;
 using Xunit;
 
 namespace Nut.MediatR.Test.Logging;
@@ -61,7 +61,7 @@ public partial class LoggingBehaviorTest
         var collection = new ServiceCollection();
         collection.AddMediatR(cfg =>
         {
-            cfg.RegisterServicesFromAssemblies(typeof(PerRequestBehaviorTest).Assembly);
+            cfg.RegisterServicesFromAssemblies(typeof(RequestAwareBehaviorTest).Assembly);
             cfg.AddOpenBehavior(typeof(LoggingBehavior<,>));
         });
         collection.AddSingleton<ILogger<LoggingBehavior<LoggerOutStartEndRequest, LoggerOutStartEndResponse>>>(logger);
@@ -102,7 +102,7 @@ public partial class LoggingBehaviorTest
         var collection = new ServiceCollection();
         collection.AddMediatR(cfg =>
         {
-            cfg.RegisterServicesFromAssemblies(typeof(PerRequestBehaviorTest).Assembly);
+            cfg.RegisterServicesFromAssemblies(typeof(RequestAwareBehaviorTest).Assembly);
             cfg.AddOpenBehavior(typeof(LoggingBehavior<,>));
         });
         collection.AddTransient<ILoggingInOutValueCollector<LoggerOutStartEndWithInOutRequest, LoggerOutStartEndWithInOutResponse>,
@@ -160,7 +160,7 @@ public partial class LoggingBehaviorTest
         var collection = new ServiceCollection();
         collection.AddMediatR(cfg =>
         {
-            cfg.RegisterServicesFromAssemblies(typeof(PerRequestBehaviorTest).Assembly);
+            cfg.RegisterServicesFromAssemblies(typeof(RequestAwareBehaviorTest).Assembly);
             cfg.AddOpenBehavior(typeof(LoggingBehavior<,>));
         });
         collection.AddTransient<ILoggingInOutValueCollector<LoggerOutStartEndWithEmptyInOutRequest, LoggerOutStartEndWithEmptyInOutResponse>,
@@ -218,7 +218,7 @@ public partial class LoggingBehaviorTest
         var collection = new ServiceCollection();
         collection.AddMediatR(cfg =>
         {
-            cfg.RegisterServicesFromAssemblies(typeof(PerRequestBehaviorTest).Assembly);
+            cfg.RegisterServicesFromAssemblies(typeof(RequestAwareBehaviorTest).Assembly);
             cfg.AddOpenBehavior(typeof(LoggingBehavior<,>));
         });
         collection.AddTransient<ILoggingInOutValueCollector<LoggerOutStartEndWithNullInOutRequest, LoggerOutStartEndWithNullInOutResponse>,
@@ -276,7 +276,7 @@ public partial class LoggingBehaviorTest
         var collection = new ServiceCollection();
         collection.AddMediatR(cfg =>
         {
-            cfg.RegisterServicesFromAssemblies(typeof(PerRequestBehaviorTest).Assembly);
+            cfg.RegisterServicesFromAssemblies(typeof(RequestAwareBehaviorTest).Assembly);
             cfg.AddOpenBehavior(typeof(LoggingBehavior<,>));
         });
         collection.AddSingleton<ILogger<LoggingBehavior<LoggerExceptionRequest, LoggerExceptionResponse>>>(logger);
@@ -320,7 +320,7 @@ public partial class LoggingBehaviorTest
         var collection = new ServiceCollection();
         collection.AddMediatR(cfg =>
         {
-            cfg.RegisterServicesFromAssemblies(typeof(PerRequestBehaviorTest).Assembly);
+            cfg.RegisterServicesFromAssemblies(typeof(RequestAwareBehaviorTest).Assembly);
             cfg.AddOpenBehavior(typeof(InheritLoggingBehavior<,>));
         });
         collection.AddTransient<ILoggingInOutValueCollector<LoggerInheritRequest, LoggerInheritResponse>,

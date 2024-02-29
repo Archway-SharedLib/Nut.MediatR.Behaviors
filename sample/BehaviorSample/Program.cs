@@ -22,7 +22,7 @@ class Program
             .AddMediatR(cfg => {
                 cfg.RegisterServicesFromAssemblies(typeof(Program).Assembly);
             })
-            .AddMediatRPerRequestBehavior(builder =>
+            .AddMediatRRequestAwareBehavior(builder =>
             {
                 // 各サービスをもっているアセンブリを登録する
 

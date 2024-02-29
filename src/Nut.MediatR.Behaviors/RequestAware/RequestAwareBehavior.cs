@@ -13,7 +13,7 @@ namespace Nut.MediatR;
 /// </summary>
 /// <typeparam name="TRequest">リクエストの型</typeparam>
 /// <typeparam name="TResponse">レスポンスの型</typeparam>
-public class PerRequestBehavior<TRequest, TResponse> : IPipelineBehavior<TRequest, TResponse> where TRequest : notnull
+public class RequestAwareBehavior<TRequest, TResponse> : IPipelineBehavior<TRequest, TResponse> where TRequest : notnull
 {
     private readonly IServiceProvider _provider;
 
@@ -21,7 +21,7 @@ public class PerRequestBehavior<TRequest, TResponse> : IPipelineBehavior<TReques
     /// <see cref="IServiceProvider"/> を指定してインスタンスを初期化します。
     /// </summary>
     /// <param name="provider">サービスを取得する <see cref="IServiceProvider"/></param>
-    public PerRequestBehavior(IServiceProvider provider)
+    public RequestAwareBehavior(IServiceProvider provider)
     {
         _provider = provider ?? throw new ArgumentNullException(nameof(provider));
     }
