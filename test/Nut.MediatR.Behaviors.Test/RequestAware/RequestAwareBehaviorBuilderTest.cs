@@ -57,12 +57,12 @@ public class RequestAwareBehaviorBuilderTest
         var builder = new RequestAwareBehaviorBuilder(services);
         var assemblies = new[] { Assembly.GetExecutingAssembly() };
         var handlerCalled = false;
-        Action<IServiceCollection, Assembly[]> handler = (s, a) =>
+        void handler(IServiceCollection s, Assembly[] a)
         {
             handlerCalled = true;
             s.Should().BeSameAs(builder.Services);
             a.Should().BeEquivalentTo(assemblies);
-        };
+        }
         builder.AddAutoRegistrationHandler(handler);
         builder.AddAssembliesForAutoRegister(assemblies);
 
