@@ -4,7 +4,7 @@ using System.Reflection;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 
-namespace Nut.MediatR;
+namespace Nut.MediatR.Internals;
 
 internal static class ServiceCollectionExtensions
 {
@@ -24,7 +24,7 @@ internal static class ServiceCollectionExtensions
                 }
             }
         }
-        
+
         return source;
     }
 }

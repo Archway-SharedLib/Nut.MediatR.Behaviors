@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace Nut.MediatR;
+namespace Nut.MediatR.Internals;
 
 internal static class ServiceProviderExtensions
 {

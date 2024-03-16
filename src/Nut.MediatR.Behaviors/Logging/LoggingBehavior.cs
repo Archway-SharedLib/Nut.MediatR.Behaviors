@@ -1,10 +1,13 @@
 using System;
+using System.Collections.Generic;
 using System.Diagnostics;
+using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using MediatR;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using Nut.MediatR.Internals;
 
 namespace Nut.MediatR;
 
@@ -15,6 +18,9 @@ namespace Nut.MediatR;
 /// <typeparam name="TResponse">レスポンスの型</typeparam>
 public class LoggingBehavior<TRequest, TResponse> : IPipelineBehavior<TRequest, TResponse> where TRequest : notnull
 {
+    private const string RequestKey = "Mediator.Request";
+    private const string ElapsedKey = "Mediator.Elapsed";
+
     /// <summary>
     /// <see cref="ServiceProvider"/> を取得します。
     /// </summary>
@@ -58,11 +64,11 @@ public class LoggingBehavior<TRequest, TResponse> : IPipelineBehavior<TRequest, 
 
         if (inValue?.HasValue == true)
         {
-            logger.Log(LogLevel.Information, "Start {Request}. {Input}", typeof(TRequest).Name, inValue.Get());
+            OutputWithValues(logger, inValue, $"Start {{{RequestKey}}}. ", typeof(TRequest).Name);
         }
         else
         {
-            logger.Log(LogLevel.Information, "Start {Request}.", typeof(TRequest).Name);
+            logger.Log(LogLevel.Information, $"Start {{{RequestKey}}}.", typeof(TRequest).Name);
         }
 
         var watch = new Stopwatch();
@@ -78,14 +84,11 @@ public class LoggingBehavior<TRequest, TResponse> : IPipelineBehavior<TRequest, 
 
             if (outValue?.HasValue == true)
             {
-                logger.Log(LogLevel.Information, "Complete {Request} in {Elapsed}ms. {Output}",
-                    typeof(TRequest).Name,
-                    watch.ElapsedMilliseconds,
-                    outValue.Get());
+                OutputWithValues(logger, outValue, $"Complete {{{RequestKey}}} in {{{ElapsedKey}}}ms. ", typeof(TRequest).Name, watch.ElapsedMilliseconds);
             }
             else
             {
-                logger.Log(LogLevel.Information, "Complete {Request} in {Elapsed}ms.",
+                logger.Log(LogLevel.Information, $"Complete {{{RequestKey}}} in {{{ElapsedKey}}}ms.",
                     typeof(TRequest).Name,
                     watch.ElapsedMilliseconds);
             }
@@ -95,9 +98,30 @@ public class LoggingBehavior<TRequest, TResponse> : IPipelineBehavior<TRequest, 
         catch (Exception e)
         {
             watch.Stop();
-            logger.Log(LogLevel.Error, e, "Exception {Request} in {Elapsed}ms.", typeof(TRequest).Name, watch.ElapsedMilliseconds, e.Message);
+            logger.Log(LogLevel.Error, e, $"Exception {{{RequestKey}}} in {{{ElapsedKey}}}ms.", typeof(TRequest).Name, watch.ElapsedMilliseconds, e.Message);
             throw;
         }
+    }
+
+    private static void OutputWithValues(ILogger<LoggingBehavior<TRequest, TResponse>> logger, InOutValueResult valueResult, string baseMessage, params object[] baseValues)
+    {
+        var sb = new StringBuilder(baseMessage);
+        var values = new List<object?>(baseValues);
+        var first = true;
+        foreach (var (key, value) in valueResult)
+        {
+            if (first)
+            {
+                first = false;
+            }
+            else
+            {
+                sb.Append(", ");
+            }
+            sb.Append($"{key}: {{{key}}}");
+            values.Add(value);
+        }
+        logger.Log(LogLevel.Information, sb.ToString(), values.ToArray());
     }
 
     private ILoggingInOutValueCollector<TRequest, TResponse>? GetCollector()
@@ -113,4 +137,6 @@ public class LoggingBehavior<TRequest, TResponse> : IPipelineBehavior<TRequest, 
         }
         return ServiceProvider.GetFirstServiceOrDefault<ILoggingInOutValueCollector<TRequest, TResponse>>();
     }
+
+
 }

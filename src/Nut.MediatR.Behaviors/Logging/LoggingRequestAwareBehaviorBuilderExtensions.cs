@@ -1,5 +1,6 @@
 using System.Reflection;
 using System;
+using Nut.MediatR.Internals;
 
 namespace Nut.MediatR;
 
@@ -20,6 +21,7 @@ public static class LoggingRequestAwareBehaviorBuilderExtensions
         builder.AddAutoRegistrationHandler((services, assemblies) =>
         {
             services.TryAddTransientGenericInterfaceTypeFromAssemblies(assemblies, typeof(ILoggingInOutValueCollector<,>));
+            services.TryAddTransientGenericInterfaceTypeFromAssemblies(assemblies, typeof(ILoggingInOutValueCollector<>));
         });
         return builder;
     }
@@ -37,6 +39,7 @@ public static class LoggingRequestAwareBehaviorBuilderExtensions
         var assemblies = assembliesForAutoRegister ?? Array.Empty<Assembly>();
         builder.AddAutoRegistrationHandler((services, _) =>
         {
+            services.TryAddTransientGenericInterfaceTypeFromAssemblies(assemblies, typeof(ILoggingInOutValueCollector<,>));
             services.TryAddTransientGenericInterfaceTypeFromAssemblies(assemblies, typeof(ILoggingInOutValueCollector<>));
         });
         return builder;

@@ -7,7 +7,7 @@ namespace Nut.MediatR;
 /// <summary>
 /// <see cref="IServiceCollection"/> の拡張メソッドを提供します。
 /// </summary>
-public static class ServiceCollectionExtesions
+public static class ServiceCollectionExtensions
 {
     /// <summary>
     /// <see cref="RequestAwareBehavior{TRequest, TResponse}"/> を利用するための構成を定義します。
