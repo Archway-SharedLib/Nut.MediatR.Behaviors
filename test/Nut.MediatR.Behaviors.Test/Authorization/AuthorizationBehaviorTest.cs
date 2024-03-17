@@ -38,14 +38,14 @@ public class AuthorizationBehaviorTest
         collection.AddTransient<IAuthorizer<AuthorizeAllDummyRequest>>(_ => new AuthorizeAllDymmyAuthorizer(list));
 
         var provider = collection.BuildServiceProvider();
-        await  provider.GetService<IMediator>().Send(new AuthorizeAllRequest());
+        await provider.GetService<IMediator>().Send(new AuthorizeAllRequest());
 
         list.Count.Should().Be(2);
         list[0].Should().Be("AuthorizeAllAuthorizer1");
         list[1].Should().Be("AuthorizeAllAuthorizer2");
     }
 
-    public record AuthorizeAllRequest: IRequest<AuthorizeAllResponse>;
+    public record AuthorizeAllRequest : IRequest<AuthorizeAllResponse>;
 
     public record AuthorizeAllResponse;
 
@@ -75,7 +75,7 @@ public class AuthorizationBehaviorTest
         }
     }
 
-    public record AuthorizeAllDummyRequest: IRequest<AuthorizeAllDummyResponse>;
+    public record AuthorizeAllDummyRequest : IRequest<AuthorizeAllDummyResponse>;
     public record AuthorizeAllDummyResponse;
 
     public record AuthorizeAllDymmyAuthorizer(List<string> run) : IAuthorizer<AuthorizeAllDummyRequest>

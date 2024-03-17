@@ -1,4 +1,3 @@
-using System;
 using System.Collections;
 using System.Collections.Generic;
 using FluentAssertions;
@@ -36,8 +35,8 @@ public class InOutValueResultTest
     public void GetEnumerator_列挙できる()
     {
         var result = InOutValueResult.WithValue("A").Add("B", "B");
-        var list = new List<KeyValuePair<string, object?>>();
-        foreach (KeyValuePair<string, object?> item in (IEnumerable)result)
+        var list = new List<KeyValuePair<string, object>>();
+        foreach (KeyValuePair<string, object> item in (IEnumerable)result)
         {
             list.Add(item);
         }

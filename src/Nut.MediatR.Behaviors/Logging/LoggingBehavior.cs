@@ -92,7 +92,6 @@ public class LoggingBehavior<TRequest, TResponse> : IPipelineBehavior<TRequest, 
                     typeof(TRequest).Name,
                     watch.ElapsedMilliseconds);
             }
-
             return result;
         }
         catch (Exception e)
@@ -126,17 +125,14 @@ public class LoggingBehavior<TRequest, TResponse> : IPipelineBehavior<TRequest, 
 
     private ILoggingInOutValueCollector<TRequest, TResponse>? GetCollector()
     {
-        if(typeof(TResponse) == typeof(Unit))
+        if (typeof(TResponse) == typeof(Unit))
         {
             var requestOnly = ServiceProvider.GetService<ILoggingInOutValueCollector<TRequest>>();
-            if(requestOnly is not null)
+            if (requestOnly is not null)
             {
                 return requestOnly as ILoggingInOutValueCollector<TRequest, TResponse>;
             }
-            
         }
         return ServiceProvider.GetFirstServiceOrDefault<ILoggingInOutValueCollector<TRequest, TResponse>>();
     }
-
-
 }

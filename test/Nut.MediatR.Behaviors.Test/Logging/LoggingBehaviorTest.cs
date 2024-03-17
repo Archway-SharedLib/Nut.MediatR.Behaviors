@@ -31,7 +31,7 @@ public partial class LoggingBehaviorTest
             return null;
         });
 
-        var logging = new LoggingBehavior<LoggerNoLoggerRequest, LoggerNoLoggerRequest>(collection.BuildServiceProvider()); 
+        var logging = new LoggingBehavior<LoggerNoLoggerRequest, LoggerNoLoggerRequest>(collection.BuildServiceProvider());
         var executed = false;
         await logging.Handle(new LoggerNoLoggerRequest(), () =>
         {
@@ -41,7 +41,7 @@ public partial class LoggingBehaviorTest
         executed.Should().BeTrue();
     }
 
-    public record LoggerNoLoggerRequest: IRequest<LoggerNoLoggerResponse>;
+    public record LoggerNoLoggerRequest : IRequest<LoggerNoLoggerResponse>;
     public record LoggerNoLoggerResponse;
 
     public class LoggerNoLoggerHandler : IRequestHandler<LoggerNoLoggerRequest, LoggerNoLoggerResponse>
@@ -138,7 +138,7 @@ public partial class LoggingBehaviorTest
         }
     }
 
-    public class LoggerOutStartEndInOutValueCollector: ILoggingInOutValueCollector<LoggerOutStartEndWithInOutRequest, LoggerOutStartEndWithInOutResponse>
+    public class LoggerOutStartEndInOutValueCollector : ILoggingInOutValueCollector<LoggerOutStartEndWithInOutRequest, LoggerOutStartEndWithInOutResponse>
     {
         public Task<InOutValueResult> CollectInValueAsync(LoggerOutStartEndWithInOutRequest request, CancellationToken cancellationToken)
         {
@@ -307,7 +307,7 @@ public partial class LoggingBehaviorTest
         protected override ILoggingInOutValueCollector<TRequest, TResponse> GetDefaultCollector() => new InheritInOutValueCollector<TRequest, TResponse>(executed);
     }
 
-    public class InheritInOutValueCollector<LoggerInheritRequest, LoggerInheritResponse>(ExecHistory executed): ILoggingInOutValueCollector<LoggerInheritRequest, LoggerInheritResponse>
+    public class InheritInOutValueCollector<LoggerInheritRequest, LoggerInheritResponse>(ExecHistory executed) : ILoggingInOutValueCollector<LoggerInheritRequest, LoggerInheritResponse>
     {
         public Task<InOutValueResult> CollectInValueAsync(LoggerInheritRequest request, CancellationToken cancellationToken)
         {

@@ -68,7 +68,7 @@ public partial class LoggingBehaviorTest
         logger.Logs[1].State.FirstOrDefault(kv => kv.Key == "Mediator.Elapsed").Should().NotBeNull();
     }
 
-    public record SimpleVoidRequest: IRequest;
+    public record SimpleVoidRequest : IRequest;
 
     public class SimpleVoidRequestHandler : IRequestHandler<SimpleVoidRequest>
     {

@@ -7,7 +7,7 @@ namespace Nut.MediatR;
 /// <summary>
 /// <see cref="ILoggingInOutValueCollector{TRequest,TResponse}"/> の処理結果を表すオブジェクトです。
 /// </summary>
-public class InOutValueResult: IEnumerable<KeyValuePair<string, object?>>
+public class InOutValueResult : IEnumerable<KeyValuePair<string, object?>>
 {
     private readonly Dictionary<string, object?> _values = new();
     private const string DefaultKey = "value";
@@ -33,7 +33,7 @@ public class InOutValueResult: IEnumerable<KeyValuePair<string, object?>>
     /// <exception cref="InvalidOperationException">値が設定されていない場合に発生します。</exception>
     public object? Get(string key)
     {
-        if(_values.TryGetValue(key, out var value))
+        if (_values.TryGetValue(key, out var value))
             return value;
         return null;
     }
@@ -84,7 +84,7 @@ public class InOutValueResult: IEnumerable<KeyValuePair<string, object?>>
     /// <see cref="KeyValuePair{TKey, TValue}"/> の列挙子を取得します。
     /// </summary>
     /// <returns><see cref="KeyValuePair{TKey, TValue}"/> の列挙子</returns>
-    public IEnumerator<KeyValuePair<string, object?>> GetEnumerator() =>_values.GetEnumerator();
+    public IEnumerator<KeyValuePair<string, object?>> GetEnumerator() => _values.GetEnumerator();
 
     /// <summary>
     /// 列挙しを取得します。

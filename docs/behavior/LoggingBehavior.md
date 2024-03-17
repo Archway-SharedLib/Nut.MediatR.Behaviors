@@ -45,29 +45,17 @@ public class SampleLoggingInOutValueCollector : ILoggingInOutValueCollector<Samp
 {
     public Task<InOutValueResult> CollectInValueAsync(SampleRequest request, CancellationToken cancellationToken)
     {
-        return Task.FromResult(InOutValueResult.WithValue(request.Value));
+        return Task.FromResult(InOutValueResult.WithValue(request.Value).Add("key", "value"));
     }
 
     public Task<InOutValueResult> CollectOutValueAsync(SampleResponse response, CancellationToken cancellationToken)
     {
-        return Task.FromResult(InOutValueResult.WithValue(response.Value));
+        return Task.FromResult(InOutValueResult.WithKeyValue("count", response.length));
     }
 }
 ```
 
-両方のメソッドともに戻り値は`InOutValueResult`の`WithValue`メソッドを利用して作成します。`InOutValueResult`には`Empty`メソッドもありますが、これを利用して作成した戻り値は、`LoggingBehavior`側では、出力する値が指定されていないのと同義として扱われるため、値は出力されません。
-
-片方の値、例えば引数だけ出力したい場合などは`BaseLoggingInOutValueCollector<TRequest, TResponse>`を利用してください。`BaseLoggingInOutValueCollector<TRequest, TResponse>`は引数と戻り値ともに`InOutValueResult`の`Empty`が返る基底の実装がされているため、値を返したい方の実装を行うだけで実現できます。
-
-```cs
-public class SampleLoggingInOutValueCollector : BaseLoggingInOutValueCollector<SampleRequest, SampleResponse>
-{
-    public override Task<InOutValueResult> CollectInValueAsync(SampleRequest request, CancellationToken cancellationToken)
-    {
-        return Task.FromResult(InOutValueResult.WithValue(request.Value));
-    }
-}
-```
+両方のメソッドともに戻り値は`InOutValueResult`の`WithValue`または`WithKeyValue`メソッドを利用して作成します。`InOutValueResult`には`Empty`メソッドもありますが、これを利用して作成した戻り値は、`LoggingBehavior`側では、出力する値が指定されていないのと同義として扱われるため、値は出力されません。
 
 ## ILoggingInOutValueCollectorの登録
 
@@ -108,5 +96,4 @@ public class CustomLoggingBehavior<TRequest, TResponse> :
         return new ToStringLoggingInOutValueCollector<TRequest, TResponse>();
     }
 }
-
 ```

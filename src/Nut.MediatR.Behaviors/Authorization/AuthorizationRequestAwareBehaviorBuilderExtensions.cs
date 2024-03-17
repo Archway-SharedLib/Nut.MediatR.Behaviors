@@ -35,7 +35,7 @@ public static class AuthorizationRequestAwareBehaviorBuilderExtensions
     public static RequestAwareBehaviorBuilder AddAuthorization(this RequestAwareBehaviorBuilder builder, params Assembly[] assembliesForAutoRegister)
     {
         builder.AddOpenBehavior(typeof(AuthorizationBehavior<,>));
-        var assemblies = assembliesForAutoRegister ?? Array.Empty<Assembly>();  
+        var assemblies = assembliesForAutoRegister ?? Array.Empty<Assembly>();
         builder.AddAutoRegistrationHandler((services, _) =>
         {
             services.TryAddTransientGenericInterfaceTypeFromAssemblies(assemblies, typeof(IAuthorizer<>));

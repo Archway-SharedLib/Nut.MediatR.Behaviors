@@ -1,10 +1,10 @@
-using MediatR;
 using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Reflection;
+using MediatR;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
-using System.Linq;
-using System.Collections.Generic;
-using System.Reflection;
 
 namespace Nut.MediatR;
 
@@ -59,6 +59,7 @@ public class RequestAwareBehaviorBuilder
         _openBehaviorTypes.Add(openBehaviorType);
         return this;
     }
+
     /// <summary>
     /// 指定されたアセンブリをもとに自動登録を行うハンドラを追加します。
     /// </summary>
@@ -72,16 +73,17 @@ public class RequestAwareBehaviorBuilder
 
     internal void Build()
     {
-        foreach(var openBehaviorType in _openBehaviorTypes.Distinct())
+        foreach (var openBehaviorType in _openBehaviorTypes.Distinct())
         {
             Services.TryAddTransient(openBehaviorType);
         }
         var assemblies = _assemblies.Distinct().ToArray();
-        foreach(var handler in _autoRegistrationHandlers)
+        foreach (var handler in _autoRegistrationHandlers)
         {
             handler(Services, assemblies);
         }
     }
+
     /// <summary>
     /// 自動登録を行うためのアセンブリを追加します。
     /// </summary>
@@ -93,4 +95,3 @@ public class RequestAwareBehaviorBuilder
         return this;
     }
 }
-

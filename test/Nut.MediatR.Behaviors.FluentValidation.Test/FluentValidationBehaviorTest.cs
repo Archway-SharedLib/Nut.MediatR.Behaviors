@@ -84,7 +84,7 @@ public class FluentValidationBehaviorTest
         }
     }
 
-    public class ErrorValidator: AbstractValidator<ErrorValidatorRequest>
+    public class ErrorValidator : AbstractValidator<ErrorValidatorRequest>
     {
         public ErrorValidator()
         {

@@ -198,9 +198,9 @@ public class Req3Handler : IRequestHandler<Req3>
     }
 }
 
-public class InheritWithBehaviorsAttribute: WithBehaviorsAttribute
+public class InheritWithBehaviorsAttribute : WithBehaviorsAttribute
 {
-    public InheritWithBehaviorsAttribute():
+    public InheritWithBehaviorsAttribute() :
         base(typeof(TestBehavior3<,>), typeof(TestBehavior1<,>))
     {
     }

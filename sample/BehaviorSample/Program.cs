@@ -1,4 +1,3 @@
-using System;
 using System.Threading.Tasks;
 using BehaviorSample.Sample;
 using FluentValidation;
@@ -11,7 +10,7 @@ namespace BehaviorSample;
 
 class Program
 {
-    static async Task Main(string[] args)
+    static async Task Main()
     {
         var provider = new ServiceCollection()
             .AddLogging(config =>
@@ -19,7 +18,8 @@ class Program
                 config.AddConsole();
             })
             .AddValidatorsFromAssemblies(new[] { typeof(Program).Assembly })
-            .AddMediatR(cfg => {
+            .AddMediatR(cfg =>
+            {
                 cfg.RegisterServicesFromAssemblies(typeof(Program).Assembly);
             })
             .AddMediatRRequestAwareBehavior(builder =>
