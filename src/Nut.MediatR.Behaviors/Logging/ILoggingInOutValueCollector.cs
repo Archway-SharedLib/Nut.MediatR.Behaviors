@@ -34,6 +34,6 @@ public interface ILoggingInOutValueCollector<in TRequest, TResponse> where TRequ
 /// ログに出力する追加の値を取得するためのインターフェイスを定義します。
 /// </summary>
 /// <typeparam name="TRequest">リクエストの型</typeparam>
-public interface ILoggingInOutValueCollector<in TRequest>: ILoggingInOutValueCollector<TRequest, Unit> where TRequest : notnull
+public interface ILoggingInOutValueCollector<in TRequest> : ILoggingInOutValueCollector<TRequest, Unit> where TRequest : notnull
 {
 }

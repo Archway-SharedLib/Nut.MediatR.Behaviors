@@ -3,9 +3,15 @@
   "isRoot": true,
   "tools": {
     "dotnet-reportgenerator-globaltool": {
-      "version": "5.2.1",
+      "version": "5.2.3",
       "commands": [
         "reportgenerator"
+      ]
+    },
+    "minver-cli": {
+      "version": "5.0.0",
+      "commands": [
+        "minver"
       ]
     }
   }

@@ -1,4 +1,3 @@
-using System;
 using System.Threading.Tasks;
 using BehaviorSample.Sample;
 using FluentValidation;
@@ -11,7 +10,7 @@ namespace BehaviorSample;
 
 class Program
 {
-    static async Task Main(string[] args)
+    static async Task Main()
     {
         var provider = new ServiceCollection()
             .AddLogging(config =>
@@ -19,15 +18,22 @@ class Program
                 config.AddConsole();
             })
             .AddValidatorsFromAssemblies(new[] { typeof(Program).Assembly })
-            .AddMediatR(cfg => {
-                cfg.RegisterServicesFromAssemblies(typeof(Program).Assembly)
-                    .AddOpenBehavior(typeof(PerRequestBehavior<,>));
+            .AddMediatR(cfg =>
+            {
+                cfg.RegisterServicesFromAssemblies(typeof(Program).Assembly);
+            })
+            .AddMediatRRequestAwareBehavior(builder =>
+            {
+                // 各サービスをもっているアセンブリを登録する
+
+                builder
+                    .AddAssembliesForAutoRegister(typeof(Program).Assembly)
+                    .AddLogging()
+                    .AddAuthorization()
+                    .AddDataAnnotationValidation()
+                    .AddOpenBehavior(typeof(FluentValidationBehavior<,>));
             })
             // PreRequestBehaviorから利用するBehaviorは直接型でインスタンスを取得するので、IPipelineBehavior経由にしない。
-            .AddTransient(typeof(LoggingBehavior<,>))
-            .AddTransient(typeof(AuthorizationBehavior<,>))
-            .AddTransient(typeof(DataAnnotationValidationBehavior<,>))
-            .AddTransient(typeof(FluentValidationBehavior<,>))
             // IAuthorizerやILoggingInOutValueCollectorはアセンブリをスキャンして登録すると便利
             .Scan(scan => scan
                 .FromAssemblyOf<Program>()
@@ -36,18 +42,18 @@ class Program
                     .Where(type => !type.IsGenericType))
                 .AsImplementedInterfaces()
                 .WithTransientLifetime())
-            .Scan(scan => scan
-                .FromAssemblyOf<Program>()
-                .AddClasses(cls =>
-                    cls.AssignableTo(typeof(ILoggingInOutValueCollector<,>))
-                    .Where(type => !type.IsGenericType))
-                .AsImplementedInterfaces()
-                .WithTransientLifetime())
+            //.Scan(scan => scan
+            //    .FromAssemblyOf<Program>()
+            //    .AddClasses(cls =>
+            //        cls.AssignableTo(typeof(ILoggingInOutValueCollector<,>))
+            //        .Where(type => !type.IsGenericType))
+            //    .AsImplementedInterfaces()
+            //    .WithTransientLifetime())
             .BuildServiceProvider();
 
         var result = await provider.GetService<IMediator>().Send(new SampleRequest() { Value = "Hello" });
 
-        Console.WriteLine(result.Value);
+        // Console.WriteLine(result.Value);
 
     }
 }

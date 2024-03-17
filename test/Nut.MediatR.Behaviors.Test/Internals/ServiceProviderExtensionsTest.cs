@@ -1,9 +1,10 @@
 using System;
 using FluentAssertions;
 using Microsoft.Extensions.DependencyInjection;
+using Nut.MediatR.Internals;
 using Xunit;
 
-namespace Nut.MediatR.Test;
+namespace Nut.MediatR.Test.Internals;
 public class ServiceProviderExtensionsTest
 {
     [Fact]

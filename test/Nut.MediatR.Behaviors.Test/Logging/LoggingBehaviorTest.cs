@@ -6,7 +6,7 @@ using FluentAssertions;
 using MediatR;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-using Nut.MediatR.Test.PerRequest;
+using Nut.MediatR.Test.RequestAware;
 using Xunit;
 
 namespace Nut.MediatR.Test.Logging;
@@ -31,7 +31,7 @@ public partial class LoggingBehaviorTest
             return null;
         });
 
-        var logging = new LoggingBehavior<LoggerNoLoggerRequest, LoggerNoLoggerRequest>(collection.BuildServiceProvider()); 
+        var logging = new LoggingBehavior<LoggerNoLoggerRequest, LoggerNoLoggerRequest>(collection.BuildServiceProvider());
         var executed = false;
         await logging.Handle(new LoggerNoLoggerRequest(), () =>
         {
@@ -41,7 +41,7 @@ public partial class LoggingBehaviorTest
         executed.Should().BeTrue();
     }
 
-    public record LoggerNoLoggerRequest: IRequest<LoggerNoLoggerResponse>;
+    public record LoggerNoLoggerRequest : IRequest<LoggerNoLoggerResponse>;
     public record LoggerNoLoggerResponse;
 
     public class LoggerNoLoggerHandler : IRequestHandler<LoggerNoLoggerRequest, LoggerNoLoggerResponse>
@@ -61,7 +61,7 @@ public partial class LoggingBehaviorTest
         var collection = new ServiceCollection();
         collection.AddMediatR(cfg =>
         {
-            cfg.RegisterServicesFromAssemblies(typeof(PerRequestBehaviorTest).Assembly);
+            cfg.RegisterServicesFromAssemblies(typeof(RequestAwareBehaviorTest).Assembly);
             cfg.AddOpenBehavior(typeof(LoggingBehavior<,>));
         });
         collection.AddSingleton<ILogger<LoggingBehavior<LoggerOutStartEndRequest, LoggerOutStartEndResponse>>>(logger);
@@ -74,11 +74,11 @@ public partial class LoggingBehaviorTest
         logger.Logs.Should().HaveCount(2);
         logger.Logs[0].LogLevel.Should().Be(LogLevel.Information);
         logger.Logs[0].Message.Should().Be($"Start {nameof(LoggerOutStartEndRequest)}.");
-        logger.Logs[0].State.First(kv => kv.Key == "Request").Value.ToString().Should().Be(nameof(LoggerOutStartEndRequest));
+        logger.Logs[0].State.First(kv => kv.Key == "Mediator.Request").Value.ToString().Should().Be(nameof(LoggerOutStartEndRequest));
         logger.Logs[1].LogLevel.Should().Be(LogLevel.Information);
         logger.Logs[1].Message.Should().MatchRegex($"Complete {nameof(LoggerOutStartEndRequest)} in [0-9]+ms.");
-        logger.Logs[1].State.First(kv => kv.Key == "Request").Value.ToString().Should().Be(nameof(LoggerOutStartEndRequest));
-        logger.Logs[1].State.FirstOrDefault(kv => kv.Key == "Elapsed").Should().NotBeNull();
+        logger.Logs[1].State.First(kv => kv.Key == "Mediator.Request").Value.ToString().Should().Be(nameof(LoggerOutStartEndRequest));
+        logger.Logs[1].State.FirstOrDefault(kv => kv.Key == "Mediator.Elapsed").Should().NotBeNull();
     }
 
     public record LoggerOutStartEndRequest : IRequest<LoggerOutStartEndResponse>;
@@ -102,7 +102,7 @@ public partial class LoggingBehaviorTest
         var collection = new ServiceCollection();
         collection.AddMediatR(cfg =>
         {
-            cfg.RegisterServicesFromAssemblies(typeof(PerRequestBehaviorTest).Assembly);
+            cfg.RegisterServicesFromAssemblies(typeof(RequestAwareBehaviorTest).Assembly);
             cfg.AddOpenBehavior(typeof(LoggingBehavior<,>));
         });
         collection.AddTransient<ILoggingInOutValueCollector<LoggerOutStartEndWithInOutRequest, LoggerOutStartEndWithInOutResponse>,
@@ -116,14 +116,14 @@ public partial class LoggingBehaviorTest
 
         logger.Logs.Should().HaveCount(2);
         logger.Logs[0].LogLevel.Should().Be(LogLevel.Information);
-        logger.Logs[0].Message.Should().Be($"Start {nameof(LoggerOutStartEndWithInOutRequest)}. In");
-        logger.Logs[0].State.First(kv => kv.Key == "Request").Value.ToString().Should().Be(nameof(LoggerOutStartEndWithInOutRequest));
-        logger.Logs[0].State.First(kv => kv.Key == "Input").Value.ToString().Should().Be("In");
+        logger.Logs[0].Message.Should().Be($"Start {nameof(LoggerOutStartEndWithInOutRequest)}. value: In");
+        logger.Logs[0].State.First(kv => kv.Key == "Mediator.Request").Value.ToString().Should().Be(nameof(LoggerOutStartEndWithInOutRequest));
+        logger.Logs[0].State.First(kv => kv.Key == "value").Value.ToString().Should().Be("In");
         logger.Logs[1].LogLevel.Should().Be(LogLevel.Information);
-        logger.Logs[1].Message.Should().MatchRegex($"Complete {nameof(LoggerOutStartEndWithInOutRequest)} in [0-9]+ms. Out");
-        logger.Logs[1].State.First(kv => kv.Key == "Request").Value.ToString().Should().Be(nameof(LoggerOutStartEndWithInOutRequest));
-        logger.Logs[1].State.FirstOrDefault(kv => kv.Key == "Elapsed").Should().NotBeNull();
-        logger.Logs[1].State.First(kv => kv.Key == "Output").Value.ToString().Should().Be("Out");
+        logger.Logs[1].Message.Should().MatchRegex($"Complete {nameof(LoggerOutStartEndWithInOutRequest)} in [0-9]+ms. value: Out");
+        logger.Logs[1].State.First(kv => kv.Key == "Mediator.Request").Value.ToString().Should().Be(nameof(LoggerOutStartEndWithInOutRequest));
+        logger.Logs[1].State.FirstOrDefault(kv => kv.Key == "Mediator.Elapsed").Should().NotBeNull();
+        logger.Logs[1].State.First(kv => kv.Key == "value").Value.ToString().Should().Be("Out");
     }
 
     public record LoggerOutStartEndWithInOutRequest : IRequest<LoggerOutStartEndWithInOutResponse>;
@@ -138,7 +138,7 @@ public partial class LoggingBehaviorTest
         }
     }
 
-    public class LoggerOutStartEndInOutValueCollector: ILoggingInOutValueCollector<LoggerOutStartEndWithInOutRequest, LoggerOutStartEndWithInOutResponse>
+    public class LoggerOutStartEndInOutValueCollector : ILoggingInOutValueCollector<LoggerOutStartEndWithInOutRequest, LoggerOutStartEndWithInOutResponse>
     {
         public Task<InOutValueResult> CollectInValueAsync(LoggerOutStartEndWithInOutRequest request, CancellationToken cancellationToken)
         {
@@ -160,7 +160,7 @@ public partial class LoggingBehaviorTest
         var collection = new ServiceCollection();
         collection.AddMediatR(cfg =>
         {
-            cfg.RegisterServicesFromAssemblies(typeof(PerRequestBehaviorTest).Assembly);
+            cfg.RegisterServicesFromAssemblies(typeof(RequestAwareBehaviorTest).Assembly);
             cfg.AddOpenBehavior(typeof(LoggingBehavior<,>));
         });
         collection.AddTransient<ILoggingInOutValueCollector<LoggerOutStartEndWithEmptyInOutRequest, LoggerOutStartEndWithEmptyInOutResponse>,
@@ -175,13 +175,13 @@ public partial class LoggingBehaviorTest
         logger.Logs.Should().HaveCount(2);
         logger.Logs[0].LogLevel.Should().Be(LogLevel.Information);
         logger.Logs[0].Message.Should().Be($"Start {nameof(LoggerOutStartEndWithEmptyInOutRequest)}.");
-        logger.Logs[0].State.First(kv => kv.Key == "Request").Value.ToString().Should().Be(nameof(LoggerOutStartEndWithEmptyInOutRequest));
-        logger.Logs[0].State.Any(kv => kv.Key == "Input").Should().BeFalse();
+        logger.Logs[0].State.First(kv => kv.Key == "Mediator.Request").Value.ToString().Should().Be(nameof(LoggerOutStartEndWithEmptyInOutRequest));
+        logger.Logs[0].State.Any(kv => kv.Key == "value").Should().BeFalse();
         logger.Logs[1].LogLevel.Should().Be(LogLevel.Information);
         logger.Logs[1].Message.Should().MatchRegex($"Complete {nameof(LoggerOutStartEndWithEmptyInOutRequest)} in [0-9]+ms.");
-        logger.Logs[1].State.First(kv => kv.Key == "Request").Value.ToString().Should().Be(nameof(LoggerOutStartEndWithEmptyInOutRequest));
-        logger.Logs[1].State.FirstOrDefault(kv => kv.Key == "Elapsed").Should().NotBeNull();
-        logger.Logs[1].State.Any(kv => kv.Key == "Output").Should().BeFalse();
+        logger.Logs[1].State.First(kv => kv.Key == "Mediator.Request").Value.ToString().Should().Be(nameof(LoggerOutStartEndWithEmptyInOutRequest));
+        logger.Logs[1].State.FirstOrDefault(kv => kv.Key == "Mediator.Elapsed").Should().NotBeNull();
+        logger.Logs[1].State.Any(kv => kv.Key == "value").Should().BeFalse();
     }
 
     public record LoggerOutStartEndWithEmptyInOutRequest : IRequest<LoggerOutStartEndWithEmptyInOutResponse>;
@@ -209,64 +209,6 @@ public partial class LoggingBehaviorTest
         }
     }
 
-    //-----------------
-
-    [Fact]
-    public async Task Handle_InOutValueCollectorが設定されていても結果がNullの場合は値は出力されない()
-    {
-        var logger = new TestLogger<LoggingBehavior<LoggerOutStartEndWithNullInOutRequest, LoggerOutStartEndWithNullInOutResponse>>();
-        var collection = new ServiceCollection();
-        collection.AddMediatR(cfg =>
-        {
-            cfg.RegisterServicesFromAssemblies(typeof(PerRequestBehaviorTest).Assembly);
-            cfg.AddOpenBehavior(typeof(LoggingBehavior<,>));
-        });
-        collection.AddTransient<ILoggingInOutValueCollector<LoggerOutStartEndWithNullInOutRequest, LoggerOutStartEndWithNullInOutResponse>,
-            LoggerOutStartEndNullInOutValueCollector>();
-        collection.AddSingleton<ILogger<LoggingBehavior<LoggerOutStartEndWithNullInOutRequest, LoggerOutStartEndWithNullInOutResponse>>>(logger);
-        collection.AddSingleton<Executed>();
-
-        var provider = collection.BuildServiceProvider();
-        var mediator = provider.GetService<IMediator>();
-        var r = await mediator.Send(new LoggerOutStartEndWithNullInOutRequest());
-
-        logger.Logs.Should().HaveCount(2);
-        logger.Logs[0].LogLevel.Should().Be(LogLevel.Information);
-        logger.Logs[0].Message.Should().Be($"Start {nameof(LoggerOutStartEndWithNullInOutRequest)}.");
-        logger.Logs[0].State.First(kv => kv.Key == "Request").Value.ToString().Should().Be(nameof(LoggerOutStartEndWithNullInOutRequest));
-        logger.Logs[0].State.Any(kv => kv.Key == "Input").Should().BeFalse();
-        logger.Logs[1].LogLevel.Should().Be(LogLevel.Information);
-        logger.Logs[1].Message.Should().MatchRegex($"Complete {nameof(LoggerOutStartEndWithNullInOutRequest)} in [0-9]+ms.");
-        logger.Logs[1].State.First(kv => kv.Key == "Request").Value.ToString().Should().Be(nameof(LoggerOutStartEndWithNullInOutRequest));
-        logger.Logs[1].State.FirstOrDefault(kv => kv.Key == "Elapsed").Should().NotBeNull();
-        logger.Logs[1].State.Any(kv => kv.Key == "Output").Should().BeFalse();
-    }
-
-    public record LoggerOutStartEndWithNullInOutRequest : IRequest<LoggerOutStartEndWithNullInOutResponse>;
-    public record LoggerOutStartEndWithNullInOutResponse;
-
-    public class LoggerOutStartWithNullInOutEndHandler(Executed executed) : IRequestHandler<LoggerOutStartEndWithNullInOutRequest, LoggerOutStartEndWithNullInOutResponse>
-    {
-        public Task<LoggerOutStartEndWithNullInOutResponse> Handle(LoggerOutStartEndWithNullInOutRequest request, CancellationToken cancellationToken)
-        {
-            executed.Value = true;
-            return Task.FromResult(new LoggerOutStartEndWithNullInOutResponse());
-        }
-    }
-
-    public class LoggerOutStartEndNullInOutValueCollector : ILoggingInOutValueCollector<LoggerOutStartEndWithNullInOutRequest, LoggerOutStartEndWithNullInOutResponse>
-    {
-        public Task<InOutValueResult> CollectInValueAsync(LoggerOutStartEndWithNullInOutRequest request, CancellationToken cancellationToken)
-        {
-            return Task.FromResult(InOutValueResult.Empty());
-        }
-
-        public Task<InOutValueResult> CollectOutValueAsync(LoggerOutStartEndWithNullInOutResponse response, CancellationToken cancellationToken)
-        {
-            return Task.FromResult(InOutValueResult.Empty());
-        }
-    }
-
     //---------------------
 
     [Fact]
@@ -276,7 +218,7 @@ public partial class LoggingBehaviorTest
         var collection = new ServiceCollection();
         collection.AddMediatR(cfg =>
         {
-            cfg.RegisterServicesFromAssemblies(typeof(PerRequestBehaviorTest).Assembly);
+            cfg.RegisterServicesFromAssemblies(typeof(RequestAwareBehaviorTest).Assembly);
             cfg.AddOpenBehavior(typeof(LoggingBehavior<,>));
         });
         collection.AddSingleton<ILogger<LoggingBehavior<LoggerExceptionRequest, LoggerExceptionResponse>>>(logger);
@@ -290,12 +232,12 @@ public partial class LoggingBehaviorTest
         logger.Logs.Should().HaveCount(2);
         logger.Logs[0].LogLevel.Should().Be(LogLevel.Information);
         logger.Logs[0].Message.Should().Be($"Start {nameof(LoggerExceptionRequest)}.");
-        logger.Logs[0].State.First(kv => kv.Key == "Request").Value.ToString().Should().Be(nameof(LoggerExceptionRequest));
+        logger.Logs[0].State.First(kv => kv.Key == "Mediator.Request").Value.ToString().Should().Be(nameof(LoggerExceptionRequest));
         logger.Logs[0].Exception.Should().BeNull();
         logger.Logs[1].LogLevel.Should().Be(LogLevel.Error);
         logger.Logs[1].Message.Should().MatchRegex($"Exception {nameof(LoggerExceptionRequest)} in [0-9]+ms.");
-        logger.Logs[1].State.First(kv => kv.Key == "Request").Value.ToString().Should().Be(nameof(LoggerExceptionRequest));
-        logger.Logs[1].State.FirstOrDefault(kv => kv.Key == "Elapsed").Should().NotBeNull();
+        logger.Logs[1].State.First(kv => kv.Key == "Mediator.Request").Value.ToString().Should().Be(nameof(LoggerExceptionRequest));
+        logger.Logs[1].State.FirstOrDefault(kv => kv.Key == "Mediator.Elapsed").Should().NotBeNull();
         logger.Logs[1].Exception.Should().NotBeNull().And.BeOfType<Exception>().Subject.Message.Should().Be("Dummy Exception");
     }
 
@@ -320,7 +262,7 @@ public partial class LoggingBehaviorTest
         var collection = new ServiceCollection();
         collection.AddMediatR(cfg =>
         {
-            cfg.RegisterServicesFromAssemblies(typeof(PerRequestBehaviorTest).Assembly);
+            cfg.RegisterServicesFromAssemblies(typeof(RequestAwareBehaviorTest).Assembly);
             cfg.AddOpenBehavior(typeof(InheritLoggingBehavior<,>));
         });
         collection.AddTransient<ILoggingInOutValueCollector<LoggerInheritRequest, LoggerInheritResponse>,
@@ -334,14 +276,14 @@ public partial class LoggingBehaviorTest
 
         logger.Logs.Should().HaveCount(2);
         logger.Logs[0].LogLevel.Should().Be(LogLevel.Information);
-        logger.Logs[0].Message.Should().Be($"Start {nameof(LoggerInheritRequest)}. Inherit In");
-        logger.Logs[0].State.First(kv => kv.Key == "Request").Value.ToString().Should().Be(nameof(LoggerInheritRequest));
-        logger.Logs[0].State.First(kv => kv.Key == "Input").Value.ToString().Should().Be("Inherit In");
+        logger.Logs[0].Message.Should().Be($"Start {nameof(LoggerInheritRequest)}. value: Inherit In");
+        logger.Logs[0].State.First(kv => kv.Key == "Mediator.Request").Value.ToString().Should().Be(nameof(LoggerInheritRequest));
+        logger.Logs[0].State.First(kv => kv.Key == "value").Value.ToString().Should().Be("Inherit In");
         logger.Logs[1].LogLevel.Should().Be(LogLevel.Information);
-        logger.Logs[1].Message.Should().MatchRegex($"Complete {nameof(LoggerInheritRequest)} in [0-9]+ms. Inherit Out");
-        logger.Logs[1].State.First(kv => kv.Key == "Request").Value.ToString().Should().Be(nameof(LoggerInheritRequest));
-        logger.Logs[1].State.FirstOrDefault(kv => kv.Key == "Elapsed").Should().NotBeNull();
-        logger.Logs[1].State.First(kv => kv.Key == "Output").Value.ToString().Should().Be("Inherit Out");
+        logger.Logs[1].Message.Should().MatchRegex($"Complete {nameof(LoggerInheritRequest)} in [0-9]+ms. value: Inherit Out");
+        logger.Logs[1].State.First(kv => kv.Key == "Mediator.Request").Value.ToString().Should().Be(nameof(LoggerInheritRequest));
+        logger.Logs[1].State.FirstOrDefault(kv => kv.Key == "Mediator.Elapsed").Should().NotBeNull();
+        logger.Logs[1].State.First(kv => kv.Key == "value").Value.ToString().Should().Be("Inherit Out");
 
         var executed = provider.GetService<ExecHistory>();
         executed.List.Should().HaveCount(2);
@@ -365,7 +307,7 @@ public partial class LoggingBehaviorTest
         protected override ILoggingInOutValueCollector<TRequest, TResponse> GetDefaultCollector() => new InheritInOutValueCollector<TRequest, TResponse>(executed);
     }
 
-    public class InheritInOutValueCollector<LoggerInheritRequest, LoggerInheritResponse>(ExecHistory executed): ILoggingInOutValueCollector<LoggerInheritRequest, LoggerInheritResponse>
+    public class InheritInOutValueCollector<LoggerInheritRequest, LoggerInheritResponse>(ExecHistory executed) : ILoggingInOutValueCollector<LoggerInheritRequest, LoggerInheritResponse>
     {
         public Task<InOutValueResult> CollectInValueAsync(LoggerInheritRequest request, CancellationToken cancellationToken)
         {
@@ -379,4 +321,74 @@ public partial class LoggingBehaviorTest
             return Task.FromResult(InOutValueResult.WithValue("Inherit Out"));
         }
     }
+
+    //--------
+
+    [Fact]
+    public async Task Handle_InOutValueCollectorで複数の値が設定されている場合は複数の値が出力される()
+    {
+        var logger = new TestLogger<LoggingBehavior<LoggerOutStartEndWithMultipleValueInOutRequest, LoggerOutStartEndWithMultipleValueInOutResponse>>();
+        var collection = new ServiceCollection();
+        collection.AddMediatR(cfg =>
+        {
+            cfg.RegisterServicesFromAssemblies(typeof(RequestAwareBehaviorTest).Assembly);
+            cfg.AddOpenBehavior(typeof(LoggingBehavior<,>));
+        });
+        collection.AddTransient<ILoggingInOutValueCollector<LoggerOutStartEndWithMultipleValueInOutRequest, LoggerOutStartEndWithMultipleValueInOutResponse>,
+            LoggerOutStartEndInOutMultipleValueCollector>();
+        collection.AddSingleton<ILogger<LoggingBehavior<LoggerOutStartEndWithMultipleValueInOutRequest, LoggerOutStartEndWithMultipleValueInOutResponse>>>(logger);
+        collection.AddSingleton<Executed>();
+
+        var provider = collection.BuildServiceProvider();
+        var mediator = provider.GetService<IMediator>();
+        var r = await mediator.Send(new LoggerOutStartEndWithMultipleValueInOutRequest());
+
+        logger.Logs.Should().HaveCount(2);
+        logger.Logs[0].LogLevel.Should().Be(LogLevel.Information);
+        logger.Logs[0].Message.Should().Be($"Start {nameof(LoggerOutStartEndWithMultipleValueInOutRequest)}. val: val-value, numvalue: 123, boolvalue: True");
+        logger.Logs[0].State.First(kv => kv.Key == "Mediator.Request").Value.ToString().Should().Be(nameof(LoggerOutStartEndWithMultipleValueInOutRequest));
+        logger.Logs[0].State.First(kv => kv.Key == "val").Value.ToString().Should().Be("val-value");
+        logger.Logs[0].State.First(kv => kv.Key == "numvalue").Value.Should().Be(123);
+        logger.Logs[0].State.First(kv => kv.Key == "boolvalue").Value.Should().Be(true);
+
+        logger.Logs[1].LogLevel.Should().Be(LogLevel.Information);
+        logger.Logs[1].Message.Should().MatchRegex($"Complete {nameof(LoggerOutStartEndWithMultipleValueInOutRequest)} in [0-9]+ms\\. val: val\\-value, numvalue: 123, boolvalue: True");
+        logger.Logs[1].State.First(kv => kv.Key == "Mediator.Request").Value.ToString().Should().Be(nameof(LoggerOutStartEndWithMultipleValueInOutRequest));
+        logger.Logs[1].State.FirstOrDefault(kv => kv.Key == "Mediator.Elapsed").Should().NotBeNull();
+        logger.Logs[1].State.First(kv => kv.Key == "val").Value.ToString().Should().Be("val-value");
+        logger.Logs[1].State.First(kv => kv.Key == "numvalue").Value.Should().Be(123);
+        logger.Logs[1].State.First(kv => kv.Key == "boolvalue").Value.Should().Be(true);
+    }
+
+    public record LoggerOutStartEndWithMultipleValueInOutRequest : IRequest<LoggerOutStartEndWithMultipleValueInOutResponse>;
+    public record LoggerOutStartEndWithMultipleValueInOutResponse;
+
+    public class LoggerOutStartWithMultipleValueInOutEndHandler(Executed executed) : IRequestHandler<LoggerOutStartEndWithMultipleValueInOutRequest, LoggerOutStartEndWithMultipleValueInOutResponse>
+    {
+        public Task<LoggerOutStartEndWithMultipleValueInOutResponse> Handle(LoggerOutStartEndWithMultipleValueInOutRequest request, CancellationToken cancellationToken)
+        {
+            executed.Value = true;
+            return Task.FromResult(new LoggerOutStartEndWithMultipleValueInOutResponse());
+        }
+    }
+
+    public class LoggerOutStartEndInOutMultipleValueCollector : ILoggingInOutValueCollector<LoggerOutStartEndWithMultipleValueInOutRequest, LoggerOutStartEndWithMultipleValueInOutResponse>
+    {
+        public Task<InOutValueResult> CollectInValueAsync(LoggerOutStartEndWithMultipleValueInOutRequest request, CancellationToken cancellationToken)
+        {
+            return Task.FromResult(InOutValueResult
+                .WithKeyValue("val", "val-value")
+                .Add("numvalue", 123)
+                .Add("boolvalue", true));
+        }
+
+        public Task<InOutValueResult> CollectOutValueAsync(LoggerOutStartEndWithMultipleValueInOutResponse response, CancellationToken cancellationToken)
+        {
+            return Task.FromResult(InOutValueResult
+                .WithKeyValue("val", "val-value")
+                .Add("numvalue", 123)
+                .Add("boolvalue", true));
+        }
+    }
+
 }

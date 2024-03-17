@@ -2,7 +2,7 @@ using System;
 using FluentAssertions;
 using Xunit;
 
-namespace Nut.MediatR.Test.PerRequest;
+namespace Nut.MediatR.Test.RequestAware;
 
 public class WithBehaviorsAttributeTest
 {

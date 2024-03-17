@@ -10,7 +10,7 @@ public class BaseLoggingInOutValueCollectorTest
     [Fact]
     public async Task CollectInValueAsync_デフォルトはEmpty()
     {
-        var target = new TestBaseLogginInOutVlaueCollectorExt();
+        var target = new TestBaseLoggingInOutValueCollectorExt();
         var result = await target.CollectInValueAsync(null, new System.Threading.CancellationToken());
         result.HasValue.Should().BeFalse();
     }
@@ -18,13 +18,13 @@ public class BaseLoggingInOutValueCollectorTest
     [Fact]
     public async Task CollectInOutValueAsync_デフォルトはEmpty()
     {
-        var target = new TestBaseLogginInOutVlaueCollectorExt();
+        var target = new TestBaseLoggingInOutValueCollectorExt();
         var result = await target.CollectOutValueAsync(null, new System.Threading.CancellationToken());
         result.HasValue.Should().BeFalse();
     }
 }
 
-public class TestBaseLogginInOutVlaueCollectorExt :
+public class TestBaseLoggingInOutValueCollectorExt :
     BaseLoggingInOutValueCollector<TestBehaviorRequest, TestBehaviorResponse>
 {
 

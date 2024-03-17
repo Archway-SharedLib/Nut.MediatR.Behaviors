@@ -11,7 +11,7 @@ Nut.MediatRは[MediatR]を利用した、様々な機能を提供します。
 
 Nut.MediatR.Behaviorsは[MediatR]の、様々なアプリケーションで利用できる汎用のカスタム[Behavior]を提供します。次のBehaviorが含まれます。
 
-- [PerRequestBehavior](./docs/behavior/PerRequestBehavior.md)
+- [RequestAwareBehavior](./docs/behavior/RequestAwareBehavior.md)
 - [AuthorizationBehavior](./docs/behavior/AuthorizationBehavior.md)
 - [LoggingBehavior](./docs/behavior/LoggingBehavior.md)
 - [DataAnnotationValidationBehavior](./docs/behavior/DataAnnotationValidationBehavior.md)

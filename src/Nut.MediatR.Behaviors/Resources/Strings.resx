@@ -120,10 +120,10 @@
   <data name="Authorization_NotAuthorized" xml:space="preserve">
     <value>Not authorized.</value>
   </data>
-  <data name="PerRequest_ContainsNullInTypes" xml:space="preserve">
+  <data name="RequestAware_ContainsNullInTypes" xml:space="preserve">
     <value>Contains null in behavior types.</value>
   </data>
-  <data name="PerRequest_TypeIsNotBehavior" xml:space="preserve">
+  <data name="RequestAware_TypeIsNotBehavior" xml:space="preserve">
     <value>{0} is not {1} type.</value>
   </data>
 </root>

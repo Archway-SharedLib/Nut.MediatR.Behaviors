@@ -6,14 +6,14 @@ using MediatR;
 using Microsoft.Extensions.DependencyInjection;
 using Xunit;
 
-namespace Nut.MediatR.Test.PerRequest;
+namespace Nut.MediatR.Test.RequestAware;
 
-public class PerRequestBehaviorTest
+public class RequestAwareBehaviorTest
 {
     [Fact]
     public void ctor_引数がnullの場合は例外が発生する()
     {
-        Action act = () => new PerRequestBehavior<TestBehaviorRequest, TestBehaviorResponse>(null);
+        Action act = () => new RequestAwareBehavior<TestBehaviorRequest, TestBehaviorResponse>(null);
         act.Should().Throw<ArgumentNullException>();
     }
 
@@ -23,8 +23,8 @@ public class PerRequestBehaviorTest
         var collection = new ServiceCollection();
         collection.AddMediatR(cfg =>
         {
-            cfg.RegisterServicesFromAssemblies(typeof(PerRequestBehaviorTest).Assembly);
-            cfg.AddOpenBehavior(typeof(PerRequestBehavior<,>));
+            cfg.RegisterServicesFromAssemblies(typeof(RequestAwareBehaviorTest).Assembly);
+            cfg.AddOpenBehavior(typeof(RequestAwareBehavior<,>));
         });
         collection.AddTransient(typeof(TestBehavior1<,>));
         collection.AddTransient(typeof(TestBehavior2<,>));
@@ -53,8 +53,8 @@ public class PerRequestBehaviorTest
         var collection = new ServiceCollection();
         collection.AddMediatR(cfg =>
         {
-            cfg.RegisterServicesFromAssemblies(typeof(PerRequestBehaviorTest).Assembly);
-            cfg.AddOpenBehavior(typeof(PerRequestBehavior<,>));
+            cfg.RegisterServicesFromAssemblies(typeof(RequestAwareBehaviorTest).Assembly);
+            cfg.AddOpenBehavior(typeof(RequestAwareBehavior<,>));
         });
         collection.AddTransient(typeof(TestBehavior1<,>));
         collection.AddTransient(typeof(TestBehavior2<,>));
@@ -76,8 +76,8 @@ public class PerRequestBehaviorTest
         var collection = new ServiceCollection();
         collection.AddMediatR(cfg =>
         {
-            cfg.RegisterServicesFromAssemblies(typeof(PerRequestBehaviorTest).Assembly);
-            cfg.AddOpenBehavior(typeof(PerRequestBehavior<,>));
+            cfg.RegisterServicesFromAssemblies(typeof(RequestAwareBehaviorTest).Assembly);
+            cfg.AddOpenBehavior(typeof(RequestAwareBehavior<,>));
         });
         collection.AddTransient(typeof(TestBehavior2<,>));
         collection.AddTransient(typeof(TestBehavior3<,>));
@@ -103,8 +103,8 @@ public class PerRequestBehaviorTest
         var collection = new ServiceCollection();
         collection.AddMediatR(cfg =>
         {
-            cfg.RegisterServicesFromAssemblies(typeof(PerRequestBehaviorTest).Assembly);
-            cfg.AddOpenBehavior(typeof(PerRequestBehavior<,>));
+            cfg.RegisterServicesFromAssemblies(typeof(RequestAwareBehaviorTest).Assembly);
+            cfg.AddOpenBehavior(typeof(RequestAwareBehavior<,>));
         });
         collection.AddTransient(typeof(TestBehavior1<,>));
         collection.AddTransient(typeof(TestBehavior2<,>));
@@ -133,8 +133,8 @@ public class PerRequestBehaviorTest
         var collection = new ServiceCollection();
         collection.AddMediatR(cfg =>
         {
-            cfg.RegisterServicesFromAssemblies(typeof(PerRequestBehaviorTest).Assembly);
-            cfg.AddOpenBehavior(typeof(PerRequestBehavior<,>));
+            cfg.RegisterServicesFromAssemblies(typeof(RequestAwareBehaviorTest).Assembly);
+            cfg.AddOpenBehavior(typeof(RequestAwareBehavior<,>));
         });
         collection.AddTransient(typeof(TestBehavior1<,>));
         collection.AddTransient(typeof(TestBehavior2<,>));
@@ -198,9 +198,9 @@ public class Req3Handler : IRequestHandler<Req3>
     }
 }
 
-public class InheritWithBehaviorsAttribute: WithBehaviorsAttribute
+public class InheritWithBehaviorsAttribute : WithBehaviorsAttribute
 {
-    public InheritWithBehaviorsAttribute():
+    public InheritWithBehaviorsAttribute() :
         base(typeof(TestBehavior3<,>), typeof(TestBehavior1<,>))
     {
     }

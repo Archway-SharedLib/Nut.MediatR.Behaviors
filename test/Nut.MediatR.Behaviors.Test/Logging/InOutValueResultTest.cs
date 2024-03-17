@@ -1,4 +1,5 @@
-using System;
+using System.Collections;
+using System.Collections.Generic;
 using FluentAssertions;
 using Xunit;
 
@@ -21,13 +22,29 @@ public class InOutValueResultTest
     [Fact]
     public void Get_値を取得できる()
     {
-        InOutValueResult.WithValue("A").Get().Should().Be("A");
+        InOutValueResult.WithValue("A").Get("value").Should().Be("A");
     }
 
     [Fact]
-    public void Get_Emptyの場合は例外が発生する()
+    public void Get_対応するキーがない場合はnullが返る()
     {
-        Action act = () => InOutValueResult.Empty().Get();
-        act.Should().Throw<InvalidOperationException>();
+        InOutValueResult.Empty().Get("value").Should().BeNull();
+    }
+
+    [Fact]
+    public void GetEnumerator_列挙できる()
+    {
+        var result = InOutValueResult.WithValue("A").Add("B", "B");
+        var list = new List<KeyValuePair<string, object>>();
+        foreach (KeyValuePair<string, object> item in (IEnumerable)result)
+        {
+            list.Add(item);
+        }
+
+        list.Should().HaveCount(2);
+        list[0].Key.Should().Be("value");
+        list[0].Value.Should().Be("A");
+        list[1].Key.Should().Be("B");
+        list[1].Value.Should().Be("B");
     }
 }
