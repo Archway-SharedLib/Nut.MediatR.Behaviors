@@ -10,18 +10,15 @@ internal static class ServiceCollectionExtensions
 {
     public static IServiceCollection TryAddTransientGenericInterfaceTypeFromAssemblies(this IServiceCollection source, Assembly[] assemblies, Type serviceType)
     {
-        foreach (var assembly in assemblies)
+        foreach (var assembly in assemblies.SelectMany(a => a.DefinedTypes).Where(t => !t.IsGenericType))
         {
-            foreach (var target in assembly.DefinedTypes.Where(t => !t.IsGenericType))
+            var interfaceType = assembly
+                .GetInterfaces()
+                .Where(i => i.IsGenericType)
+                .FirstOrDefault(i => i.GetGenericTypeDefinition() == serviceType);
+            if (interfaceType != null)
             {
-                var interfaceType = target
-                    .GetInterfaces()
-                    .Where(i => i.IsGenericType)
-                    .FirstOrDefault(i => i.GetGenericTypeDefinition() == serviceType);
-                if (interfaceType != null)
-                {
-                    source.TryAddTransient(interfaceType, target);
-                }
+                source.TryAddTransient(interfaceType, assembly);
             }
         }
 

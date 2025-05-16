@@ -33,11 +33,11 @@ public partial class LoggingBehaviorTest
 
         var logging = new LoggingBehavior<LoggerNoLoggerRequest, LoggerNoLoggerRequest>(collection.BuildServiceProvider());
         var executed = false;
-        await logging.Handle(new LoggerNoLoggerRequest(), () =>
+        await logging.Handle(new LoggerNoLoggerRequest(), (_) =>
         {
             executed = true;
             return Task.FromResult(new LoggerNoLoggerRequest());
-        }, new CancellationToken());
+        }, CancellationToken.None);
         executed.Should().BeTrue();
     }
 

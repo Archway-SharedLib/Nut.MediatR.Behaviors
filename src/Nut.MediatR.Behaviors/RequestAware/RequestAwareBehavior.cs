@@ -49,7 +49,7 @@ public class RequestAwareBehavior<TRequest, TResponse> : IPipelineBehavior<TRequ
             return await ExecuteBehaviors(types, request, next, cancellationToken).ConfigureAwait(false);
         }
         return await service.Handle(request,
-            async () => await ExecuteBehaviors(types, request, next, cancellationToken).ConfigureAwait(false),
+            async (ct) => await ExecuteBehaviors(types, request, next, ct).ConfigureAwait(false),
             cancellationToken
         ).ConfigureAwait(false);
     }
