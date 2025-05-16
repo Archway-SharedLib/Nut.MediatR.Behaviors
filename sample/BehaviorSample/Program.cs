@@ -33,22 +33,6 @@ class Program
                     .AddDataAnnotationValidation()
                     .AddOpenBehavior(typeof(FluentValidationBehavior<,>));
             })
-            // PreRequestBehaviorから利用するBehaviorは直接型でインスタンスを取得するので、IPipelineBehavior経由にしない。
-            // IAuthorizerやILoggingInOutValueCollectorはアセンブリをスキャンして登録すると便利
-            .Scan(scan => scan
-                .FromAssemblyOf<Program>()
-                .AddClasses(cls =>
-                    cls.AssignableTo(typeof(IAuthorizer<>))
-                    .Where(type => !type.IsGenericType))
-                .AsImplementedInterfaces()
-                .WithTransientLifetime())
-            //.Scan(scan => scan
-            //    .FromAssemblyOf<Program>()
-            //    .AddClasses(cls =>
-            //        cls.AssignableTo(typeof(ILoggingInOutValueCollector<,>))
-            //        .Where(type => !type.IsGenericType))
-            //    .AsImplementedInterfaces()
-            //    .WithTransientLifetime())
             .BuildServiceProvider();
 
         var result = await provider.GetService<IMediator>().Send(new SampleRequest() { Value = "Hello" });

@@ -16,11 +16,11 @@ public class DataAnnotationValidationBehaviorTest
         await behavior.Handle(new TestBehaviorRequest()
         {
             Value = "A"
-        }, () =>
+        }, (_) =>
         {
             executed = true;
             return Task.FromResult(new TestBehaviorResponse());
-        }, new CancellationToken());
+        }, CancellationToken.None);
         executed.Should().BeTrue();
     }
 
@@ -32,11 +32,11 @@ public class DataAnnotationValidationBehaviorTest
         var act = () => behavior.Handle(new TestBehaviorRequest()
         {
             Value = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
-        }, () =>
+        }, (_) =>
         {
             executed = true;
             return Task.FromResult(new TestBehaviorResponse());
-        }, new CancellationToken());
+        }, CancellationToken.None);
 
         await act.Should().ThrowAsync<ValidationException>();
         executed.Should().BeFalse();

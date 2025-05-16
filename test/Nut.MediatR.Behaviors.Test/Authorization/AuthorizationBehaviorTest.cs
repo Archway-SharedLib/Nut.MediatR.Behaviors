@@ -96,7 +96,7 @@ public class AuthorizationBehaviorTest
         var provider = Substitute.For<IServiceProvider>();
         provider.GetService(typeof(IEnumerable<IAuthorizer<TestBehaviorRequest>>)).Returns((IEnumerable<IAuthorizer<TestBehaviorRequest>>)null);
         var auth = new AuthorizationBehavior<TestBehaviorRequest, TestBehaviorResponse>(provider);
-        await auth.Handle(new TestBehaviorRequest(), () => Task.FromResult(new TestBehaviorResponse()), new CancellationToken());
+        await auth.Handle(new TestBehaviorRequest(), (_) => Task.FromResult(new TestBehaviorResponse()), CancellationToken.None);
 
         list.Should().BeEmpty();
     }
@@ -110,7 +110,7 @@ public class AuthorizationBehaviorTest
         var provider = Substitute.For<IServiceProvider>();
         provider.GetService(typeof(IEnumerable<IAuthorizer<TestBehaviorRequest>>)).Returns(Enumerable.Empty<IAuthorizer<TestBehaviorRequest>>());
         var auth = new AuthorizationBehavior<TestBehaviorRequest, TestBehaviorResponse>(provider);
-        await auth.Handle(new TestBehaviorRequest(), () => Task.FromResult(new TestBehaviorResponse()), new CancellationToken());
+        await auth.Handle(new TestBehaviorRequest(), (_) => Task.FromResult(new TestBehaviorResponse()), CancellationToken.None);
 
         list.Should().BeEmpty();
     }
