@@ -41,7 +41,7 @@ public class RequestAwareBehavior<TRequest, TResponse> : IPipelineBehavior<TRequ
 
     private async Task<TResponse> ExecuteBehaviors(IList<Type> types, TRequest request, RequestHandlerDelegate<TResponse> next, CancellationToken cancellationToken)
     {
-        if (!types.Any()) return await next.Invoke().ConfigureAwait(false);
+        if (!types.Any()) return await next.Invoke(cancellationToken).ConfigureAwait(false);
         var type = types[0];
         types.RemoveAt(0);
         if (_provider.GetService(type) is not IPipelineBehavior<TRequest, TResponse> service)

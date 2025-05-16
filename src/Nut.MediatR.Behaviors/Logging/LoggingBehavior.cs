@@ -53,7 +53,7 @@ public class LoggingBehavior<TRequest, TResponse> : IPipelineBehavior<TRequest, 
         var logger = ServiceProvider.GetFirstServiceOrDefault<ILogger<LoggingBehavior<TRequest, TResponse>>>();
         if (logger is null)
         {
-            return await next().ConfigureAwait(false);
+            return await next(cancellationToken).ConfigureAwait(false);
         }
 
         var collector = GetCollector() ?? GetDefaultCollector();

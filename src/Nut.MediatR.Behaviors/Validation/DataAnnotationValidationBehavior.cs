@@ -29,6 +29,6 @@ public class DataAnnotationValidationBehavior<TRequest, TResponse> : IPipelineBe
     public async Task<TResponse> Handle(TRequest request, RequestHandlerDelegate<TResponse> next, CancellationToken cancellationToken)
     {
         Validator.ValidateObject(request, new ValidationContext(request), true);
-        return await next().ConfigureAwait(false);
+        return await next(cancellationToken).ConfigureAwait(false);
     }
 }
