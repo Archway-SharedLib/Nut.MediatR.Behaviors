@@ -40,7 +40,7 @@ public class FluentValidationBehavior<TRequest, TResponse> : IPipelineBehavior<T
             var failures = validationResults.SelectMany(r => r.Errors).Where(f => f is not null).ToList();
             if (failures.Any()) throw new ValidationException(failures);
         }
-        return await next().ConfigureAwait(false);
+        return await next(cancellationToken).ConfigureAwait(false);
     }
 }
 
