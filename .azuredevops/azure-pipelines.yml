@@ -38,8 +38,8 @@ steps:
     packagesToPack: 'src/**/*.csproj'
     versioningScheme: 'off'
 
-- task: NuGetToolInstaller@1
-  displayName: 'NuGet Tool Installer'
+# - task: NuGetToolInstaller@1
+#   displayName: 'NuGet Tool Installer'
 
 - task: NuGetAuthenticate@1
   displayName: 'NuGet Authenticate'
