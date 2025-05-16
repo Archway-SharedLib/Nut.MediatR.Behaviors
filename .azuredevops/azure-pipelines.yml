@@ -41,8 +41,8 @@ steps:
 # - task: NuGetToolInstaller@1
 #   displayName: 'NuGet Tool Installer'
 
-- task: NuGetAuthenticate@1
-  displayName: 'NuGet Authenticate'
+# - task: NuGetAuthenticate@1
+#   displayName: 'NuGet Authenticate'
 
 - script: |
     dotnet nuget push --source "https://pkgs.dev.azure.com/archwaydev/5793cbd9-a472-4a2d-8955-d865d42a2d11/_packaging/Archway-SharedLib/nuget/v3/index.json" --api-key az $(Build.ArtifactStagingDirectory)/*.nupkg
