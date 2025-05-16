@@ -1,7 +1,7 @@
 using System;
 using System.Threading;
 using System.Threading.Tasks;
-using FluentAssertions;
+using Shouldly;
 using Microsoft.Extensions.DependencyInjection;
 using Xunit;
 
@@ -19,11 +19,11 @@ public class AuthorizationRequestAwareBehaviorBuilderExtensionsTest
             .AddAssembliesForAutoRegister(typeof(AuthorizerForTest).Assembly)
             .Build();
         var provider = serviceCollection.BuildServiceProvider();
-        provider.GetService<AuthorizationBehavior<string, int>>().Should().NotBeNull();
+        provider.GetService<AuthorizationBehavior<string, int>>().ShouldNotBeNull();
 
         var authorizer = provider.GetService<IAuthorizer<string>>();
-        authorizer.Should().NotBeNull();
-        authorizer.Should().BeOfType<AuthorizerForTest>();
+        authorizer.ShouldNotBeNull();
+        authorizer.ShouldBeOfType<AuthorizerForTest>();
     }
 
     public class AuthorizerForTest : IAuthorizer<string>
@@ -40,11 +40,11 @@ public class AuthorizationRequestAwareBehaviorBuilderExtensionsTest
 
         builder.AddAuthorization(assemblies).Build();
         var provider = serviceCollection.BuildServiceProvider();
-        provider.GetService<AuthorizationBehavior<string, int>>().Should().NotBeNull();
+        provider.GetService<AuthorizationBehavior<string, int>>().ShouldNotBeNull();
 
         var authorizer = provider.GetService<IAuthorizer<string>>();
-        authorizer.Should().NotBeNull();
-        authorizer.Should().BeOfType<AuthorizerForTest>();
+        authorizer.ShouldNotBeNull();
+        authorizer.ShouldBeOfType<AuthorizerForTest>();
     }
 
 
@@ -56,9 +56,9 @@ public class AuthorizationRequestAwareBehaviorBuilderExtensionsTest
 
         builder.AddAuthorization(null).Build();
         var provider = serviceCollection.BuildServiceProvider();
-        provider.GetService<AuthorizationBehavior<string, int>>().Should().NotBeNull();
+        provider.GetService<AuthorizationBehavior<string, int>>().ShouldNotBeNull();
 
         var authorizer = provider.GetService<IAuthorizer<string>>();
-        authorizer.Should().BeNull();
+        authorizer.ShouldBeNull();
     }
 }

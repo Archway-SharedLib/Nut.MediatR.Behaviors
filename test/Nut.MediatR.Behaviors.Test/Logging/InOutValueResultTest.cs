@@ -1,6 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
-using FluentAssertions;
+using Shouldly;
 using Xunit;
 
 namespace Nut.MediatR.Test.Logging;
@@ -10,25 +10,25 @@ public class InOutValueResultTest
     [Fact]
     public void Empty_値をもっていない結果が作成される()
     {
-        InOutValueResult.Empty().HasValue.Should().BeFalse();
+        InOutValueResult.Empty().HasValue.ShouldBeFalse();
     }
 
     [Fact]
     public void WithValue_値をもっている結果が作成される()
     {
-        InOutValueResult.WithValue("A").HasValue.Should().BeTrue();
+        InOutValueResult.WithValue("A").HasValue.ShouldBeTrue();
     }
 
     [Fact]
     public void Get_値を取得できる()
     {
-        InOutValueResult.WithValue("A").Get("value").Should().Be("A");
+        InOutValueResult.WithValue("A").Get("value").ShouldBe("A");
     }
 
     [Fact]
     public void Get_対応するキーがない場合はnullが返る()
     {
-        InOutValueResult.Empty().Get("value").Should().BeNull();
+        InOutValueResult.Empty().Get("value").ShouldBeNull();
     }
 
     [Fact]
@@ -41,10 +41,10 @@ public class InOutValueResultTest
             list.Add(item);
         }
 
-        list.Should().HaveCount(2);
-        list[0].Key.Should().Be("value");
-        list[0].Value.Should().Be("A");
-        list[1].Key.Should().Be("B");
-        list[1].Value.Should().Be("B");
+        list.Count.ShouldBe(2);
+        list[0].Key.ShouldBe("value");
+        list[0].Value.ShouldBe("A");
+        list[1].Key.ShouldBe("B");
+        list[1].Value.ShouldBe("B");
     }
 }

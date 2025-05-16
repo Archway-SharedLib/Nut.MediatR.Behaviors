@@ -1,10 +1,11 @@
 using System;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using FluentAssertions;
 using FluentValidation;
 using MediatR;
 using Microsoft.Extensions.DependencyInjection;
+using Shouldly;
 using Xunit;
 
 namespace Nut.MediatR.Behaviors.FluentValidation.Test;
@@ -15,7 +16,7 @@ public class FluentValidationBehaviorTest
     public void ctor_ServiceFactory引数がnullの場合は例外が発生する()
     {
         Action act = () => new FluentValidationBehavior<NoValidatorRequest, NoValidatorResponse>(null);
-        act.Should().Throw<ArgumentNullException>();
+        act.ShouldThrow<ArgumentNullException>();
     }
 
     [Fact]
@@ -35,7 +36,7 @@ public class FluentValidationBehaviorTest
         var result = await mediator.Send(new NoValidatorRequest());
 
         var exec = provider.GetService<Executed>();
-        exec.Value.Should().BeTrue();
+        exec.Value.ShouldBeTrue();
     }
 
     public record NoValidatorRequest : IRequest<NoValidatorResponse>;
@@ -65,11 +66,11 @@ public class FluentValidationBehaviorTest
         var provider = collection.BuildServiceProvider();
         var mediator = provider.GetService<IMediator>();
         var act = () => mediator.Send(new ErrorValidatorRequest(null));
-        var result = await act.Should().ThrowAsync<ValidationException>();
-        result.And.Errors.Should().HaveCount(1);
+        var result = await act.ShouldThrowAsync<ValidationException>();
+        result.Errors.Count().ShouldBe(1);
 
         var exec = provider.GetService<Executed>();
-        exec.Value.Should().BeFalse();
+        exec.Value.ShouldBeFalse();
     }
 
     public record ErrorValidatorRequest(string Name) : IRequest<ErrorValidatorResponse>;
@@ -109,7 +110,7 @@ public class FluentValidationBehaviorTest
         var _ = await mediator.Send(new ErrorValidatorRequest("no error"));
 
         var exec = provider.GetService<Executed>();
-        exec.Value.Should().BeTrue();
+        exec.Value.ShouldBeTrue();
     }
 
     [Fact]
@@ -127,11 +128,11 @@ public class FluentValidationBehaviorTest
         var provider = collection.BuildServiceProvider();
         var mediator = provider.GetService<IMediator>();
         var act = () => mediator.Send(new MultipleErrorValidatorRequest(null, 0));
-        var result = await act.Should().ThrowAsync<ValidationException>();
-        result.And.Errors.Should().HaveCount(2);
+        var result = await act.ShouldThrowAsync<ValidationException>();
+        result.Errors.Count().ShouldBe(2);
 
         var exec = provider.GetService<Executed>();
-        exec.Value.Should().BeFalse();
+        exec.Value.ShouldBeFalse();
     }
 
     public record MultipleErrorValidatorRequest(string Name, int Age) : IRequest<MultipleErrorValidatorResponse>;
@@ -177,11 +178,11 @@ public class FluentValidationBehaviorTest
         var provider = collection.BuildServiceProvider();
         var mediator = provider.GetService<IMediator>();
         var act = () => mediator.Send(new VoidErrorValidatorRequest(null));
-        var result = await act.Should().ThrowAsync<ValidationException>();
-        result.And.Errors.Should().HaveCount(1);
+        var result = await act.ShouldThrowAsync<ValidationException>();
+        result.Errors.Count().ShouldBe(1);
 
         var exec = provider.GetService<Executed>();
-        exec.Value.Should().BeFalse();
+        exec.Value.ShouldBeFalse();
     }
 
     [Fact]
@@ -201,7 +202,7 @@ public class FluentValidationBehaviorTest
         await mediator.Send(new VoidErrorValidatorRequest("no error"));
 
         var exec = provider.GetService<Executed>();
-        exec.Value.Should().BeTrue();
+        exec.Value.ShouldBeTrue();
     }
 
     public record VoidErrorValidatorRequest(string Name) : IRequest;

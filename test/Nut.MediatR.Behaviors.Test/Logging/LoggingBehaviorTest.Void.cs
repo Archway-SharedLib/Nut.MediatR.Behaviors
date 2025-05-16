@@ -1,7 +1,7 @@
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using FluentAssertions;
+using Shouldly;
 using MediatR;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
@@ -29,14 +29,14 @@ public partial class LoggingBehaviorTest
         var mediator = provider.GetService<IMediator>();
         await mediator.Send(new SimpleVoidRequest());
 
-        logger.Logs.Should().HaveCount(2);
-        logger.Logs[0].LogLevel.Should().Be(LogLevel.Information);
-        logger.Logs[0].Message.Should().Be($"Start {nameof(SimpleVoidRequest)}. value: Simple InValue");
-        logger.Logs[0].State.First(kv => kv.Key == "Mediator.Request").Value.ToString().Should().Be(nameof(SimpleVoidRequest));
-        logger.Logs[1].LogLevel.Should().Be(LogLevel.Information);
-        logger.Logs[1].Message.Should().MatchRegex($"Complete {nameof(SimpleVoidRequest)} in [0-9]+ms.");
-        logger.Logs[1].State.First(kv => kv.Key == "Mediator.Request").Value.ToString().Should().Be(nameof(SimpleVoidRequest));
-        logger.Logs[1].State.FirstOrDefault(kv => kv.Key == "   Elapsed").Should().NotBeNull();
+        logger.Logs.Count.ShouldBe(2);
+        logger.Logs[0].LogLevel.ShouldBe(LogLevel.Information);
+        logger.Logs[0].Message.ShouldBe($"Start {nameof(SimpleVoidRequest)}. value: Simple InValue");
+        logger.Logs[0].State.First(kv => kv.Key == "Mediator.Request").Value.ToString().ShouldBe(nameof(SimpleVoidRequest));
+        logger.Logs[1].LogLevel.ShouldBe(LogLevel.Information);
+        logger.Logs[1].Message.ShouldMatch($"Complete {nameof(SimpleVoidRequest)} in [0-9]+ms.");
+        logger.Logs[1].State.First(kv => kv.Key == "Mediator.Request").Value.ToString().ShouldBe(nameof(SimpleVoidRequest));
+        logger.Logs[1].State.Any(kv => kv.Key == "   Elapsed").ShouldBeFalse();
     }
 
     [Fact]
@@ -58,14 +58,14 @@ public partial class LoggingBehaviorTest
         var mediator = provider.GetService<IMediator>();
         await mediator.Send(new SimpleVoidRequest());
 
-        logger.Logs.Should().HaveCount(2);
-        logger.Logs[0].LogLevel.Should().Be(LogLevel.Information);
-        logger.Logs[0].Message.Should().Be($"Start {nameof(SimpleVoidRequest)}. value: Simple InValue");
-        logger.Logs[0].State.First(kv => kv.Key == "Mediator.Request").Value.ToString().Should().Be(nameof(SimpleVoidRequest));
-        logger.Logs[1].LogLevel.Should().Be(LogLevel.Information);
-        logger.Logs[1].Message.Should().MatchRegex($"Complete {nameof(SimpleVoidRequest)} in [0-9]+ms.");
-        logger.Logs[1].State.First(kv => kv.Key == "Mediator.Request").Value.ToString().Should().Be(nameof(SimpleVoidRequest));
-        logger.Logs[1].State.FirstOrDefault(kv => kv.Key == "Mediator.Elapsed").Should().NotBeNull();
+        logger.Logs.Count.ShouldBe(2);
+        logger.Logs[0].LogLevel.ShouldBe(LogLevel.Information);
+        logger.Logs[0].Message.ShouldBe($"Start {nameof(SimpleVoidRequest)}. value: Simple InValue");
+        logger.Logs[0].State.First(kv => kv.Key == "Mediator.Request").Value.ToString().ShouldBe(nameof(SimpleVoidRequest));
+        logger.Logs[1].LogLevel.ShouldBe(LogLevel.Information);
+        logger.Logs[1].Message.ShouldMatch($"Complete {nameof(SimpleVoidRequest)} in [0-9]+ms.");
+        logger.Logs[1].State.First(kv => kv.Key == "Mediator.Request").Value.ToString().ShouldBe(nameof(SimpleVoidRequest));
+        logger.Logs[1].State.Any(kv => kv.Key == "Mediator.Elapsed").ShouldBeTrue();
     }
 
     public record SimpleVoidRequest : IRequest;

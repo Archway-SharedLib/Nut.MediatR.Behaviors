@@ -1,7 +1,7 @@
 using System;
 using System.Threading;
 using System.Threading.Tasks;
-using FluentAssertions;
+using Shouldly;
 using MediatR;
 using Microsoft.Extensions.DependencyInjection;
 using Xunit;
@@ -14,7 +14,7 @@ public class RequestAwareBehaviorTest
     public void ctor_引数がnullの場合は例外が発生する()
     {
         Action act = () => new RequestAwareBehavior<TestBehaviorRequest, TestBehaviorResponse>(null);
-        act.Should().Throw<ArgumentNullException>();
+        Should.Throw<ArgumentNullException>(act);
     }
 
     [Fact]
@@ -38,13 +38,13 @@ public class RequestAwareBehaviorTest
 
         var list = provider.GetService<ExecHistory>().List;
 
-        list.Count.Should().Be(6);
-        list[0].Should().Be(TestBehaviorMessages.StartMessage3);
-        list[1].Should().Be(TestBehaviorMessages.StartMessage1);
-        list[2].Should().Be(TestBehaviorMessages.StartMessage2);
-        list[3].Should().Be(TestBehaviorMessages.EndMessage2);
-        list[4].Should().Be(TestBehaviorMessages.EndMessage1);
-        list[5].Should().Be(TestBehaviorMessages.EndMessage3);
+        list.Count.ShouldBe(6);
+        list[0].ShouldBe(TestBehaviorMessages.StartMessage3);
+        list[1].ShouldBe(TestBehaviorMessages.StartMessage1);
+        list[2].ShouldBe(TestBehaviorMessages.StartMessage2);
+        list[3].ShouldBe(TestBehaviorMessages.EndMessage2);
+        list[4].ShouldBe(TestBehaviorMessages.EndMessage1);
+        list[5].ShouldBe(TestBehaviorMessages.EndMessage3);
     }
 
     [Fact]
@@ -67,7 +67,7 @@ public class RequestAwareBehaviorTest
         var result = await mediator.Send(new Req2());
 
         var list = provider.GetService<ExecHistory>().List;
-        list.Count.Should().Be(0);
+        list.Count.ShouldBe(0);
     }
 
     [Fact]
@@ -90,11 +90,11 @@ public class RequestAwareBehaviorTest
 
         var list = provider.GetService<ExecHistory>().List;
 
-        list.Count.Should().Be(4);
-        list[0].Should().Be(TestBehaviorMessages.StartMessage3);
-        list[1].Should().Be(TestBehaviorMessages.StartMessage2);
-        list[2].Should().Be(TestBehaviorMessages.EndMessage2);
-        list[3].Should().Be(TestBehaviorMessages.EndMessage3);
+        list.Count.ShouldBe(4);
+        list[0].ShouldBe(TestBehaviorMessages.StartMessage3);
+        list[1].ShouldBe(TestBehaviorMessages.StartMessage2);
+        list[2].ShouldBe(TestBehaviorMessages.EndMessage2);
+        list[3].ShouldBe(TestBehaviorMessages.EndMessage3);
     }
 
     [Fact]
@@ -118,13 +118,13 @@ public class RequestAwareBehaviorTest
 
         var list = provider.GetService<ExecHistory>().List;
 
-        list.Count.Should().Be(6);
-        list[0].Should().Be(TestBehaviorMessages.StartMessage3);
-        list[1].Should().Be(TestBehaviorMessages.StartMessage1);
-        list[2].Should().Be(TestBehaviorMessages.StartMessage2);
-        list[3].Should().Be(TestBehaviorMessages.EndMessage2);
-        list[4].Should().Be(TestBehaviorMessages.EndMessage1);
-        list[5].Should().Be(TestBehaviorMessages.EndMessage3);
+        list.Count.ShouldBe(6);
+        list[0].ShouldBe(TestBehaviorMessages.StartMessage3);
+        list[1].ShouldBe(TestBehaviorMessages.StartMessage1);
+        list[2].ShouldBe(TestBehaviorMessages.StartMessage2);
+        list[3].ShouldBe(TestBehaviorMessages.EndMessage2);
+        list[4].ShouldBe(TestBehaviorMessages.EndMessage1);
+        list[5].ShouldBe(TestBehaviorMessages.EndMessage3);
     }
 
     [Fact]
@@ -148,11 +148,11 @@ public class RequestAwareBehaviorTest
 
         var list = provider.GetService<ExecHistory>().List;
 
-        list.Count.Should().Be(4);
-        list[0].Should().Be(TestBehaviorMessages.StartMessage3);
-        list[1].Should().Be(TestBehaviorMessages.StartMessage1);
-        list[2].Should().Be(TestBehaviorMessages.EndMessage1);
-        list[3].Should().Be(TestBehaviorMessages.EndMessage3);
+        list.Count.ShouldBe(4);
+        list[0].ShouldBe(TestBehaviorMessages.StartMessage3);
+        list[1].ShouldBe(TestBehaviorMessages.StartMessage1);
+        list[2].ShouldBe(TestBehaviorMessages.EndMessage1);
+        list[3].ShouldBe(TestBehaviorMessages.EndMessage3);
     }
 }
 

@@ -2,10 +2,11 @@ using System;
 using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
-using FluentAssertions;
+using Shouldly;
 using MediatR;
 using Microsoft.Extensions.DependencyInjection;
 using Xunit;
+using System.Linq;
 
 namespace Nut.MediatR.Behaviors.Test.RequestAware;
 
@@ -21,9 +22,9 @@ public class RequestAwareBehaviorBuilderTest
         builder.AddOpenBehavior(openBehaviorType);
         builder.Build();
 
-        builder.Services.Should().ContainSingle(d =>
+        builder.Services.Count(d =>
             d.ServiceType == typeof(TestBehavior<>) &&
-            d.ImplementationType == typeof(TestBehavior<>));
+            d.ImplementationType == typeof(TestBehavior<>)).ShouldBe(1);
     }
 
     [Fact]
@@ -35,7 +36,7 @@ public class RequestAwareBehaviorBuilderTest
 
         var action = () => builder.AddOpenBehavior(nonGenericBehaviorType);
 
-        action.Should().Throw<InvalidOperationException>();
+        Should.Throw<InvalidOperationException>(action);
     }
 
     [Fact]
@@ -47,7 +48,7 @@ public class RequestAwareBehaviorBuilderTest
 
         Action action = () => builder.AddOpenBehavior(behaviorType);
 
-        action.Should().Throw<InvalidOperationException>();
+        Should.Throw<InvalidOperationException>(action);
     }
 
     [Fact]
@@ -60,15 +61,15 @@ public class RequestAwareBehaviorBuilderTest
         void handler(IServiceCollection s, Assembly[] a)
         {
             handlerCalled = true;
-            s.Should().BeSameAs(builder.Services);
-            a.Should().BeEquivalentTo(assemblies);
+            s.ShouldBe(builder.Services);
+            a.ShouldBe(assemblies);
         }
         builder.AddAutoRegistrationHandler(handler);
         builder.AddAssembliesForAutoRegister(assemblies);
 
         builder.Build();
 
-        handlerCalled.Should().BeTrue();
+        handlerCalled.ShouldBeTrue();
     }
 
     public class TestBehavior<TRequest> : IPipelineBehavior<TRequest, Unit>
