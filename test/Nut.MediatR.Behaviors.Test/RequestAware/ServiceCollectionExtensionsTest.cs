@@ -1,9 +1,10 @@
 using System.Threading;
 using System.Threading.Tasks;
-using FluentAssertions;
+using Shouldly;
 using MediatR;
 using Microsoft.Extensions.DependencyInjection;
 using Xunit;
+using System.Linq;
 
 namespace Nut.MediatR.Test;
 
@@ -19,13 +20,13 @@ public class ServiceCollectionExtensionsTest
             builder.AddOpenBehavior(typeof(BehaviorForTest<,>));
         });
 
-        serviceCollection.Should().ContainSingle(descriptor =>
+        serviceCollection.Count(descriptor =>
             descriptor.ServiceType == typeof(IPipelineBehavior<,>) &&
-            descriptor.ImplementationType == typeof(RequestAwareBehavior<,>));
+            descriptor.ImplementationType == typeof(RequestAwareBehavior<,>)).ShouldBe(1);
 
-        serviceCollection.Should().ContainSingle(descriptor =>
+        serviceCollection.Count(descriptor =>
             descriptor.ServiceType == typeof(BehaviorForTest<,>) &&
-            descriptor.ImplementationType == typeof(BehaviorForTest<,>));
+            descriptor.ImplementationType == typeof(BehaviorForTest<,>)).ShouldBe(1);
     }
 
     public class BehaviorForTest<TRequest, TResponse> : IPipelineBehavior<TRequest, TResponse>

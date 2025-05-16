@@ -1,5 +1,5 @@
 using System.Threading.Tasks;
-using FluentAssertions;
+using Shouldly;
 using Xunit;
 
 namespace Nut.MediatR.Test.Logging;
@@ -11,7 +11,7 @@ public class InterfaceLoggingInOutValueCollectorTest
     {
         ILoggingInOutValueCollector<TestBehaviorRequest, TestBehaviorResponse> target = new TestInterfaceLoggingInOutValueCollector();
         var result = await target.CollectInValueAsync(null, new System.Threading.CancellationToken());
-        result.HasValue.Should().BeFalse();
+        result.HasValue.ShouldBeFalse();
     }
 
     [Fact]
@@ -19,7 +19,7 @@ public class InterfaceLoggingInOutValueCollectorTest
     {
         ILoggingInOutValueCollector<TestBehaviorRequest, TestBehaviorResponse> target = new TestInterfaceLoggingInOutValueCollector();
         var result = await target.CollectOutValueAsync(null, new System.Threading.CancellationToken());
-        result.HasValue.Should().BeFalse();
+        result.HasValue.ShouldBeFalse();
     }
 
     public class TestInterfaceLoggingInOutValueCollector :

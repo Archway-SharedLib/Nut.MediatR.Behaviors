@@ -1,4 +1,4 @@
-using FluentAssertions;
+using Shouldly;
 using Microsoft.Extensions.DependencyInjection;
 using Xunit;
 
@@ -15,6 +15,6 @@ public class ValidationRequestAwareBehaviorBuilderExtensionsTest
         builder.AddDataAnnotationValidation()
             .Build();
         var provider = serviceCollection.BuildServiceProvider();
-        provider.GetService<DataAnnotationValidationBehavior<string, int>>().Should().NotBeNull();
+        provider.GetService<DataAnnotationValidationBehavior<string, int>>().ShouldNotBeNull();
     }
 }

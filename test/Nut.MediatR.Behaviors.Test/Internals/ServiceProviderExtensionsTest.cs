@@ -1,8 +1,9 @@
 using System;
-using FluentAssertions;
+using Shouldly;
 using Microsoft.Extensions.DependencyInjection;
 using Nut.MediatR.Internals;
 using Xunit;
+using System.Linq;
 
 namespace Nut.MediatR.Test.Internals;
 public class ServiceProviderExtensionsTest
@@ -12,7 +13,7 @@ public class ServiceProviderExtensionsTest
     {
         var serviceProvider = new ServiceCollection().BuildServiceProvider();
         var result = serviceProvider.GetServicesOrEmpty<ITestService>();
-        result.Should().BeEmpty();
+        result.ShouldBeEmpty();
     }
 
     [Fact]
@@ -26,10 +27,10 @@ public class ServiceProviderExtensionsTest
         var serviceProvider = collection.BuildServiceProvider();
 
         var result = serviceProvider.GetServicesOrEmpty<ITestService>();
-        result.Should().Contain(x => x.GetType() == typeof(TestService));
-        result.Should().Contain(x => x.GetType() == typeof(TestService2));
-        result.Should().Contain(x => x.GetType() == typeof(TestService3));
-        result.Should().HaveCount(3);
+        result.ShouldContain(x => x.GetType() == typeof(TestService));
+        result.ShouldContain(x => x.GetType() == typeof(TestService2));
+        result.ShouldContain(x => x.GetType() == typeof(TestService3));
+        result.Count().ShouldBe(3);
     }
 
     [Fact]
@@ -37,7 +38,7 @@ public class ServiceProviderExtensionsTest
     {
         IServiceProvider serviceProvider = null;
         var act = () => serviceProvider.GetServicesOrEmpty<ITestService>();
-        act.Should().Throw<ArgumentNullException>();
+        Should.Throw<ArgumentNullException>(act);
     }
 
     [Fact]
@@ -45,7 +46,7 @@ public class ServiceProviderExtensionsTest
     {
         IServiceProvider serviceProvider = null;
         var act = () => serviceProvider.GetFirstServiceOrDefault<ITestService>();
-        act.Should().Throw<ArgumentNullException>();
+        Should.Throw<ArgumentNullException>(act);
     }
 
     public interface ITestService

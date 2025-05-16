@@ -1,4 +1,4 @@
-using FluentAssertions;
+using Shouldly;
 using Microsoft.Extensions.DependencyInjection;
 using Xunit;
 
@@ -15,11 +15,11 @@ public class LoggingRequestAwareBehaviorBuilderExtensionsTests
             .AddAssembliesForAutoRegister(typeof(ValueCollectorForTest).Assembly)
             .Build();
         var provider = serviceCollection.BuildServiceProvider();
-        provider.GetService<LoggingBehavior<string, int>>().Should().NotBeNull();
+        provider.GetService<LoggingBehavior<string, int>>().ShouldNotBeNull();
 
         var collector = provider.GetService<ILoggingInOutValueCollector<string, int>>();
-        collector.Should().NotBeNull();
-        collector.Should().BeOfType<ValueCollectorForTest>();
+        collector.ShouldNotBeNull();
+        collector.ShouldBeOfType<ValueCollectorForTest>();
     }
 
     [Fact]
@@ -31,11 +31,11 @@ public class LoggingRequestAwareBehaviorBuilderExtensionsTests
 
         builder.AddLogging(assemblies).Build();
         var provider = serviceCollection.BuildServiceProvider();
-        provider.GetService<LoggingBehavior<string, int>>().Should().NotBeNull();
+        provider.GetService<LoggingBehavior<string, int>>().ShouldNotBeNull();
 
         var collector = provider.GetService<ILoggingInOutValueCollector<string, int>>();
-        collector.Should().NotBeNull();
-        collector.Should().BeOfType<ValueCollectorForTest>();
+        collector.ShouldNotBeNull();
+        collector.ShouldBeOfType<ValueCollectorForTest>();
     }
 
 
@@ -47,10 +47,10 @@ public class LoggingRequestAwareBehaviorBuilderExtensionsTests
 
         builder.AddLogging(null).Build();
         var provider = serviceCollection.BuildServiceProvider();
-        provider.GetService<LoggingBehavior<string, int>>().Should().NotBeNull();
+        provider.GetService<LoggingBehavior<string, int>>().ShouldNotBeNull();
 
         var authorizer = provider.GetService<ILoggingInOutValueCollector<string, int>>();
-        authorizer.Should().BeNull();
+        authorizer.ShouldBeNull();
     }
 
     public class ValueCollectorForTest : ILoggingInOutValueCollector<string, int>

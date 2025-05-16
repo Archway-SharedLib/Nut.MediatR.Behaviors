@@ -1,5 +1,5 @@
 using System.Reflection;
-using FluentAssertions;
+using Shouldly;
 using Microsoft.Extensions.DependencyInjection;
 using Nut.MediatR.Internals;
 using Xunit;
@@ -22,9 +22,9 @@ public class ServiceCollectionExtensionsTest
         // Assert
         var serviceProvider = serviceCollection.BuildServiceProvider();
         var stringService = serviceProvider.GetService<IService<string>>();
-        stringService.Should().BeOfType<ServiceA>();
+        stringService.ShouldBeOfType<ServiceA>();
         var intService = serviceProvider.GetService<IService<int>>();
-        intService.Should().BeOfType<ServiceB>();
+        intService.ShouldBeOfType<ServiceB>();
     }
 }
 

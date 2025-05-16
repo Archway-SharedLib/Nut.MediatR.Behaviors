@@ -1,7 +1,7 @@
 using System.ComponentModel.DataAnnotations;
 using System.Threading;
 using System.Threading.Tasks;
-using FluentAssertions;
+using Shouldly;
 using Xunit;
 
 namespace Nut.MediatR.Test.Validation;
@@ -21,7 +21,7 @@ public class DataAnnotationValidationBehaviorTest
             executed = true;
             return Task.FromResult(new TestBehaviorResponse());
         }, CancellationToken.None);
-        executed.Should().BeTrue();
+        executed.ShouldBeTrue();
     }
 
     [Fact]
@@ -38,7 +38,7 @@ public class DataAnnotationValidationBehaviorTest
             return Task.FromResult(new TestBehaviorResponse());
         }, CancellationToken.None);
 
-        await act.Should().ThrowAsync<ValidationException>();
-        executed.Should().BeFalse();
+        await Should.ThrowAsync<ValidationException>(act);
+        executed.ShouldBeFalse();
     }
 }

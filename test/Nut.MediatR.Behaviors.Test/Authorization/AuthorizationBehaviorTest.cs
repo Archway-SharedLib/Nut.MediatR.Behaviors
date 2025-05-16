@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using FluentAssertions;
+using Shouldly;
 using MediatR;
 using Microsoft.Extensions.DependencyInjection;
 using NSubstitute;
@@ -17,7 +17,7 @@ public class AuthorizationBehaviorTest
     public void ctor_引数がnullの場合は例外が発生する()
     {
         var act = () => new AuthorizationBehavior<TestBehaviorRequest, TestBehaviorResponse>(null);
-        act.Should().Throw<ArgumentNullException>();
+        Should.Throw<ArgumentNullException>(act);
     }
 
     //---------------------------------
@@ -40,9 +40,9 @@ public class AuthorizationBehaviorTest
         var provider = collection.BuildServiceProvider();
         await provider.GetService<IMediator>().Send(new AuthorizeAllRequest());
 
-        list.Count.Should().Be(2);
-        list[0].Should().Be("AuthorizeAllAuthorizer1");
-        list[1].Should().Be("AuthorizeAllAuthorizer2");
+        list.Count.ShouldBe(2);
+        list[0].ShouldBe("AuthorizeAllAuthorizer1");
+        list[1].ShouldBe("AuthorizeAllAuthorizer2");
     }
 
     public record AuthorizeAllRequest : IRequest<AuthorizeAllResponse>;
@@ -98,7 +98,7 @@ public class AuthorizationBehaviorTest
         var auth = new AuthorizationBehavior<TestBehaviorRequest, TestBehaviorResponse>(provider);
         await auth.Handle(new TestBehaviorRequest(), (_) => Task.FromResult(new TestBehaviorResponse()), CancellationToken.None);
 
-        list.Should().BeEmpty();
+        list.ShouldBeEmpty();
     }
 
     //---------
@@ -112,7 +112,7 @@ public class AuthorizationBehaviorTest
         var auth = new AuthorizationBehavior<TestBehaviorRequest, TestBehaviorResponse>(provider);
         await auth.Handle(new TestBehaviorRequest(), (_) => Task.FromResult(new TestBehaviorResponse()), CancellationToken.None);
 
-        list.Should().BeEmpty();
+        list.ShouldBeEmpty();
     }
 
     //---------
@@ -135,12 +135,12 @@ public class AuthorizationBehaviorTest
 
         var provider = collection.BuildServiceProvider();
         var act = () => provider.GetService<IMediator>().Send(new AuthorizeFailRequest());
-        await act.Should().ThrowAsync<UnauthorizedException>().WithMessage("Authorize Fail");
+        var ex = await Should.ThrowAsync<UnauthorizedException>(act);
+        ex.Message.ShouldBe("Authorize Fail");
 
-
-        list.Count.Should().Be(2);
-        list[0].Should().Be("AuthorizeFailAuthorizer1");
-        list[1].Should().Be("AuthorizeFailAuthorizer2");
+        list.Count.ShouldBe(2);
+        list[0].ShouldBe("AuthorizeFailAuthorizer1");
+        list[1].ShouldBe("AuthorizeFailAuthorizer2");
     }
 
     public record AuthorizeFailRequest : IRequest<AuthorizeFailResponse>;
@@ -201,7 +201,8 @@ public class AuthorizationBehaviorTest
 
         var provider = collection.BuildServiceProvider();
         var act = () => provider.GetService<IMediator>().Send(new AuthorizeFailDefaultMessageRequest());
-        await act.Should().ThrowAsync<UnauthorizedException>().WithMessage("Not Authorized.");
+        var ex = await Should.ThrowAsync<UnauthorizedException>(act);
+        ex.Message.ShouldBe("Not authorized.");
     }
 
     public record AuthorizeFailDefaultMessageRequest : IRequest<AuthorizeFailDefaultMessageResponse>;
