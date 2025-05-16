@@ -44,8 +44,9 @@ steps:
 - task: NuGetAuthenticate@1
   displayName: 'NuGet Authenticate'
 
+# nuget.exe push -Source "https://pkgs.dev.azure.com/archwaydev/5793cbd9-a472-4a2d-8955-d865d42a2d11/_packaging/Archway-SharedLib/nuget/v3/index.json" -ApiKey az $(Build.ArtifactStagingDirectory)\*.nupkg
 - script: |
-      nuget.exe push -Source "https://pkgs.dev.azure.com/archwaydev/5793cbd9-a472-4a2d-8955-d865d42a2d11/_packaging/Archway-SharedLib/nuget/v3/index.json" -ApiKey az $(Build.ArtifactStagingDirectory)\*.nupkg
+      nuget.exe push -Source "https://pkgs.dev.azure.com/<ORGANIZATION_NAME>/<PROJECT_NAME>/_packaging/<FEED_NAME>/nuget/v3/index.json" -ApiKey az $(Build.ArtifactStagingDirectory)\*.nupkg
   displayName: Push
 
 # - task: NuGetCommand@2
